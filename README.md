@@ -22,8 +22,7 @@ The general steps are listed below:
   For example, if I want to uninstall XiaoAI (the voice assistant),
   I would use AppManager to find that its folder name is <code>VoiceAssistAndroidT</code>.
   Then, I would copy VoiceAssistAndroidT into <code>target.txt</code>,
-  press Enter and then save the change.
-  Save your changes to <code>target.txt</code> and reboot your device to see the effect.
+  press Enter and then save the change, reboot your device to see the effect.
   
   **target.txt supports comments using the <code>#</code> symbol.
   Lines starting with <code>#</code> and empty lines will be ignored by the module.**
@@ -36,8 +35,8 @@ The general steps are listed below:
   并将你通过各种方式获得的预装软件的App所在的文件夹名放在上面，**一行一个**
   例如：我需要卸载小爱同学，那么我会通过 AppManager 查看小爱同学所在的文件夹
   得知其名字是 <code>VoiceAssistAndroidT</code>
-  然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.txt</code> ，回车并保存更改
-  保存编辑 <code>target.txt</code> 并重新启动以查看效果
+  然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.txt</code> ，
+  回车并保存更改，重新启动以查看效果
 
   **target.txt支持#号注释整行，模块不会处理被注释掉的行和空行**
 
