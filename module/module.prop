@@ -1,0 +1,7 @@
+﻿id=bloatwareslayer
+name=Bloatware Slayer
+version=v1.0.0
+versionCode=1
+author=Astoritin Ambrosius
+description=Remove junk bloatware in systemless way✨
+updateJson=https://raw.githubusercontent.com/Astoritin/Bloatware_Slayer/main/webpage/update.json
