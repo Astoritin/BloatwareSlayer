@@ -1,0 +1,62 @@
+#### Bloatware Slayer / 干掉预装软件
+###### Target List / 处理列表
+# Place the folder/directory name of system apps you want to remove here
+# 将你想移除的系统预装应用的文件夹/目录名称放在这里
+# You can get it in apps like App Manager or find it in apps like Root Explorer manually
+# 你可以通过与App Manager类似的App找到文件夹名，或者通过与Root Explorer类似的App内手工浏览以找到它们
+# the symbol # means comment, Bloatware Slayer will skip processing this line
+# 标识符 # 表示注释，Bloatware Slayer会跳过对注释行的处理
+# strict case checking for folder/directory name
+# 严格检查文件夹/目录名的大小写。举个例子，"mab" "MAB" "mAb"在Linux世界里是完全不同的名字
+# for example, "mab" "MAB" "mAb" is completely different name in Linux
+
+# 超级小爱
+VoiceAssistAndroidT
+# Android 无障碍套件
+talkback
+# XiaoaiRecommendation
+XiaoaiRecommendation
+# 搜狗输入法小米版
+SogouIME
+# 应用商店（HyperOS）
+MIUISuperMarket
+# Google 位置历史记录
+GoogleLocationHistory
+# 小米游戏中心/框架
+MiGameCenterSDKService
+# 搜索
+MIUIQuickSearchBox
+# 浏览器（中国特供）
+MIUIBrowser
+# MIUI质量服务
+MiuiDaemon
+# 快应用服务框架
+HybridPlatform
+# 智慧生活
+HybirdAccessory
+# 小米AI
+MIUIAICR
+# 小米视频
+MiuiVideo
+# 小米支付/钱包
+Mipay
+# 服务与反馈
+MiService
+# 浏览器（中国特供）（MIUI）
+Browser
+# 内容中心
+NewHome
+# 搜狗输入法小米版
+SogouInput
+# 搜索（MIUI）
+QuickSearchBox
+# 小爱同学 （MIUI）
+VoiceAssist
+# 恶心的通知栏广告
+mab
+# 音乐（QQ音乐小米定制版）
+Music
+# 智能助理
+PersonalAssistant
+# SystemHelper （某阴暗爬行专用应用）
+SystemHelper
