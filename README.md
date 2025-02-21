@@ -1,13 +1,17 @@
 
 # Bloatware Slayer / 干掉预装软件
 
-A Magisk module to remove bloatware in systemlessly way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
+A Magisk module to remove bloatware in systemlessly way
+/ 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
 ## Support Root Implements / 支持的 Root 方案
 
-- [Magisk](https://github.com/topjohnwu/Magisk) (Recommended / 推荐!)
-- [KernelSU](https://github.com/tiann/KernelSU) (Theoretically supported only / 仅理论上支持，未经实际测试)
-- [APatch](https://github.com/bmax121/APatch) (Theoretically supported only / 仅理论上支持，未经实际测试)
+- [Magisk](https://github.com/topjohnwu/Magisk)
+  (Recommended / 推荐!)
+- [KernelSU](https://github.com/tiann/KernelSU)
+  (Theoretically supported only / 仅理论上支持，未经实际测试)
+- [APatch](https://github.com/bmax121/APatch)
+  (Theoretically supported only / 仅理论上支持，未经实际测试)
 
 ## Details / 详细信息
 
@@ -42,8 +46,10 @@ The general steps are listed below:
 
 ## Log / 查看日志
 
-Log are saving in <code>/data/adb/bloatwareslayer/logs</code> , you can check it and give feedback if facing issues
-日志被保存在 <code>/data/adb/bloatwareslayer/logs</code> , 你可以查看它并在反馈遇到的问题时提交该日志
+Log are saving in <code>/data/adb/bloatwareslayer/logs</code> , 
+you can check it and give feedback if facing issues
+日志被保存在 <code>/data/adb/bloatwareslayer/logs</code> ,
+你可以查看它并在反馈遇到的问题时提交该日志
 
 ## Bootloop / 引导循环 (俗称变砖)
 
@@ -93,9 +99,11 @@ At this point, whether using the process of elimination or needing to access the
   but the unbrick methods provided by the Root solution itself are more recommended.
 
 首先，你需要知道的是，该模块只是使用了 Magisk 和 KernelSU/APatch 内置的办法
-让这些预装 APP 的文件夹设置为空或者被屏蔽掉，从而使系统不再安装和加载这些软件
+让这些预装 APP 的文件夹设置为空或者被屏蔽掉，
+从而使系统不再安装和加载这些软件
 **模块本身并不会直接参与修改系统**
-**一旦禁止或卸载本模块，所有的更改均会被还原**，你的系统也不会受到任何损害，
+**一旦禁止或卸载本模块，所有的更改均会被还原**，
+你的系统也不会受到任何损害，
 正所谓 <code>Systemless（不修改系统）</code>
 
 即使如此，有些 APP 不应该也不能被随意卸载或屏蔽，
@@ -105,9 +113,12 @@ At this point, whether using the process of elimination or needing to access the
 这里主要指的是<span title="MIUI">某些品牌厂商</span>
 为了持续收集用户信息而安插部分看起来 “十分合理” 的 APP
 (应用商店、SystemHelper、AnalysisCore、Joyose)
-这些 APP 被放在系统内置的白名单内，大部分权限限制对它们而言无效，
-最关键的一点是，**一旦系统检测到它们被卸载，就拒绝开机**，一直停在开机动画界面
-或者拒绝提供某些服务，这就是其恶心之处
+这些 APP 被放在系统内置的白名单内，
+大部分权限限制对它们而言无效，
+最关键的一点是，
+**一旦系统检测到它们被卸载，就拒绝开机**，
+一直停在开机动画界面或者拒绝提供某些服务，
+这就是其恶心之处
 
 如果你将某些 APP 加入了 <code>target.txt</code>
 但是卡在了开机动画甚至是开机第一屏，
@@ -121,21 +132,29 @@ At this point, whether using the process of elimination or needing to access the
   此时你可以进入并修改 target.txt
 - 对于 **KernelSU / APatch**，在开机第一屏到开机动画期间
   可以**连续按下音量减键十次左右（连续按，不是长按）**
-  只要你的设备的 KernelSU 内核将救砖模式的代码编译在内，那么有大概率进入
-  KernelSU / APatch 的安全模式，所有模块会被禁用
+  只要你的设备的 KernelSU 内核将救砖模式的代码编译在内，
+  那么有大概率进入 KernelSU / APatch 的安全模式，
+  所有模块会被禁用
 - 对于支持第三方 Recovery 的设备，当你使用 Magisk 时，
-  你也可以**直接使用这类 Recovery 的模块管理界面，轻松禁用 Bloatware Slayer**
+  你也可以**直接使用这类 Recovery 的模块管理界面，
+  轻松禁用 Bloatware Slayer**
 - 至于某些神仙救砖模块自不必多提，
   可以尝试，但是更推荐 Root 方案自带的救砖方法
 
 ## Tested ROMs / 经过测试的ROM
-- Xiaomi HyperOS 2.0.105.0 Android 15 in Redmi Note 9 Pro 5G 8+256GB (gauguin,port ROM)
-- 小米澎湃系统2.0.105.0，安卓15，设备：红米 Note 9 Pro 5G 8+256GB (设备代号gauguin，移植系统)
-- Xiaomi MIUI 12.5.4 Android 10 in Redmi Note 7 Pro 6+128GB (violet,stock ROM)
-  小米MIUI12.5.4，安卓10，设备：红米 Note 7 Pro 6+128GB (设备代号violet，原厂系统)
+- Xiaomi HyperOS 2.0.105.0 Android 15
+  in Redmi Note 9 Pro 5G 8+256GB (gauguin,port ROM)
+- 小米澎湃系统2.0.105.0，安卓15，
+  设备：红米 Note 9 Pro 5G 8+256GB (设备代号gauguin，移植系统)
+- Xiaomi MIUI 12.5.4 Android 10
+  in Redmi Note 7 Pro 6+128GB (violet,stock ROM)
+- 小米MIUI12.5.4，安卓10，
+  设备：红米 Note 7 Pro 6+128GB (设备代号violet，原厂系统)
 
 ## Help and Support / 帮助与支持
 
-You can click [here](https://github.com/Astoritin/Bloatware_Slayer/issues) to give feedback if facing problems / 如果遇到问题，请点击 [此处](https://github.com/Astoritin/Bloatware_Slayer/issues) 提交反馈
+You can click [here](https://github.com/Astoritin/Bloatware_Slayer/issues) to give feedback if facing problems
+/ 如果遇到问题，请点击 [此处](https://github.com/Astoritin/Bloatware_Slayer/issues) 提交反馈
 
-[Pull request](https://github.com/Astoritin/Bloatware_Slayer/pulls) is always welcome to let this module become better / 欢迎 [pull request](https://github.com/Astoritin/Bloatware_Slayer/pulls)，让该模块变得更好
+[Pull request](https://github.com/Astoritin/Bloatware_Slayer/pulls) is always welcome to let this module become better
+/ 欢迎 [pull request](https://github.com/Astoritin/Bloatware_Slayer/pulls)，让该模块变得更好
