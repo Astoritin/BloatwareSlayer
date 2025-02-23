@@ -15,16 +15,25 @@ A Magisk module to remove bloatware in systemlessly way
 
 ## Details / 详细信息
 
-This Magisk module deletes bloatware in Systemless way using Magisk's mount method and the node settings method of KernelSU and APatch.  
-The general steps are listed below:  
+This Magisk module deletes bloatware in Systemless way  
+using Magisk's mount method  
+and the node settings method of 
+KernelSU and APatch.
+The general steps are listed below:
 - Install Magisk / KernelSU / APatch.
 - Download and install this module.
-- Open <code>/data/adb/bloatwareslayer/target.txt</code> and add the folder names of the pre-installed apps you want to remove, **one per line**.  
+- Launch editor and open file
+   <code>/data/adb/bloatwareslayer/target.txt</code>
+  and add the folder names of the bloatware apps you want to remove,
+ **one per line**.
   For example, if I want to uninstall XiaoAI (the voice assistant),
-  I would use App Manager to find that its folder name is <code>VoiceAssistAndroidT</code>.  
-  Then, I would copy VoiceAssistAndroidT into <code>target.txt</code>,  press Enter and then save the change, reboot device to see the effect.  
+  I would use App Manager to find
+that its folder name is <code>VoiceAssistAndroidT</code>.
+  Then, I would copy VoiceAssistAndroidT into <code>target.txt</code>,
+  press Enter and then save the change,
+  reboot my device to see the effect.
   
-  **target.txt supports comments using the <code>#</code> symbol.  
+  **target.txt supports comments using the <code>#</code> symbol.
   Lines starting with <code>#</code> and empty lines will be ignored by the module.**
 
 该 Magisk 模块通过 Magisk 的挂载方式和 KernelSU 、 APatch 的节点设置办法，
