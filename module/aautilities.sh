@@ -1,33 +1,53 @@
 #!/system/bin/sh
+MODDIR=${0%/*}
 
 enforce_install_from_magisk_app(){
+
+  local CONFIG_DIR="$1"
+  local MAGISK_OUI=Official
+  local ROOT_IMP=Unknown
+
+  if [ ! -d "$CONFIG_DIR" ]; then
+    ui_print "- $CONFIG_DIR does not exist"
+    mkdir -p "$CONFIG_DIR" || abort "! Failed to create $CONFIG_DIR!"
+    ui_print "- Create $CONFIG_DIR"
+  fi
+
   if [ "$BOOTMODE" ] && [ "$KSU" ]; then
   ui_print "- Install from KernelSU APP"
   ui_print "- KernelSU version: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
+  ROOT_IMP="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
   if [ "$(which magisk)" ]; then
     ui_print "! Detect multiple Root implements!"
+    ROOT_IMP="Multiple"
   fi
   elif [ "$BOOTMODE" ] && [ "$APATCH" ]; then
   ui_print "- Install from APatch APP"
   ui_print "- APatch version: $APATCH_VER_CODE"
+  ROOT_IMP="APatch ($APATCH_VER_CODE)"
   elif [ "$BOOTMODE" ] && [ "$MAGISK_VER_CODE" ]; then
     if [[ "$MAGISK_VER" == *"-alpha" ]]; then
-    ui_print "- Install from Magisk Alpha APP"
+    MAGISK_OUI="Magisk Alpha"
+    ROOT_IMP="Magisk Alpha ($MAGISK_VER_CODE)"
     elif [[ "$MAGISK_VER" == *"-lite" ]]; then
-    ui_print "- Install from Magisk Lite APP"
+    MAGISK_OUI="Magisk Lite"
+    ROOT_IMP="Magisk Lite ($MAGISK_VER_CODE)"
     elif [[ "$MAGISK_VER" == *"-kitsune" ]]; then
-    ui_print "- Install from Kitsune Mask APP"
+    MAGISK_OUI="Kitsune Mask"
+    ROOT_IMP="Kitsune Mask ($MAGISK_VER_CODE)"
     elif [[ "$MAGISK_VER" == *"-delta" ]]; then
-    ui_print "- Install from Magisk Delta APP"
+    MAGISK_OUI="Magisk Delta"
+    ROOT_IMP="Magisk Delta ($MAGISK_VER_CODE)"
     else
-    ui_print "- Install from Magisk APP"
+    ROOT_IMP="Magisk ($MAGISK_VER_CODE)"
     fi
-  ui_print "- Magisk version name: $MAGISK_VER"
-  ui_print "- Magisk version code: $MAGISK_VER_CODE"
+  ui_print "- Install from $MAGISK_OUI APP"
+  ui_print "- Magisk version: $MAGISK_VER ($MAGISK_VER_CODE)"
   else
   ui_print "! Install modules in Recovery mode is not support!"
-  about "! Please install this module in Magisk/KernelSU/APatch APP!"
+  about "! Please install this module in Magisk / KernelSU / APatch APP!"
   fi
+  echo "$ROOT_IMP" > "$CONFIG_DIR/root.txt"
 }
 
 show_system_info(){
