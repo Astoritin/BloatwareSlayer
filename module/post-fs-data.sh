@@ -23,7 +23,7 @@ fi
 
 echo "Bloatware Slayer" >> $BS_LOG_FILE
 echo "By Astoritin Ambrosius" >> $BS_LOG_FILE
-echo "- Version: 1.0.3" >> $BS_LOG_FILE
+echo "- Version: 1.0.5" >> $BS_LOG_FILE
 echo "- Current time stamp: $(date +"%Y-%m-%d %H:%M:%S")" >> $BS_LOG_FILE
 echo "- Starting post-fs-data.sh..." >> $BS_LOG_FILE
 echo "- LOG_DIR: $LOG_DIR" >> $BS_LOG_FILE
