@@ -7,9 +7,10 @@ LOG_DIR="$CONFIG_DIR/logs"
 BS_LOG_FILE="$LOG_DIR/log_$(date +"%Y-%m-%d_%H-%M-%S")_s.txt"
 TIMEOUT=300
 
+
 echo "Bloatware Slayer" >> $BS_LOG_FILE
 echo "By Astoritin Ambrosius" >> $BS_LOG_FILE
-echo "- Version: 1.0.5" >> $BS_LOG_FILE
+echo "- Version: 1.0.6" >> $BS_LOG_FILE
 echo "- Current time stamp: $(date +"%Y-%m-%d %H:%M:%S")" >> $BS_LOG_FILE
 echo "- Starting service.sh..." >> $BS_LOG_FILE
 
@@ -51,4 +52,38 @@ fi
 
     echo "- Boot complete! Final countdown: $TIMEOUT s" >> $BS_LOG_FILE
     echo "- service.sh case closed!" >> $BS_LOG_FILE
+
+    # MOD_DESC_OLD=$(grep_prop description "${TMPDIR}/module.prop")
+    # MOD_LAST_STATUS=""
+    # MOD_CURRENT_STATUS=""
+    # MOD_REAL_TIME_DESC=""
+    # while true; do
+    #     if [ -f "$MODDIR/disable" ]; then
+    #         MOD_CURRENT_STATUS="disabled"
+    #     elif [ -f "$MODDIR/remove" ]; then
+    #         MOD_CURRENT_STATUS="removed"
+    #     else
+    #         MOD_CURRENT_STATUS="enabled"
+    #     fi
+    #     if [ "$MOD_CURRENT_STATUS" != "$MOD_LAST_STATUS" ]; then
+    #         echo "- Detect status changed:$MOD_LAST_STATUS -> $MOD_CURRENT_STATUS" >> $BS_LOG_FILE
+    #         case $MOD_CURRENT_STATUS in
+    #             disabled)
+    #                 echo "- Detect module disabled" >> $BS_LOG_FILE
+    #                 MOD_REAL_TIME_DESC="[❌Disabled (Reboot to take effect). Root:$ROOT_IMP] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+    #                 ;;
+    #             removed)
+    #                 echo "- Detect module disabled" >> $BS_LOG_FILE
+    #                 MOD_REAL_TIME_DESC="[🗑Removed (Reboot to take effect). Root:$ROOT_IMP] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+    #                 ;;
+    #             enabled)
+    #                 echo "- Detect module enabled" >> $BS_LOG_FILE
+    #                 MOD_REAL_TIME_DESC=$MOD_DESC_OLD
+    #                 ;;
+    #         esac
+    #         sed -i "s/description=\[.*\]/description=\[$MOD_REAL_TIME_DESC\]/" "$MODDIR/module.prop"
+    #         MOD_LAST_STATUS=$MOD_CURRENT_STATUS
+    #     fi
+    #     sleep 3
+    # done
 } >> $BS_LOG_FILE 2>&1 &
