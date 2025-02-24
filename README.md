@@ -15,14 +15,11 @@ A Magisk module to remove bloatware in systemlessly way
 
 ## Details / 详细信息
 
-This Magisk module deletes bloatware in Systemless way  
-using Magisk's mount method  
-and the node settings method of 
-KernelSU and APatch.
+This Magisk module deletes bloatware in Systemless way.
 The general steps are listed below:
-- Install Magisk / KernelSU / APatch.
-- Download and install this module.
-- Launch editor and open file
+- Install Magisk / KernelSU / APatch
+- Download and install this module
+- Launch Text editor and open file
    <code>/data/adb/bloatwareslayer/target.txt</code>
   and add the folder names of the bloatware apps you want to remove,
  **one per line**.
@@ -112,16 +109,13 @@ At this point, whether using the process of elimination or needing to access the
 正所谓 <code>Systemless（不修改系统）</code>
 
 即使如此，有些 APP 不应该也不能被随意卸载或屏蔽，
-为了**系统稳定性**，有些 APP 不应该被卸载或屏蔽
-不过大部分系统 APP 都没有那么重要就是了，该动手就动手
-
-这里主要指的是<span title="MIUI">某些品牌厂商</span>
-为了持续收集用户信息而安插部分看起来 “十分合理” 的 APP
+一来是为了**系统稳定性**（举个例子，设置和系统界面就属于此列）
+不过除了特定的系统 APP 以外，大部分系统 APP 都没有那么重要就是了，该动手就动手。
+二来，某些品牌厂商（MIUI）为了持续收集用户信息<br>会在预装软件中安插一大批<br>看起来 “十分合理” 但是细究起来<br>就是广告毒瘤和信息收集的 APP
 (应用商店、SystemHelper、AnalysisCore、Joyose)
 这些 APP 被放在系统内置的白名单内，
 大部分权限限制对它们而言无效，
-最关键的一点是，
-**一旦系统检测到它们被卸载，就拒绝开机**，
+最关键的一点是，<br>**一旦系统检测到它们被卸载，就拒绝开机**<br>
 一直停在开机动画界面或者拒绝提供某些服务，
 这就是其恶心之处
 
