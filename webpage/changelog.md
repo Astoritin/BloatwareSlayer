@@ -5,13 +5,13 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ### 1.0.5
 - Support KernelSU officially
-  正式支持 KernelSU
+- 正式支持 KernelSU
 - Change the mount method for KernelSU and APatch from mknod to mount directly
-  更改 KernelSU 和 APatch 的挂载方法，从 mknod 改为直接挂载
+- 更改 KernelSU 和 APatch 的挂载方法，从 mknod 改为直接挂载
 - Rewrite enforce_install_from_magisk_app function
-  重写 enforce_install_from_magisk_app() 函数
+- 重写 enforce_install_from_magisk_app() 函数
 - Simplify certain processes to match the changes in aautilities.sh
-  简化部分流程以匹配 aautilities.sh 的更改
+- 简化部分流程以匹配 aautilities.sh 的更改
 
 ### 1.0.3
 - Add simple inbuilt unbrick method
