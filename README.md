@@ -9,7 +9,7 @@ A Magisk module to remove bloatware in systemlessly way
 - [Magisk](https://github.com/topjohnwu/Magisk)
   (Recommended / 推荐!)
 - [KernelSU](https://github.com/tiann/KernelSU)
-  (Recommend / 推荐!)
+  (Recommended / 推荐!)
 - [APatch](https://github.com/bmax121/APatch)
   (Theoretically supported only / 仅理论上支持，未经实际测试)
 
