@@ -1,14 +1,17 @@
-#### Bloatware Slayer / 干掉预装软件
-###### Target List / 处理列表
+# Bloatware Slayer / 干掉预装软件 ###############################################################
+# Target List / 处理列表
 # Place the folder/directory name of system apps you want to remove here
 # 将你想移除的系统预装应用的文件夹/目录名称放在这里
 # You can get it in apps like App Manager or find it in apps like Root Explorer manually
-# 你可以通过与App Manager类似的App找到文件夹名，或者通过与Root Explorer类似的App内手工浏览以找到它们
+# 你可以通过像 App Manager 的 APP 找到文件夹名，或者通过像 Root Explorer 的 APP 手工浏览以找到它们
 # the symbol # means comment, Bloatware Slayer will skip processing this line
-# 标识符 # 表示注释，Bloatware Slayer会跳过对注释行的处理
+# 标识符 # 表示注释，Bloatware Slayer 会跳过对注释行的处理
+# support to order custom directory/folder, for example:/system/app/Browser
+# 支持手动指定目录/文件夹，例如：/system/app/Browser
 # strict case checking for folder/directory name
-# 严格检查文件夹/目录名的大小写。举个例子，"mab" "MAB" "mAb"在Linux世界里是完全不同的名字
+# 严格检查文件夹/目录名的大小写
 # for example, "mab" "MAB" "mAb" is completely different name in Linux
+# 举个例子，"mab" "MAB" "mAb"在Linux世界里是完全不同的名字
 
 # 超级小爱
 VoiceAssistAndroidT
