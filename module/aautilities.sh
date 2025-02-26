@@ -56,7 +56,9 @@ install_env_check() {
 
 debug_print_values(){
   OUTPUT_LOG="$1"
-  env >> $OUTPUT_LOG
+  echo "- env Info ---------------------------------------------------" >> $OUTPUT_LOG
+  env | sed 's/^/- /' >> $OUTPUT_LOG
+  echo "- special Info -----------------------------------------------" >> $OUTPUT_LOG
   echo "- BOOTMODE: $BOOTMODE" >> $OUTPUT_LOG
   echo "- KSU: $KSU" >> $OUTPUT_LOG
   echo "- KSU_KERNEL_VER_CODE: $KSU_KERNEL_VER_CODE" >> $OUTPUT_LOG
