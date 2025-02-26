@@ -3,15 +3,34 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ## Changelog / 变更日志
 
+### 1.0.7
+
+- Support custom directory (add "/system/(custom dir name)/(custom dir name)" to target.txt)
+- 支持自定义目录 (添加 "/system/(自定义目录名称)/(自定义目录名称)" 至target.txt)
+  Now, you can order the dirs of bloatware you want to block manually
+  现在，你可以手动设定你想要阻止的预装软件所在路径 
+- Now Bloatware Slayer will ignore space/blank before the text per line
+- 现在，Bloatware Slayer 会无视每行文本前的空格
+- Bloatware Slayer will correct the wrong symbol \ in dir in target.txt automatically
+- Bloatware Slayer 会自动纠正在 target.txt 中的路径被错误使用的转义符号
+- Root implementation in module description will be updated in booting system each time
+- 模块描述中的 Root 方案会在每次系统启动时更新
+- Module Status will be updated real time as removing or disabling module
+- 当移除或禁用模块时，模块状态会实时更新
+- Add integrity verification to prove that the module has not been maliciously modified
+- 新增完整性验证以证明模块未被恶意修改
+
 ### 1.0.5
 - Support KernelSU officially
-- 正式支持 KernelSU
-- Change the mount method for KernelSU and APatch from mknod to mount directly
-- 更改 KernelSU 和 APatch 的挂载方法，从 mknod 改为直接挂载
-- Rewrite enforce_install_from_magisk_app function
-- 重写 enforce_install_from_magisk_app() 函数
-- Simplify certain processes to match the changes in aautilities.sh
-- 简化部分流程以匹配 aautilities.sh 的更改
+  正式支持 KernelSU
+- Change the method of processing Apps in KernelSU and APatch
+  from mknod to mount -o bind to improve compatibility
+  更改在 KernelSU 和 APatch 中处理 APP 的方式
+  从 mknod 变为 mount -o bind 以提升兼容性
+- Optimize logic for some code
+  优化部分逻辑
+- Optimize the module status prompt content
+  优化模块状态提示内容
 
 ### 1.0.3
 - Add simple inbuilt unbrick method
