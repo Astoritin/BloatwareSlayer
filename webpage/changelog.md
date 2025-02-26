@@ -7,8 +7,8 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 - Support custom directory (add "/system/(custom dir name)/(custom dir name)" to target.txt)
 - 支持自定义目录 (添加 "/system/(自定义目录名称)/(自定义目录名称)" 至target.txt)
-  Now, you can order the dirs of bloatware you want to block manually
-  现在，你可以手动设定你想要阻止的预装软件所在路径 
+- Now, you can order the dirs of bloatware you want to block manually
+- 现在，你可以手动设定你想要阻止的预装软件所在路径 
 - Now Bloatware Slayer will ignore space/blank before the text per line
 - 现在，Bloatware Slayer 会无视每行文本前的空格
 - Bloatware Slayer will correct the wrong symbol \ in dir in target.txt automatically
