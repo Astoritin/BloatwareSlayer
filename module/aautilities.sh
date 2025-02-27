@@ -56,9 +56,9 @@ install_env_check() {
 
 debug_print_values(){
   OUTPUT_LOG="$1"
-  echo "- env Info ---------------------------------------------------" >> $OUTPUT_LOG
+  echo "- env Info -------------------------------------------------------------------------------------------" >> $OUTPUT_LOG
   env | sed 's/^/- /' >> $OUTPUT_LOG
-  echo "- special Info -----------------------------------------------" >> $OUTPUT_LOG
+  echo "- special Info ---------------------------------------------------------------------------------------" >> $OUTPUT_LOG
   echo "- BOOTMODE: $BOOTMODE" >> $OUTPUT_LOG
   echo "- KSU: $KSU" >> $OUTPUT_LOG
   echo "- KSU_KERNEL_VER_CODE: $KSU_KERNEL_VER_CODE" >> $OUTPUT_LOG
@@ -129,4 +129,30 @@ extract() {
 set_module_files_perm(){
   echo "- Setting permissions"
   set_perm_recursive "$MODPATH" 0 0 0755 0644
+}
+
+clean_old_logs() {
+    local log_dir="$1"
+    local files_max="$2"
+    
+    if [ -z "$log_dir" ] || [ ! -d "$log_dir" ]; then
+        echo "- Error: $log_dir is not found or is not a directory!"
+        return
+    fi
+
+    if [ -z "$files_max" ]; then
+        files_max=66
+    fi
+
+    files_count=$(ls -1 "$log_dir" | wc -l)
+    if [ "$files_count" -gt "$files_max" ]; then
+        echo "- Detect too many log files: $files_count (max allowed: $files_max)"
+        echo "- Starting cleaning..."
+        ls -1t "$log_dir" | tail -n +$((files_max + 1)) | while read -r file; do
+            rm -f "$log_dir/$file"
+        done
+        echo "- Cleanup done!"
+    else
+        echo "- No need to clean. Current file count: $files_count"
+    fi
 }
