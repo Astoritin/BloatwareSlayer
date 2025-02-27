@@ -4,6 +4,12 @@
 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 / A Magisk module to remove bloatware in systemlessly way
 
+<details open>
+<summary>注意</summary>
+该 Magisk 模块仅能在已解锁 Bootloader 的设备上使用，并且需要特定的 Root 模块管理器 (Magisk、KernelSU、APatch)。
+如果你没有 Root 甚至没有解锁 Bootloader，那么该 Magisk 模块无法在你的设备上工作。
+</details>
+
 ## 支持的 Root 方案
 
 - [Magisk](https://github.com/topjohnwu/Magisk) (推荐!)
@@ -11,13 +17,6 @@
 - [APatch](https://github.com/bmax121/APatch) (仅理论上支持，未经实际测试)
 
 ## 详细信息
-
-<details>
-<summary>注意</summary>
-该 Magisk 模块仅能在已解锁 Bootloader 的设备上使用，并且需要特定的 Root 模块管理器 (Magisk、KernelSU、APatch)。
-如果你没有 Root 甚至没有解锁 Bootloader，那么该 Magisk 模块无法在你的设备上工作。
-</details>
-
 
 该 Magisk 模块通过 Magisk 的挂载方式和用于 KernelSU 和 APatch 的特定挂载方法，
 以 Systemless 的方式删除预装软件，以下是大概的使用步骤：
@@ -62,6 +61,7 @@ target.txt支持#号注释整行，模块不会处理被注释掉的行和空行
 你可以在模块描述里看到被该模块屏蔽的APP数 (slain)<br>
 未找到目录的APP数 (missing)<br>
 列表里配置的APP总数 (targeted in total)<br>
+
 
 ## Log / 查看日志
 
