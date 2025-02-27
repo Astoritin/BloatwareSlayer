@@ -59,12 +59,19 @@ A: 其一，**应用名称和包名并不可靠。** <br>
 其二，虽然该模块是在 Systemless (不修改系统) 的情况下运行，但是**你始终需要知道并确定自己正在做的事情**，你必须知道自己需要屏蔽掉哪些系统 APP，**而不是照搬别人的列表，出问题了就把责任全部推给本 Magisk 模块**。
 </details>
 
-## Log / 查看日志
+## 日志
 
-Log are saving in <code>/data/adb/bloatwareslayer/logs</code> , 
-you can check it and give feedback if facing issues
 日志被保存在 <code>/data/adb/bloatwareslayer/logs</code> ,
-你可以查看它并在反馈遇到的问题时提交该日志
+你可以查看它并在反馈遇到的问题时提交该日志<br>
+<details open>
+<summary>注意</summary>
+log_pfd_(时间戳).txt 是 Bloatware Slayer 核心功能相关的日志，由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。<br>
+log_s_(时间戳).txt 是Bloatware Slayer附加功能相关的日志，时间戳已经正常初始化。<br>
+log_install_(时间戳).txt是Bloatware Slayer在安装时自动生成的日志。<br>
+反馈问题时，请至少把这三个文件各挑一个创建日期最新的版本打包上传，实在分不清请直接打包整个logs文件夹上传。<br>
+</details>
+
+
 
 ## Bootloop / 引导循环 (俗称变砖)
 
