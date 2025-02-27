@@ -24,13 +24,13 @@
 
 1. 安装 Magisk / KernelSU / APatch
 2. 下载并安装本模块
-3. 为了获得预装软件所在的目录/文件夹，你需要提前做好功课，
-例如使用 [App Manager](https://github.com/MuntashirAkon/AppManager)
-或使用Root Explorer、MiXplorer 在 <code>/system</code> 处
-手动寻找并复制预装软件的文件夹名<br>
+3. 为了获得预装软件所在的目录/文件夹，你需要提前做好功课<br>
+例如使用 [App Manager](https://github.com/MuntashirAkon/AppManager)<br>
+或使用Root Explorer、MiXplorer在 <code>/system</code> 处手动寻找并复制预装软件的文件夹名<br>
 4. 打开 <code>/data/adb/bloatwareslayer/target.txt</code>，<br>
 并将你通过步骤3获得的预装软件所在的文件夹名放在上面，**一行一个**<br>
-5. 保存 target.txt 的更改，并重新启动后查看效果，
+5. 保存 target.txt 的更改，并重新启动后查看效果<br><br>
+
 你可以在模块描述里看到被该模块屏蔽的APP数 (slain)<br>
 未找到目录的APP数 (missing)<br>
 列表里配置的APP总数 (targeted in total)<br>
@@ -40,11 +40,13 @@
 
 <details open>
 <summary>注意</summary>
-1. <code>target.txt</code> 支持"#"号注释整行，Bloatware Slayer 不会处理被注释掉的行和空行。<br>
-2. 你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。<br>
+<ol>
+<li><code>target.txt</code> 支持"#"号注释整行，Bloatware Slayer 不会处理被注释掉的行和空行。</li><br>
+<li>你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。</li><br>
 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。<br>
-3. 由于现如今绝大多数设备都是 SAR(System-as-root)，你可能在 AppManager 中看到的资源目录名不是 <code>/system</code> 开头(例如  <code>/product/app/Scanner</code> )，为了确保挂载生效，请手动在这类路径前面添加 <code>/system</code> ，否则 Bloatware Slayer 会直接忽略该路径<br>
-4. 若你看到的资源目录以 <code>/data</code> 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，可以自行卸载，请不要加入到 <code>target.txt</code> 中，因为Bloatware Slayer的处理也不会对这类软件生效<br>
+<li>由于现如今绝大多数设备都是 SAR(System-as-root)，你可能在 AppManager 中看到的资源目录名不是 <code>/system</code> 开头(例如  <code>/product/app/Scanner</code> )，为了确保挂载生效，请手动在这类路径前面添加 <code>/system</code> ，否则 Bloatware Slayer 会直接忽略该路径</li><br>
+<li>若你看到的资源目录以 <code>/data</code> 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，可以自行卸载，请不要加入到 <code>target.txt</code> 中，因为Bloatware Slayer的处理也不会对这类软件生效</li><br>
+</ol>
 </details><br>
 
 <details>
@@ -69,109 +71,53 @@ A: 其一，**应用名称和包名并不可靠。** <br>
 log_pfd_(时间戳).txt 是Bloatware Slayer 核心功能相关的日志，由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。<br>
 log_s_(时间戳).txt 是Bloatware Slayer附加功能相关的日志，时间戳已经正常初始化。<br>
 log_install_(时间戳).txt是Bloatware Slayer在安装时自动生成的日志。<br>
-反馈问题时，请至少把这三个文件各挑一个创建日期最新的版本打包上传，实在分不清请直接打包整个logs文件夹上传。<br>
+反馈问题时，请直接打包整个logs文件夹后上传。<br>
 </details>
 
+## 救砖
 
+Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会自动禁用模块的挂载功能并自动重启<br>
+重启后，你会在模块状态上看见相应信息，请自行调整 <code>target.txt</code> ，删除不该被禁用的项目后重新启动<br>
+默认的等待时长是300秒（5分钟），也就是说 Bloatware Slayer 会在等待5分钟后自我禁用并重新启动。
+若你的系统正在更新，请临时彻底禁用或卸载该模块，之后再安装。
 
-## Bootloop / 引导循环 (俗称变砖)
+<details>
+<summary>Q: Bloatware Slayer会破坏我的设备吗？为什么需要救砖手段？</summary>
+首先，Bloatware Slayer 只是使用了 Magisk 和 KernelSU/APatch 内置的办法，<br>
+让这些预装 APP 的文件夹设置为空或者被屏蔽掉，从而使系统不再安装和加载这些软件。<br>
+<b>模块本身并不会直接参与修改系统</b><br>
+<b>一旦禁止或卸载本模块，所有的更改均会被还原</b><br>
+你的系统也不会受到任何损害，正所谓<code>Systemless（不修改系统）</code><br>
 
-First, you need to understand that this module merely utilizes 
-the built-in methods of Magisk and KernelSU/APatch 
-to set the folders of these pre-installed apps as empty or to block them, 
-thereby preventing the system from installing and loading these apps.
-**The module itself does not directly modify the system**.
-**Once this module is disabled or uninstalled, all changes will be reverted**,
-and your system will be okay.
-This is what we call <code>Systemless (no system modification)</code>.
+即使如此，有些 APP 不应该也不能被随意卸载或屏蔽。
+一来是考虑<b>系统稳定性</b>，部分 APP 是必须存在才能维护系统正常的运行秩序的程序，<br>
+比如说设置和系统界面是在正常生产环境的设备中必须存在的 APP。<br>
+不过，<b>这类 APP 数量其实很稀少</b>，可能整整100个系统 APP 中只有20~30个 APP 属于这一类，<br>
+大部分系统 APP 事实上并没有多重要，该动手就动手。<br><br>
+二来，某些品牌厂商（MIUI、Huawei、Google）为了持续收集用户信息<br>
+会在预装软件中安插一大批看起来 “十分合理” 但是细究起来就是广告毒瘤和信息收集的 APP<br>
+(Google Play 服务、Google Assistant、应用商店、SystemHelper、AnalysisCore、Joyose)<br>
+这些 APP 被放在系统内置的白名单内，大部分限制对它们而言无效，
+最关键的一点是，<br><b>一旦系统检测到它们被卸载或不存在，就直接拒绝开机</b><br>
+一直停在开机动画界面或者拒绝提供某些服务。<br><br>
+如果你将某些 APP 加入了 <code>target.txt</code> 但是卡在了开机动画甚至是开机第一屏，<br>
+要么这些 APP 是<b>维持系统正常运行秩序所必须的 APP</b>，<br>
+要么是<b>这些 APP 就是所谓的“一卸载就罢工”的 APP</b><br>
+这个时候无论是排除法还是需要进入系统，就需要<b>救砖手段</b>了，以下是一些救砖建议：<br>
 
-Even so, some apps should not and cannot be uninstalled or blocked at will.
-**For the sake of system stability**, certain apps should be left untouched.
-However, most system apps are not that crucial,
-so feel free to take action when necessary.
+1. 对于 <b>Magisk Alpha</b>，当设备<b>两次无法正常进入系统时</b>，<b>在第三次启动就会自动进入安全模式，并禁用所有模块</b>，此时你可以进入并修改 target.txt<br>
+2. 对于 <b>KernelSU / APatch</b>，在开机第一屏到开机动画期间可以<b>连续按下音量减键十次左右（连续按，不是长按）</b>,<br>
+  只要你的设备的 KernelSU 内核将救砖模式的代码编译在内，那么有大概率进入 KernelSU / APatch 的安全模式，所有模块会被禁用<br>
+3. 对于支持第三方 Recovery 的设备，当你使用 Magisk 时，你也可以<b>直接使用这类 Recovery 的模块管理界面，轻松禁用 Bloatware Slayer</b><br>
+</details>
 
-This mainly applies to <span title="MIUI">certain brand manufacturers</span>
-that insert some "seemingly reasonable" apps to continuously collect user information.
-These apps are placed on the system's built-in whitelist,
-and most permission restrictions are ineffective against them.
-**The most critical point is that if the system detects that these apps are uninstalled,**
-**it will refuse to boot, getting stuck at the boot animation or denying certain services.**
-**This is the truly annoying part.**
-If you have added certain apps to <code>target.txt</code>
-and your device gets stuck at the boot animation or even the splash screen,
-it could be that **the system genuinely relies on these apps**,
-or **these apps are the ones that trigger a frozen upon uninstallation**.
+## 经过测试的ROM
+1. 小米澎湃系统2.0.105.0，安卓15，设备：红米 Note 9 Pro 5G 8+256GB (设备代号gauguin，移植系统)<br>
+    Root：Magisk Alpha 28102
+2. 小米MIUI12.5.4，安卓10，设备：红米 Note 7 Pro 6+128GB (设备代号violet，原厂系统)
+    Root：Magisk Alpha 28102
 
-At this point, whether using the process of elimination or needing to access the system,
-**unbrick measures are required**. Here are some suggestions:
-- For Magisk Alpha, if the device **fails to boot normally twice**,
-  **it will automatically enter Safe Mode and disable all modules on the third boot attempt**.
-  You can then enter the system and modify the <code>target.txt</code>.
-
-- For KernelSU / APatch, during the period from the splash screen to the boot animation,
-  you can **press the volume-down button about ten times consecutively (not long press)**.
-  If your device's KernelSU kernel has the unbrick code compiled in,
-  there is a high probability that you will **enter the KernelSU / APatch Safe Mode**,
-  **where all modules will be disabled**.
-
-- For devices that **support third-party Recovery**, when using Magisk,
-  you can **directly use the module management interface of such Recovery**
-  to easily **disable Bloatware Slayer**.
-
-- As for some "miracle" unbrick modules, they are worth a try,
-  but the unbrick methods provided by the Root solution itself are more recommended.
-
-首先，你需要知道的是，该模块只是使用了 Magisk 和 KernelSU/APatch 内置的办法
-让这些预装 APP 的文件夹设置为空或者被屏蔽掉，
-从而使系统不再安装和加载这些软件
-**模块本身并不会直接参与修改系统**
-**一旦禁止或卸载本模块，所有的更改均会被还原**，
-你的系统也不会受到任何损害，
-正所谓 <code>Systemless（不修改系统）</code>
-
-即使如此，有些 APP 不应该也不能被随意卸载或屏蔽，
-一来是为了**系统稳定性**（举个例子，设置和系统界面就属于此列）
-不过除了特定的系统 APP 以外，大部分系统 APP 都没有那么重要就是了，该动手就动手。
-二来，某些品牌厂商（MIUI）为了持续收集用户信息<br>会在预装软件中安插一大批<br>看起来 “十分合理” 但是细究起来<br>就是广告毒瘤和信息收集的 APP
-(应用商店、SystemHelper、AnalysisCore、Joyose)
-这些 APP 被放在系统内置的白名单内，
-大部分权限限制对它们而言无效，
-最关键的一点是，<br>**一旦系统检测到它们被卸载，就拒绝开机**<br>
-一直停在开机动画界面或者拒绝提供某些服务，
-这就是其恶心之处
-
-如果你将某些 APP 加入了 <code>target.txt</code>
-但是卡在了开机动画甚至是开机第一屏，
-要么是**系统真的离不开这些 APP**，
-要么是**这些 APP 就是所谓的一卸载就触发罢工的 APP**
-这个时候无论是排除法还是需要进入系统，就需要**救砖手段**了
-以下是一些救砖建议：
-
-- 对于 **Magisk Alpha**，当设备**两次无法正常进入系统时**
-  **在第三次启动就会自动进入安全模式，并禁用所有模块**，
-  此时你可以进入并修改 target.txt
-- 对于 **KernelSU / APatch**，在开机第一屏到开机动画期间
-  可以**连续按下音量减键十次左右（连续按，不是长按）**
-  只要你的设备的 KernelSU 内核将救砖模式的代码编译在内，
-  那么有大概率进入 KernelSU / APatch 的安全模式，
-  所有模块会被禁用
-- 对于支持第三方 Recovery 的设备，当你使用 Magisk 时，
-  你也可以**直接使用这类 Recovery 的模块管理界面，
-  轻松禁用 Bloatware Slayer**
-- 至于某些神仙救砖模块自不必多提，
-  可以尝试，但是更推荐 Root 方案自带的救砖方法
-
-## Tested ROMs / 经过测试的ROM
-- Xiaomi HyperOS 2.0.105.0 Android 15
-  in Redmi Note 9 Pro 5G 8+256GB (gauguin,port ROM)
-- 小米澎湃系统2.0.105.0，安卓15，
-  设备：红米 Note 9 Pro 5G 8+256GB (设备代号gauguin，移植系统)
-- Xiaomi MIUI 12.5.4 Android 10
-  in Redmi Note 7 Pro 6+128GB (violet,stock ROM)
-- 小米MIUI12.5.4，安卓10，
-  设备：红米 Note 7 Pro 6+128GB (设备代号violet，原厂系统)
-
-## Help and Support / 帮助与支持
+## 帮助与支持
 
 You can click [here](https://github.com/Astoritin/Bloatware_Slayer/issues) to give feedback if facing problems
 / 如果遇到问题，请点击 [此处](https://github.com/Astoritin/Bloatware_Slayer/issues) 提交反馈
