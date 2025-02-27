@@ -28,21 +28,20 @@
 或使用Root Explorer、MiXplorer 在 <code>/system</code> 处
 手动寻找并复制预装软件的文件夹名<br>
 4. 打开 <code>/data/adb/bloatwareslayer/target.txt</code>，<br>
-并将你通过步骤3获得的预装软件所在的文件夹名放在上面，**一行一个**<br><br>
+并将你通过步骤3获得的预装软件所在的文件夹名放在上面，**一行一个**<br>
+5. 保存 target.txt 的更改，并重新启动后查看效果，
+你可以在模块描述里看到被该模块屏蔽的APP数 (slain)<br>
+未找到目录的APP数 (missing)<br>
+列表里配置的APP总数 (targeted in total)<br>
 
-<em>例如：我需要卸载小爱同学，那么我会通过 AppManager 查看小爱同学所在的文件夹，得知其名字是 <code>VoiceAssistAndroidT</code>，
-然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.txt</code> ，回车并保存更改。</em><br><br>
+例如：我需要卸载小爱同学，那么我会通过 AppManager 查看小爱同学所在的文件夹，得知其名字是 <code>VoiceAssistAndroidT</code>，
+然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.txt</code> ，回车并保存更改后重启设备。<br>
 
 <details open>
 <summary>注意</summary>
 target.txt支持#号注释整行，模块不会处理被注释掉的行和空行。你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。<br>
 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。
 </details><br>
-
-5. 重新启动后查看效果，
-你可以在模块描述里看到被该模块屏蔽的APP数 (slain)<br>
-未找到目录的APP数 (missing)<br>
-列表里配置的APP总数 (targeted in total)<br>
 
 <details>
 <summary>Q: 为什么需要我手工复制，而不是模块根据我指定的应用名称或包名自行检测？</summary>
@@ -56,7 +55,6 @@ A: 其一，**应用名称和包名并不可靠。** <br>
 
 其二，虽然该模块是在 Systemless (不修改系统) 的情况下运行，但是**你始终需要知道并确定自己正在做的事情**，你必须知道自己需要屏蔽掉哪些系统 APP，<br>**而不是照搬别人的列表，出问题了就把责任全部推给本 Magisk 模块**。
 </details>
-
 
 ## Log / 查看日志
 
