@@ -19,14 +19,6 @@ fi
 module_install_proc(){
   echo "- Installing $MOD_NAME"
   echo "- Version: $MOD_VER"
-  echo "- Check old logs"
-  if [ -e "$LOG_DIR" ]; then
-    echo "- Detect old logs exists, start cleaning..."
-    rm -rf "$LOG_DIR"
-    echo "- Done, $LOG_DIR has been cleaned."
-  else
-    echo "- $LOG_DIR does not exist."
-  fi
   echo "- Extract module file(s)"
   extract "$ZIPFILE" 'aautilities.sh' "$VERIFY_DIR"
   extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
@@ -52,7 +44,8 @@ module_install_proc(){
 
 show_system_info
 install_env_check "$CONFIG_DIR"
-debug_print_values "$LOG_DIR/log_install_$(date +"%Y-%m-%d_%H-%M-%S").txt"
+clean_old_logs "$LOG_DIR" 30
 module_install_proc
+debug_print_values "$LOG_DIR/log_install_$(date +"%Y-%m-%d_%H-%M-%S").txt"
 set_module_files_perm
 echo "- Welcome to use ${MOD_NAME}!"
