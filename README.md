@@ -65,7 +65,7 @@ A: 其一，**应用名称和包名并不可靠。** <br>
 你可以查看它并在反馈遇到的问题时提交该日志<br>
 <details open>
 <summary>注意</summary>
-log_pfd_(时间戳).txt 是 Bloatware Slayer 核心功能相关的日志，由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。<br>
+log_pfd_(时间戳).txt 是Bloatware Slayer 核心功能相关的日志，由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。<br>
 log_s_(时间戳).txt 是Bloatware Slayer附加功能相关的日志，时间戳已经正常初始化。<br>
 log_install_(时间戳).txt是Bloatware Slayer在安装时自动生成的日志。<br>
 反馈问题时，请至少把这三个文件各挑一个创建日期最新的版本打包上传，实在分不清请直接打包整个logs文件夹上传。<br>
