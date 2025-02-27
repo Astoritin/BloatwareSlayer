@@ -1,3 +1,4 @@
+简体中文 丨 [English](README_EN.md) <br>
 
 # 干掉预装软件 / Bloatware Slayer
 
