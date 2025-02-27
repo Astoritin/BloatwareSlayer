@@ -6,7 +6,8 @@
 
 <details open>
 <summary>注意</summary>
-该 Magisk 模块仅能在已解锁 Bootloader 的设备上使用，并且需要特定的 Root 模块管理器 (Magisk、KernelSU、APatch)。<br>如果你没有 Root 甚至没有解锁 Bootloader，那么该 Magisk 模块无法在你的设备上工作。
+该 Magisk 模块仅能在已解锁 Bootloader 的设备上使用，并且需要特定的 Root 模块管理器 (Magisk、KernelSU、APatch)。
+如果你没有 Root 甚至没有解锁 Bootloader，那么该 Magisk 模块无法在你的设备上工作。
 </details>
 
 ## 支持的 Root 方案
@@ -32,8 +33,8 @@
 
 A: 其一，**应用名称和包名并不可靠。** <br>
 对于大多数规范的ROM而言，用除了英文以外的其他语言给系统目录/文件夹命名的概率极低，<br>
-甚至有不少应用的应用名称跟其所在的系统目录/文件夹名没有任何关系。<br>
-<em>举个例子：有个 APP 名为 系统服务，但是其目录/文件夹名为 AdPushService，其包名为 com.android.adpromote </em>
+甚至有不少应用的应用名称跟其所在的系统目录/文件夹名没有任何关系。<br><br>
+<em>举个例子：有个 APP 名为 系统服务，但是其目录/文件夹名为 AdPushService，其包名为 com.android.adpromote </em><br><br>
 至于包名，在post-fs-data阶段很难做到根据包名查应用程序所在的系统目录，<br>
 而一旦进入service阶段，甚至是进入系统桌面阶段再查就没有意义了。<br>
 因为此时模块系统已完成挂载，无法再屏蔽系统应用了。<br>
@@ -45,16 +46,16 @@ A: 其一，**应用名称和包名并不可靠。** <br>
 </details>
 
 4. 打开 <code>/data/adb/bloatwareslayer/target.txt</code>，<br>
-并将你通过步骤3获得的预装软件所在的文件夹名放在上面，**一行一个**<br>
+并将你通过步骤3获得的预装软件所在的文件夹名放在上面，**一行一个**<br><br>
 
 <em>例如：我需要卸载小爱同学，那么我会通过 AppManager 查看小爱同学所在的文件夹，得知其名字是 <code>VoiceAssistAndroidT</code>，
-然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.txt</code> ，回车并保存更改。</em>
+然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.txt</code> ，回车并保存更改。</em><br><br>
 
 <details open>
 <summary>注意</summary>
-target.txt支持#号注释整行，模块不会处理被注释掉的行和空行。你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。
+target.txt支持#号注释整行，模块不会处理被注释掉的行和空行。你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。<br>
 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。
-</details>
+</details><br>
 
 5. 重新启动后查看效果，
 你可以在模块描述里看到被该模块屏蔽的APP数 (slain)<br>
