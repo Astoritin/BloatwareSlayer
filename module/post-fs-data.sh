@@ -9,7 +9,7 @@ BRICKED_STATUS="$CONFIG_DIR/bricked"
 TARGET_LIST="$CONFIG_DIR/target.txt"
 EMPTY_DIR="$CONFIG_DIR/empty"
 BS_LOG_FILE="$LOG_DIR/log_pfd_$(date +"%Y-%m-%d_%H-%M-%S").txt"
-SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app"
+SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 MODULE_PROP="${MODDIR}/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "${MODDIR}/module.prop")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "${MODDIR}/module.prop")"
@@ -19,9 +19,9 @@ if [ ! -d "$LOG_DIR" ]; then
     mkdir -p "$LOG_DIR"
 fi
 
-echo "- Magisk Module Info ----------------------------------------" >> $BS_LOG_FILE
-echo "$MOD_NAME" >> $BS_LOG_FILE
-echo "By $MOD_AUTHOR" >> $BS_LOG_FILE
+echo "--Magisk Module Info --------------------------------------------------------------------------------" >> $BS_LOG_FILE
+echo "- $MOD_NAME" >> $BS_LOG_FILE
+echo "- By $MOD_AUTHOR" >> $BS_LOG_FILE
 echo "- Version: $MOD_VER" >> $BS_LOG_FILE
 echo "- Current time stamp: $(date +"%Y-%m-%d %H:%M:%S")" >> $BS_LOG_FILE
 echo "- Starting post-fs-data.sh..." >> $BS_LOG_FILE
@@ -35,9 +35,9 @@ ROOT_IMP=$(sed -n 's/^root=//p' "$CONFIG_DIR/status.info")
 echo "- ROOT_IMP: $ROOT_IMP" >> $BS_LOG_FILE
 echo "- Magisk version name: magisk -v / $(magisk -v)" >> $BS_LOG_FILE
 echo "- Magisk version code: magisk -V / $(magisk -V)" >> $BS_LOG_FILE
-echo "- env Info ---------------------------------------------------" >> $BS_LOG_FILE
+echo "--env Info -------------------------------------------------------------------------------------------" >> $BS_LOG_FILE
 env | sed 's/^/- /' >> $BS_LOG_FILE
-echo "- start post-fs-data -----------------------------------------" >> $BS_LOG_FILE
+echo "--start post-fs-data ---------------------------------------------------------------------------------" >> $BS_LOG_FILE
 echo "- Removing old folders and .replace..." >> $BS_LOG_FILE
 if [ -d "$MODDIR/system" ]; then
     rm -rf "$MODDIR/system"
@@ -86,10 +86,10 @@ while IFS= read -r package; do
     package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/\\/\//g')
     echo "- Current line: $package" >> $BS_LOG_FILE
     if [ -z "$package" ]; then
-        echo "- Detect empty line, skip processing" >> $BS_LOG_FILE
+        echo "- Warning: Detect empty line, skip processing" >> $BS_LOG_FILE
         continue
     elif [ "${package:0:1}" == "#" ]; then
-        echo '- Detect comment symbol "#", skip processing' >> $BS_LOG_FILE
+        echo '- Warning: Detect comment symbol "#", skip processing' >> $BS_LOG_FILE
         continue
     fi
     echo "- Process App: $package" >> $BS_LOG_FILE
@@ -117,7 +117,7 @@ while IFS= read -r package; do
                 if [ $? -eq 0 ]; then
                     echo "- Succeeded." >> $BS_LOG_FILE
                 else
-                    echo "- Failed, error code: $?" >> $BS_LOG_FILE
+                    echo "! Failed, error code: $?" >> $BS_LOG_FILE
                 fi
                 BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                 break
@@ -129,10 +129,10 @@ while IFS= read -r package; do
             fi
         else
             if [[ "${package:0:1}" == "/" ]]; then
-                echo "- Custom dir not found: $app_path" >> $BS_LOG_FILE
+                echo "- Warning: Custom dir not found: $app_path" >> $BS_LOG_FILE
                 break
             else
-                echo "- Dir not found: $app_path" >> $BS_LOG_FILE
+                echo "- Warning: Dir not found: $app_path" >> $BS_LOG_FILE
             fi
         fi
     done
@@ -158,10 +158,10 @@ if [ -f "$MODULE_PROP" ]; then
     fi
     sed -i "/^description=/c\description=$DESCRIPTION" "$MODULE_PROP"
     sed -i "/^description=/c\description=$DESCRIPTION" "$CONFIG_DIR/status.info"
-    echo "- Update module.prop:$DESCRIPTION" >> $BS_LOG_FILE
+    echo "- Update module.prop: $DESCRIPTION" >> $BS_LOG_FILE
 else
-    echo "- module.prop not found, skip updating" >> $BS_LOG_FILE
+    echo "- Warning: module.prop not found, skip updating" >> $BS_LOG_FILE
 fi
 
 echo "- post-fs-data.sh case closed!" >> $BS_LOG_FILE
-echo "--------------------------------------------------------------" >> $BS_LOG_FILE
+echo "------------------------------------------------------------------------------------------------------" >> $BS_LOG_FILE
