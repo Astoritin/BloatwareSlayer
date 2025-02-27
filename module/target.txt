@@ -63,3 +63,13 @@ Music
 PersonalAssistant
 # SystemHelper （某阴暗爬行专用应用）
 SystemHelper
+# 售后服务
+/system/product/app/system
+/system/system_ext/app/digitalkey
+/system/product/app/ThirdAppAssistant
+/system/product/app/SecurityOnetrackService
+/system/product/app/PaymentService
+/system/product/app/MiBugReportOS2
+/system/product/app/MIUIAccessibility
+/system/product/priv-app/MIUIPersonalAssistantPhoneOS2NoBeta
+/system/product/app/MiGameService_8550
