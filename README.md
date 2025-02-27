@@ -5,7 +5,7 @@
 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 / A Magisk module to remove bloatware in systemlessly way
 
-<details open>
+<details>
 <summary>注意</summary>
 该 Magisk 模块仅能在已解锁 Bootloader 的设备上使用，并且需要特定的 Root 模块管理器 (Magisk、KernelSU、APatch)。
 如果你没有 Root 甚至没有解锁 Bootloader，那么该 Magisk 模块无法在你的设备上工作。
@@ -40,10 +40,11 @@
 
 <details open>
 <summary>注意</summary>
-target.txt支持#号注释整行，Bloatware Slayer 不会处理被注释掉的行和空行。<br>
+<code>target.txt</code> 支持"#"号注释整行，Bloatware Slayer 不会处理被注释掉的行和空行。<br>
 你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。<br>
 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。<br>
 由于现如今绝大多数设备都是 SAR(System-as-root)，你可能在 AppManager 中看到的资源目录名不是 <code>/system</code> 开头(例如  <code>/product/app/Scanner</code> )，为了确保挂载生效，请手动在这类路径前面添加 <code>/system</code> ，否则 Bloatware Slayer 会直接忽略该路径<br>
+若你看到的资源目录以 <code>/data</code> 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，可以自行卸载，请不要加入到 <code>target.txt</code> 中，因为Bloatware Slayer的处理也不会对这类软件生效<br>
 </details><br>
 
 <details>
