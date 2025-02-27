@@ -1,50 +1,78 @@
 
-# Bloatware Slayer / 干掉预装软件
+# 干掉预装软件 / Bloatware Slayer
 
-A Magisk module to remove bloatware in systemlessly way
-/ 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
+一个无需修改 system 分区即可移除预装软件的 Magisk 模块
+/ A Magisk module to remove bloatware in systemlessly way
 
-## Support Root Implements / 支持的 Root 方案
+## 支持的 Root 方案
 
-- [Magisk](https://github.com/topjohnwu/Magisk)
-  (Recommended / 推荐!)
-- [KernelSU](https://github.com/tiann/KernelSU)
-  (Recommended / 推荐!)
-- [APatch](https://github.com/bmax121/APatch)
-  (Theoretically supported only / 仅理论上支持，未经实际测试)
+- [Magisk](https://github.com/topjohnwu/Magisk) (推荐!)
+- [KernelSU](https://github.com/tiann/KernelSU) (推荐!)
+- [APatch](https://github.com/bmax121/APatch) (仅理论上支持，未经实际测试)
 
-## Details / 详细信息
+## 详细信息
 
-This Magisk module deletes bloatware in Systemless way.
-The general steps are listed below:
-- Install Magisk / KernelSU / APatch
-- Download and install this module
-- Launch Text editor and open file
-   <code>/data/adb/bloatwareslayer/target.txt</code>
-  and add the folder names of the bloatware apps you want to remove,
- **one per line**.
-  For example, if I want to uninstall XiaoAI (the voice assistant),
-  I would use App Manager to find
-that its folder name is <code>VoiceAssistAndroidT</code>.
-  Then, I would copy VoiceAssistAndroidT into <code>target.txt</code>,
-  press Enter and then save the change,
-  reboot my device to see the effect.
-  
-  **target.txt supports comments using the <code>#</code> symbol.
-  Lines starting with <code>#</code> and empty lines will be ignored by the module.**
+<details open>
+<summary>注意</summary>
+该 Magisk 模块仅能在已解锁 Bootloader 的设备上使用
+并且需要特定的 Root 模块管理器 (Magisk、KernelSU、APatch)
+如果你没有 Root 甚至没有解锁 Bootloader，
+那么该 Magisk 模块无法在你的设备上工作。
+</details>
 
-该 Magisk 模块通过 Magisk 的挂载方式和 KernelSU 、 APatch 的节点设置办法，
-以 Systemless 方式删除预装软件，以下是大概的步骤：
-- 安装 Magisk / KernelSU / APatch
-- 下载并安装本模块
-- 打开/data/adb/bloatwareslayer/target.txt，
-  并将你通过各种方式获得的预装软件的App所在的文件夹名放在上面，**一行一个**
-  例如：我需要卸载小爱同学，那么我会通过 AppManager 查看小爱同学所在的文件夹
-  得知其名字是 <code>VoiceAssistAndroidT</code>
-  然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.txt</code> ，
-  回车并保存更改，重新启动以查看效果
 
-  **target.txt支持#号注释整行，模块不会处理被注释掉的行和空行**
+该 Magisk 模块通过 Magisk 的挂载方式和用于 KernelSU 和 APatch 的特定挂载方法，
+以 Systemless 的方式删除预装软件，以下是大概的使用步骤：
+
+1. 安装 Magisk / KernelSU / APatch
+2. 下载并安装本模块
+3. 为了获得预装软件所在的目录/文件夹，你需要提前做好功课，
+例如使用 [App Manager](https://github.com/MuntashirAkon/AppManager)
+或使用Root Explorer、MiXplorer 在 <code>/system</code> 处
+手动寻找并复制预装软件的文件夹名
+
+<details>
+<summary>Q: 为什么需要我手工复制，而不是模块根据我指定的应用名称或包名自行检测？</summary>
+
+A: 其一，**应用名称和包名并不可靠。**
+对于大多数规范的ROM而言，
+用除了英文以外的其他语言给系统目录/文件夹命名的概率极低，
+甚至有不少应用的应用名称跟其所在的系统目录/文件夹名没有任何关系。
+<em>举个例子：有个 APP 名为 系统服务，
+但是其目录/文件夹名为 AdPushService，
+其包名为 com.android.adpromote </em>
+至于包名，在post-fs-data阶段很难做到根据包名查应用程序所在的系统目录，
+而一旦进入service阶段，甚至是进入系统桌面阶段再查就没有意义了。
+因为此时模块系统已完成挂载，无法再屏蔽系统应用了。
+
+其二，虽然该模块是在 Systemless (不修改系统) 的情况下运行，
+但是**你始终需要知道并确定自己正在做的事情**，
+你必须知道自己需要屏蔽掉哪些系统 APP，
+**而不是照搬别人的列表，出问题了就把责任全部推给本 Magisk 模块**。
+
+</details>
+
+4. 打开 <code>/data/adb/bloatwareslayer/target.txt</code>，
+并将你通过步骤3获得的预装软件所在的文件夹名放在上面，**一行一个**
+
+<em>例如：我需要卸载小爱同学，
+那么我会通过 AppManager 查看小爱同学所在的文件夹，
+得知其名字是 <code>VoiceAssistAndroidT</code>，
+然后将 <code>VoiceAssistAndroidT</code>
+复制到 <code>target.txt</code> ，回车并保存更改</em>
+
+<details open>
+<summary>注意</summary>
+target.txt支持#号注释整行，模块不会处理被注释掉的行和空行
+你也可以自定义路径，例如某行内容：/system/app/MiVideo/
+此时 Bloatware Slayer 会直接处理该自定义路径
+而不会再扫描其他系统文件夹
+</details>
+
+5. 重新启动后查看效果，
+你可以在模块描述里看到被该模块屏蔽的APP数 (slain)
+未找到目录的APP数 (missing)
+列表里配置的APP总数 (targeted in total)
 
 ## Log / 查看日志
 
