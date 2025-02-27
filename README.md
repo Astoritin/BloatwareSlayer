@@ -39,9 +39,10 @@
 
 <details open>
 <summary>注意</summary>
-target.txt支持#号注释整行，模块不会处理被注释掉的行和空行。你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。<br>
+target.txt支持#号注释整行，模块不会处理被注释掉的行和空行。<br>
+你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。<br>
 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。
-</details><br>
+</details><br><br><br>
 
 <details>
 <summary>Q: 为什么需要我手工复制，而不是模块根据我指定的应用名称或包名自行检测？</summary>
