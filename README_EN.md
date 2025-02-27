@@ -93,7 +93,7 @@ This is the essence of being "systemless (no system modification)"<br><br>
 However, some apps should not be uninstalled or blocked casually.<br>
 Firstly, consider <b>system stability</b>.<br>
 <b>Some apps are essential for maintaining normal system operations</b>, such as Settings and System UI.<br>
-Fortunately, only a small number of system apps fall into this category————perhaps only 20-30 out of 100 system apps.<br><br>
+Fortunately, only a small number of system apps fall into this category----perhaps only 20-30 out of 100 system apps.<br><br>
 Secondly, some manufacturers (e.g.MIUI, Huawei, Google) include a large number of apps that appear "reasonable" but are essentially adware and data collection tools.<br>
 These apps are placed on a system whitelist, and most restrictions do not apply to them. The critical issue is that <b>the system may refuse to boot if these apps are uninstalled or missing</b>.<br>It may get stuck on the boot animation or fail to provide certain services.<br><br>
 If you add certain apps to <code>target.txt</code> and the device gets stuck on the boot animation or the first boot screen, it means either these apps are essential for maintaining normal system operations or they are the "uninstall-and-break" type of apps.<br>In such cases, you need to use the brick recovery method. Here are some suggestions:<br>
