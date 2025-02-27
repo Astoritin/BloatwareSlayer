@@ -43,7 +43,7 @@
 target.txt支持#号注释整行，模块不会处理被注释掉的行和空行。<br>
 你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。<br>
 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。<br>
-如果需要自定义路径，请以  <code>/system/</code> 开头，Bloatware Slayer 会拒绝处理所有不以 <code>/system/</code> 开头的行。<br>
+如果需要自定义路径，请以  <code>/system</code> 开头，Bloatware Slayer 会拒绝处理所有不以 <code>/system</code> 开头的行。<br>
 </details><br>
 
 <details>
