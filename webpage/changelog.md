@@ -3,6 +3,14 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ## Changelog / 变更日志
 
+## 1.0.8
+
+<ol>
+<li>现在，当<code>/data/adb/bloatwareslayer/logs</code>下的日志过多，Bloatware Slayer会在安装或更新过程中清除较早的日志<br>
+Bloatware Slayer will clean old logs in updating or installing if there are too many files under the folder <code>/data/adb/bloatwareslayer/logs</code></li><br>
+<li>新增扫描的系统预装软件目录：<br><code>/system/vendor/app</code><br><code>/system/vendor/priv-app</code><br></li>
+</ol>
+
 ### 1.0.7
 
 - Support custom directory (add "/system/(custom dir name)/(custom dir name)" to target.txt)
