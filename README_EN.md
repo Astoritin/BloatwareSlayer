@@ -5,7 +5,7 @@
 A Magisk module to remove bloatware in systemless way
 / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
-<details open>
+<details>
 <summary>NOTICE</summary>
 This Magisk required devices with unlocked BootLoader and specific Root Modules Manager (Magisk/KernelSU/APatch).
 This Magisk module WILL NOT be able to work if your device doesn't get root access or even unlock BootLoader.
@@ -68,7 +68,7 @@ You need to be aware of which system apps you want to block,<br>
 
 Logs are saved in <code>/data/adb/bloatwareslayer/logs</code>. You can review them and submit them when reporting issues.
 
-<details open>
+<details>
 <summary>Notice</summary>
 <code>log_pfd_(timestamp).txt</code> contains logs related to the core functionality of Bloatware Slayer.<br>
 Since the system is not fully initialized at this stage, the timestamps may appear unusual. Please do not be concerned.<br>
