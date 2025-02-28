@@ -66,7 +66,7 @@ A: 其一，**应用名称和包名并不可靠。** <br>
 
 日志被保存在 <code>/data/adb/bloatwareslayer/logs</code> ,
 你可以查看它并在反馈遇到的问题时提交该日志<br>
-<details open>
+<details>
 <summary>注意</summary>
 log_pfd_(时间戳).txt 是Bloatware Slayer 核心功能相关的日志，由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。<br>
 log_s_(时间戳).txt 是Bloatware Slayer附加功能相关的日志，时间戳已经正常初始化。<br>
@@ -119,8 +119,6 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 
 ## 帮助与支持
 
-You can click [here](https://github.com/Astoritin/Bloatware_Slayer/issues) to give feedback if facing problems
-/ 如果遇到问题，请点击 [此处](https://github.com/Astoritin/Bloatware_Slayer/issues) 提交反馈
+如果遇到问题，请点击 [此处](https://github.com/Astoritin/Bloatware_Slayer/issues) 提交反馈
 
-[Pull request](https://github.com/Astoritin/Bloatware_Slayer/pulls) is always welcome to let this module become better
-/ 欢迎 [pull request](https://github.com/Astoritin/Bloatware_Slayer/pulls)，让该模块变得更好
+欢迎 [Pull request](https://github.com/Astoritin/Bloatware_Slayer/pulls)，让该模块变得更好
