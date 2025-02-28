@@ -7,7 +7,7 @@ A Magisk module to remove bloatware in systemless way
 
 <details>
 <summary>NOTICE</summary>
-This Magisk required devices with unlocked BootLoader and specific Root Modules Manager (Magisk/KernelSU/APatch).
+This Magisk module required devices with unlocked BootLoader and specific Root Modules Manager (Magisk/KernelSU/APatch).
 This Magisk module WILL NOT be able to work if your device doesn't get root access or even unlock BootLoader.
 </details>
 
