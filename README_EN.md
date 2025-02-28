@@ -73,7 +73,6 @@ Logs are saved in <code>/data/adb/bloatwareslayer/logs</code>. You can review th
 <code>log_pfd_(timestamp).txt</code> contains logs related to the core functionality of Bloatware Slayer.<br>
 Since the system is not fully initialized at this stage, the timestamps may appear unusual. Please do not be concerned.<br>
 <code>log_s_(timestamp).txt</code> contains logs related to additional features of Bloatware Slayer.<br>
-<code>log_install_(timestamp).txt</code> is the log automatically generated during the installation of Bloatware Slayer.<br>
 When reporting issues, please package the entire logs folder and upload it.
 </details>
 
