@@ -3,6 +3,17 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ## Changelog / 变更日志
 
+## 1.0.9
+
+- 现在的模块描述中，移除的显示优先级比禁用高
+- Now the priority of status remove showing in module description is higher than disable
+- 降低模块描述刷新频率至3秒以减少CPU开销
+- Reduce module description refresh rate to 3 seconds to decrease CPU overhead
+- 不再自动生成安装日志，请手动从 Magisk / KernelSU 处导出
+- No more install log automatically, please export it from Magisk / KernelSU manually
+- 优化日志输出，移除部分不必要的代码
+- Optimize log output and remove some unnecessary code
+
 ## 1.0.8
 
 - 现在，当<code>/data/adb/bloatwareslayer/logs</code>下的日志过多，Bloatware Slayer会在安装或更新过程中清除较早的日志
