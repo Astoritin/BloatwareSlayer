@@ -14,7 +14,7 @@
 ## 支持的 Root 方案
 
 - [Magisk](https://github.com/topjohnwu/Magisk) (推荐!)
-- [KernelSU](https://github.com/tiann/KernelSU) (推荐 Magic Mount 模块系统，OverlayFS 尚未测试)
+- [KernelSU](https://github.com/tiann/KernelSU) (推荐!)
 - [APatch](https://github.com/bmax121/APatch) (仅理论上支持，未经实际测试)
 
 ## 详细信息
