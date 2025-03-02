@@ -19,7 +19,7 @@
 
 ## 详细信息
 
-该 Magisk 模块通过 Magisk 的挂载方式和用于 KernelSU 和 APatch 的特定挂载方法，
+该 Magisk 模块通过 Magisk、KernelSU 和 APatch 的特定挂载方法，
 以 Systemless 的方式删除预装软件，以下是大概的使用步骤：
 
 1. 安装 Magisk / KernelSU / APatch
@@ -45,16 +45,16 @@
 <li>你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。</li><br>
 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。<br><br>
 <li>由于现如今绝大多数设备都是 SAR (System-as-root)，你可能在 AppManager 中看到的资源目录名不是 <code>/system</code> 开头 (例如  <code>/product/app/Scanner</code>)，为了确保挂载生效，请手动在这类路径前面添加 <code>/system</code> ，否则 Bloatware Slayer 会直接忽略该路径</li><br>
-<li>若你看到的资源目录以 <code>/data</code> 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，可以自行卸载，请不要加入到 <code>target.txt</code> 中，因为Bloatware Slayer的处理也不会对这类软件生效</li><br>
+<li>若你看到的资源目录以 <code>/data</code> 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 <code>target.txt</code> 中，因为Bloatware Slayer的处理也不会对这类软件生效</li><br>
 </ol>
 </details><br>
 
 <details>
 <summary>Q: 为什么需要我手工复制，而不是模块根据我指定的应用名称或包名自行检测？</summary>
 
-A: 其一，**应用名称和包名并不可靠。** <br>
+A: 其一，**应用名称和包名并不可靠，依靠这两点查找应用文件夹的效率太低了。** <br>
 对于大多数规范的ROM而言，用除了英文以外的其他语言给系统目录/文件夹命名的概率极低，<br>
-甚至有不少应用的应用名称跟其所在的系统目录/文件夹名没有任何关系。<br><br>
+甚至有不少应用的应用名称跟其所在的系统目录/文件夹名没有任何关系（无论是ROM提供商的疏忽和学艺不精导致的命名细节不规范，还是为了隐藏自己收集用户信息安插的眼线APP的阴暗心思而故意不规范命名）。如果一定要这么匹配，且不说需要大量的数据统计，即使如此，误判率也还是很高。<br><br>
 <em>举个例子：有个APP名为系统服务，但是其目录/文件夹名为AdPushService，其包名为com.android.adpromote</em><br><br>
 至于包名，在post-fs-data阶段很难做到根据包名查应用程序所在的系统目录，而一旦进入service阶段，甚至是进入系统桌面阶段再查就没有意义了。<br>
 因为此时模块系统已完成挂载，无法再屏蔽系统应用了。<br>
