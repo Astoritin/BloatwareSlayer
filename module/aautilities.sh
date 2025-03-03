@@ -35,9 +35,11 @@ install_env_check() {
     echo "- Install from $ROOT_IMP"
   else
     ROOT_IMP="Recovery"
+    print_line
     echo "! Install module in Recovery mode is not support!"
     echo "! Especially for KernelSU / APatch!"
     abort "! Please install this module in Magisk / KernelSU / APatch APP!"
+    print_line
   fi
   if [ -n "$CONFIG_DIR" ]; then
     if [ ! -d "$CONFIG_DIR" ]; then
@@ -55,18 +57,13 @@ install_env_check() {
 }
 
 debug_print_values(){
-  OUTPUT_LOG="$1"
-  echo "- env Info -------------------------------------------------------------------------------------------" >> $OUTPUT_LOG
-  env | sed 's/^/- /' >> $OUTPUT_LOG
-  echo "- special Info ---------------------------------------------------------------------------------------" >> $OUTPUT_LOG
-  echo "- BOOTMODE: $BOOTMODE" >> $OUTPUT_LOG
-  echo "- KSU: $KSU" >> $OUTPUT_LOG
-  echo "- KSU_KERNEL_VER_CODE: $KSU_KERNEL_VER_CODE" >> $OUTPUT_LOG
-  echo "- KSU_VER_CODE: $KSU_VER_CODE" >> $OUTPUT_LOG
-  echo "- APATCH: $APATCH" >> $OUTPUT_LOG
-  echo "- APATCH_VER_CODE: $APATCH_VER_CODE" >> $OUTPUT_LOG
-  echo "- MAGISK_VER_CODE: $MAGISK_VER_CODE" >> $OUTPUT_LOG
-  echo "- MAGISK_VER: $MAGISK_VER" >> $OUTPUT_LOG
+  echo "- env Info -------------------------------------------------------------------------------------------"
+  env | sed 's/^/- /'
+  echo "- special Info ---------------------------------------------------------------------------------------"
+  echo "- BOOTMODE: $BOOTMODE"
+  echo "- KSU: $KSU, KSU_KERNEL_VER_CODE: $KSU_KERNEL_VER_CODE, KSU_VER_CODE: $KSU_VER_CODE"
+  echo "- APATCH: $APATCH, APATCH_VER_CODE: $APATCH_VER_CODE"
+  echo "- MAGISK_VER_CODE: $MAGISK_VER_CODE, MAGISK_VER: $MAGISK_VER"
 }
 
 show_system_info(){
@@ -83,10 +80,17 @@ show_system_info(){
   echo "- SWAP Space: ${swap_total}MB  Used:${swap_used}MB  Free:${swap_free}MB"
 }
 
+print_line() {
+    local length=${1:-50}
+    printf '%*s\n' "$length" | tr ' ' '-'
+}
+
 abort_verify() {
+  print_line
   echo "! $1"
   echo "! This zip may be corrupted or have been maliciously modified!"
   abort "! Please try to download again or get it from official source!"
+  print_line
 }
 
 extract() {
@@ -117,8 +121,7 @@ extract() {
 
   expected_hash="$(cat "$hash_path")"
   calculated_hash="$(sha256sum "$file_path" | cut -d ' ' -f1)"
-  #echo "- EH: $expected_hash"
-  #echo "- CH: $calculated_hash"
+
   if [ "$expected_hash" == "$calculated_hash" ]; then
     echo "- Verified $file" >&1
   else
@@ -146,13 +149,15 @@ clean_old_logs() {
 
     files_count=$(ls -1 "$log_dir" | wc -l)
     if [ "$files_count" -gt "$files_max" ]; then
-        echo "- Detect too many log files: $files_count (max allowed: $files_max)"
-        echo "- Starting cleaning..."
+        echo "- Detect too many log files"
+        echo "- $files_count files, current max allowed: $files_max"
+        echo "- Clearing old logs..."
         ls -1t "$log_dir" | tail -n +$((files_max + 1)) | while read -r file; do
             rm -f "$log_dir/$file"
         done
-        echo "- Cleanup done!"
+        echo "- Cleared!"
     else
-        echo "- No need to clean. Current file count: $files_count"
+        echo "- No need to clear"
+        echo "- $files_count files now, current max allowed: $files_max"
     fi
 }
