@@ -56,7 +56,7 @@
 对于大多数规范的ROM而言，用除了英文以外的其他语言给系统目录/文件夹命名的概率极低，<br>
 甚至有不少应用的应用名称跟其所在的系统目录/文件夹名没有任何关系（无论是ROM提供商的疏忽和学艺不精导致的命名细节不规范，还是为了隐藏自己收集用户信息安插的眼线APP的阴暗心思而故意不规范命名）。如果一定要这么匹配，且不说需要大量的数据统计，即使如此，误判率也还是很高。<br><br>
 <em>举个例子：有个APP名为系统服务，但是其目录/文件夹名为AdPushService，其包名为com.android.adpromote</em><br><br>
-至于包名，请阅读[已确认不会添加的功能：检测包名 / Detecting packages name is permanently off the table](https://github.com/Astoritin/Bloatware_Slayer/releases/tag/v1.1.0)。
+至于包名，请阅读[[已确认不会添加的功能：检测包名 / Detecting packages name is permanently off the table]](https://github.com/Astoritin/Bloatware_Slayer/issues/6#issuecomment-2693035556)。
 <br>
 
 其二，虽然该模块是在 Systemless (不修改系统) 的情况下运行，但是**你始终需要知道并确定自己正在做的事情**，你必须知道自己需要屏蔽掉哪些系统 APP，**而不是照搬别人的列表，出问题了就把责任全部推给本 Magisk 模块**。
