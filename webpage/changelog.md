@@ -27,10 +27,10 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 - 既然都能拿到包名了，拿到所在的资源目录自然也不难，添加包名检测事实上也并没有多方便
 - Moreover, if the package name can be obtained, it would naturally not be difficult to get the resource directory it is located in. Therefore, adding package name detection does not offer much convenience.
 
-## 已知问题 / Known bug
+~~## 已知问题 / Known bug~~
 
-- 在 KernelSU 中的，哪怕只需要执行一次，挂载阶段的日志输出会重复很多次，但是在 Magisk 并没有这个问题。我推断这可能是 KernelSU 特有的问题，并且目前没有修复它的想法。
-- The output of logs in mounting stage will repeat many times even if only need to execute one time in KernelSU. But there is no such problem in Magisk. I infer that this problem maybe **unique to KernelSU (KernelSU only)** and have no idea to do about it so far.
+~~- 在 KernelSU 中的，哪怕只需要执行一次，挂载阶段的日志输出会重复很多次，但是在 Magisk 并没有这个问题。我推断这可能是 KernelSU 特有的问题，并且目前没有修复它的想法。~~
+~~- The output of logs in mounting stage will repeat many times even if only need to execute one time in KernelSU. But there is no such problem in Magisk. I infer that this problem maybe **unique to KernelSU (KernelSU only)** and have no idea to do about it so far.~~
 
 ## 1.0.9
 
