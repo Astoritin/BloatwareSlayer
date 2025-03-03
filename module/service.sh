@@ -9,7 +9,7 @@ EMPTY_DIR="$CONFIG_DIR/empty"
 TARGET_LIST="$CONFIG_DIR/target.txt"
 LOG_DIR="$CONFIG_DIR/logs"
 STATUS_DIR="$CONFIG_DIR/status.info"
-BS_LOG_FILE="$LOG_DIR/log_bs_$(date +"%Y-%m-%d_%H-%M-%S").txt"
+BS_LOG_FILE="$LOG_DIR/bs_log_$(date +"%Y-%m-%d_%H-%M-%S").txt"
 
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
@@ -30,17 +30,7 @@ if [ -f "$BRICKED_STATUS" ]; then
     echo "- Detect flag bricked!"
     echo "- Skip service.sh process"
     DESCRIPTION="[❌ Disabled. Auto disabled from brick! Root: $ROOT_IMP] 勝った、勝った、また勝ったぁーっと！！🎉✨"
-    sed -i "/^description=/c\description=$DESCRIPTION" "$MODULE_PROP" || {
-        echo "! Failed to update module.prop!"
-        echo "- Attempt to create disable manually..."
-        touch "${MODDIR}/disable"
-        if [ -f "${MODDIR}/disable" ]; then
-            echo '- Create file "disable"'
-        else
-            echo '! Failed to create file "disable"!'
-        fi
-        return 1
-        }
+    sed -i "/^description=/c\description=$DESCRIPTION" "$MODULE_PROP"
     echo "- Update module.prop"
     echo "- Skip mounting..."
     rm -rf "$BRICKED_STATUS"
@@ -80,15 +70,19 @@ fi
     
     if [ ! -f "$TARGET_LIST" ]; then
         echo "! Target list does not exist!"
+        DESCRIPTION="[❌ Disabled. Target list does not exist! Root: $ROOT_IMP] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+        sed -i "/^description=/c\description=$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
     
-    if [ ! -d "$EMPTY_DIR" ]; then
-        echo "- Empty foloder does not exist! "
-        echo "- Create $EMPTY_DIR"
-        mkdir -p "$EMPTY_DIR"
+    if [ -d "$EMPTY_DIR" ]; then
+        echo "- Detect $EMPTY_DIR existed"
+        rm -rf "$EMPTY_DIR"
     fi
-    
+    echo "- Create $EMPTY_DIR"
+    mkdir -p "$EMPTY_DIR"
+    chmod 755 "$EMPTY_DIR"
+
     TOTAL_APPS_COUNT=0
     BLOCKED_APPS_COUNT=0
     while IFS= read -r package; do
@@ -147,11 +141,12 @@ fi
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-            DESCRIPTION="[😋 Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, Root: $ROOT_IMP] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+            DESCRIPTION="[❤️ Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, Root: $ROOT_IMP] 勝った、勝った、また勝ったぁーっと！！🎉✨"
         else
             if [ $TOTAL_APPS_COUNT -gt 0]; then
-                DESCRIPTION="[😋 Enabled. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, Root: $ROOT_IMP] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+                DESCRIPTION="[❤️ Enabled. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, Root: $ROOT_IMP] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             else
+                echo "! Current blocked apps count: $TOTAL_APPS_COUNT <= 0"
                 DESCRIPTION="[❌ Disabled. Abnormal status! Root: $ROOT_IMP] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             fi
         fi
