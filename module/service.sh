@@ -1,7 +1,7 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
-TIMEOUT=300
+TIMEOUT=200
 
 CONFIG_DIR="/data/adb/bloatwareslayer"
 LOG_DIR="$CONFIG_DIR/logs"
@@ -29,17 +29,17 @@ brick_rescue(){
         DESCRIPTION="[❌Disabled. Auto disabled from brick! Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way 🎉✨"
         sed -i "/^description=/c\description=$DESCRIPTION" "$MODULE_PROP"
         logowl "Update module.prop"
-        logowl "Skip mounting..."
+        logowl "Skip mounting"
         rm -rf "$BRICKED_STATUS"
         if [ $? -eq 0 ]; then
             logowl "Bricked status cleared"
         else
             logowl "Failed to clear bricked status" "FATAL"
         fi
-        return 1    
+        exit 1
     else
         logowl "Flag bricked does not detect"
-        logowl "$MOD_NAME will keep going..."
+        logowl "$MOD_NAME will keep going"
     fi
 
 }
@@ -184,7 +184,7 @@ logowl "By $MOD_AUTHOR"
 logowl "Version: $MOD_VER"
 logowl "Root solution: $ROOT_SOL"
 logowl "Current time stamp: $(date +"%Y-%m-%d %H:%M:%S")"
-logowl "Starting service.sh..."
+logowl "Starting service.sh"
 print_line >> $LOG_FILE
 logowl "env Info"
 print_line >> $LOG_FILE
@@ -209,11 +209,11 @@ module_status_update
             logowl "Mark status as bricked"
             touch "$BRICKED_STATUS"
             print_line >> $LOG_FILE
-            logowl "Rebooting..."
+            logowl "Rebooting"
             sync
             reboot
             sleep 5
-            logowl "Reboot command did not take effect, exiting..."
+            logowl "Reboot command did not take effect, exiting"
             exit 1
         fi
         TIMEOUT=$((TIMEOUT-1))
