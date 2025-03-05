@@ -45,7 +45,7 @@
 <li>你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。</li><br>
 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。<br><br>
 <li>由于现如今绝大多数设备都是 SAR (System-as-root)，你可能在 AppManager 中看到的资源目录名不是 <code>/system</code> 开头 (例如  <code>/product/app/Scanner</code>)，为了确保挂载生效，请手动在这类路径前面添加 <code>/system</code> ，否则 Bloatware Slayer 会直接忽略该路径</li><br>
-<li>为了节省时间和消耗，现在<code>target.txt</code>会随着每次系统启动自动更新为预装APP对应的系统目录，未来会加入若干选项以控制该行为</li>
+<li>为了节省时间和消耗，现在<code>target.txt</code>会随着每次系统启动自动更新为预装APP对应的系统目录，未来会加入若干选项以控制该行为</li><br>
 <li>若你看到的资源目录以 <code>/data</code> 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 <code>target.txt</code> 中，因为Bloatware Slayer的处理也不会对这类软件生效</li><br>
 </ol>
 </details>
