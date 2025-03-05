@@ -35,6 +35,10 @@
 未找到目录的APP数 (missing)<br>
 列表里配置的APP总数 (targeted in total)<br>
 
+![Bloatware Slayer v1.2.0](webpage/img/bs_work_normal.jpg)
+![Bloatware Slayer v1.2.0](webpage/img/bs_work_allclear.jpg)
+
+
 例如：我需要卸载小爱同学，那么我会通过 AppManager 查看小爱同学所在的文件夹，得知其名字是 <code>VoiceAssistAndroidT</code>，
 然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.txt</code> ，回车并保存更改后重启设备。<br>
 
