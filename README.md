@@ -10,7 +10,6 @@
 该 Magisk 模块仅能在已解锁 Bootloader 的设备上使用，并且需要特定的 Root 模块管理器 (Magisk、KernelSU、APatch)。
 如果你没有 Root 甚至没有解锁 Bootloader，那么该 Magisk 模块无法在你的设备上工作。
 </details>
-<br>
 
 ![Bloatware Slayer v1.2.0](webpage/img/bs_work_allclear.jpg)
 
@@ -36,9 +35,9 @@
 
 你可以在模块描述里看到被该模块屏蔽的APP数 (slain)<br>
 未找到目录的APP数 (missing)<br>
-列表里配置的APP总数 (targeted in total)<br>
+列表里配置的APP总数 (targeted in total)<br><br>
 ![Bloatware Slayer v1.2.0](webpage/img/bs_work_normal.jpg)
-<br>
+<br><br>
 例如：我需要卸载小爱同学，那么我会通过 AppManager 查看小爱同学所在的文件夹，得知其名字是 <code>VoiceAssistAndroidT</code>，
 然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.txt</code> ，回车并保存更改后重启设备。<br>
 
