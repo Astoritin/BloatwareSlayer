@@ -118,7 +118,7 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 2. 小米MIUI12.5.4，安卓10，设备：红米 Note 7 Pro 6+128GB (设备代号violet，原厂系统)
     Root：Magisk Alpha 28102
 3. DroidUIX，安卓15，设备：红米 Note 7 Pro 6+128GB (设备代号violet，类原生系统)
-    Root：KernelSU with Magic Mount 1.0.3
+    Root：KernelSU with Magic Mount 1.0.3 和 KernelSU with OverlayFS 0.9.5
 
 
 ## 帮助与支持
