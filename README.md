@@ -73,7 +73,7 @@ log_s_(时间戳).txt 是Bloatware Slayer v1.1.0- 附加功能相关的日志，
 log_setup_(时间戳).txt 是Bloatware Slayer 刷入时产生的碎片文件，目前……还没有什么大用。<br>
 log_core_(时间戳).txt 是Bloatware Slayer v1.2.0+ 的核心功能+附加功能相关的日志。<br><br>
 <b>反馈问题时，请直接打包整个logs文件夹后上传。</b><br>
-</details><br><br>
+</details><br>
 
 ## 救砖
 
