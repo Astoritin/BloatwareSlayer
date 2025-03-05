@@ -11,6 +11,8 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 - 自动更新 target.txt 为有效的应用路径
 - Refactor large amount of code and unified logging
 - 重构大量代码，统一日志输出
+- Fix the unavailable unbrick feature
+- 修复失效的救砖功能
 
 ## 1.1.0
 
