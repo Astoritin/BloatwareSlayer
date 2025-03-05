@@ -11,6 +11,7 @@
 如果你没有 Root 甚至没有解锁 Bootloader，那么该 Magisk 模块无法在你的设备上工作。
 </details>
 <br>
+
 ![Bloatware Slayer v1.2.0](webpage/img/bs_work_allclear.jpg)
 
 ## 支持的 Root 方案
