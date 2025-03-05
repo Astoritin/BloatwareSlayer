@@ -74,7 +74,7 @@
 log_pfd_(时间戳).txt 是Bloatware Slayer v1.0.9- 的核心功能相关的日志，由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。由于post-fs-data.sh已于 v1.1.0+ 移除，你不应该在反馈问题时提交该日志。<br><br>
 log_s_(时间戳).txt 是Bloatware Slayer v1.1.0- 附加功能相关的日志，v1.1.0+ 的核心功能的日志，时间戳已经正常初始化。<br><br>
 bs_log_setup_(时间戳).txt 是Bloatware Slayer 刷入时产生的碎片文件，目前……还没有什么大用。<br><br>
-bs_log_core_(时间戳).txt 是Bloatware Slayer v1.2.0+ 的核心功能+附加功能相关的日志。<br>
+bs_log_core_(时间戳).txt 是Bloatware Slayer v1.2.0+ 的核心功能+附加功能相关的日志。<br><br><br>
 <b>反馈问题时，请直接打包整个logs文件夹后上传。</b><br>
 </details><br>
 
