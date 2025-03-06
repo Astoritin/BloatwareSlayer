@@ -65,6 +65,17 @@
 其二，虽然该模块是在 Systemless (不修改系统) 的情况下运行，但是**你始终需要知道并确定自己正在做的事情**，你必须知道自己需要屏蔽掉哪些系统 APP，**而不是照搬别人的列表，出问题了就把责任全部推给本 Magisk 模块**。
 </details><br>
 
+## 配置设置
+
+自 v1.2.1 起， Bloatware Slayer 支持手动启用或禁用以下功能，请打开配置文件<code>/data/adb/bloatwareslayer/settings.conf</code>查看并修改。<br>
+1. <code>brick_timeout</code>：设定判断设备变砖的时限(Timeout)，要求正整数，以秒为单位，默认值是<code>300</code>秒(5分钟)。
+2. <code>disable_module_as_brick</code>：设定是否在触发设备变砖时自动禁用该模块。默认情况下为<code>true</code>(启用)，你也可以设置为<code>false</code>以禁用该功能。<br>
+这样，模块在检测到设备变砖时就只会跳过挂载而不会自我禁用，在排除<code>target.conf</code>中的不稳定项目后即可自行重新启动，无需再进入Root管理器重新启用本模块。<br>
+3. <code>auto_update_target_list</code>：切换每次启动时是否更新 target.conf 中的项目为预装应用所在路径，默认情况下为<code>true</code>(启用)以加快下次系统的启动速度。<br>
+如果你不希望<code>target.conf</code>被模块自动更新掉，想保留自己添加的注解或者保留未找到的项目，则可以设定为<code>false</code>。
+4. <code>update_desc_on_action</code>：在模块被禁用/卸载时更新模块状态描述，是一个没有什么用且会增加消耗的功能，默认<code>false</code>(禁用)。<br>
+如果你希望在点击禁用或卸载按钮后见到提示，那么可以改成<code>true</code>启用此功能。
+
 ## 日志
 
 日志被保存在 <code>/data/adb/bloatwareslayer/logs</code> ,
@@ -83,7 +94,7 @@ bs_log_core_(时间戳).txt 是Bloatware Slayer v1.2.0+ 的核心功能+附加�
 Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会自动禁用模块的挂载功能并自动重启<br>
 重启后，你会在模块状态上看见相应信息，请自行调整 <code>target.txt</code> ，删除不该被禁用的项目后重新启动<br>
 默认的等待时长是300秒（5分钟），也就是说 Bloatware Slayer 会在等待5分钟后自我禁用并重新启动。
-若你的系统正在更新，请临时彻底禁用或卸载该模块，之后再安装。
+若你的系统正在更新，请临时禁用或卸载该模块，之后再安装。
 
 <details>
 <summary>Q: Bloatware Slayer会破坏我的设备吗？为什么需要救砖手段？</summary>
