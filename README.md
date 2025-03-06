@@ -137,6 +137,6 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 
 ## 帮助与支持
 
-如果遇到问题，请点击 [此处](https://github.com/Astoritin/Bloatware_Slayer/issues) 提交反馈
+如果遇到问题，请点击 [此处](https://github.com/Astoritin/BloatwareSlayer/issues) 提交反馈
 
-欢迎 [Pull request](https://github.com/Astoritin/Bloatware_Slayer/pulls)，让该模块变得更好
+欢迎 [Pull Request](https://github.com/Astoritin/BloatwareSlayer/pulls)，让该模块变得更好
