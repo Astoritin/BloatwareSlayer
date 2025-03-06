@@ -39,7 +39,7 @@ install_env_check() {
   fi
 }
 
-init_logowl(){
+init_logowl() {
 
   local LOG_DIR="$1"
   if [ -z "$LOG_DIR" ]; then
@@ -48,7 +48,7 @@ init_logowl(){
   fi
 
  if [ ! -d "$LOG_DIR" ]; then
-  echo "- Log directory: $LOG_DIR does not exist. Creating now..."
+  echo "- Log directory: $LOG_DIR does not exist. Creating now"
   mkdir -p "$LOG_DIR" || {
     echo "- Error: Failed to create log directory: $LOG_DIR" >&2
     return 2
@@ -70,36 +70,85 @@ logowl() {
   fi
 
   case "$LOG_LEVEL" in
+    "TIPS")
+      LOG_LEVEL="*"
+      ;;
     "WARN")
       LOG_LEVEL="- Warn:"
       ;;
     "ERROR")
-      print_line
       LOG_LEVEL="! ERROR:"
-      print_line
       ;;
     "FATAL")
-      print_line
       LOG_LEVEL="× FATAL:"
-      print_line
       ;;
     *)
       LOG_LEVEL="-"
       ;;
   esac
 
-  echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE"
-
-  if [ "$BOOTMODE" ]; then
-    ui_print "$LOG_LEVEL $LOG_MSG" 2>/dev/null
-  fi
-
-  if [[ "$LOG_LEVEL" == "! ERROR:" || "$LOG_LEVEL" == "× FATAL:" ]]; then
-    print_line
+  if [ -z "$LOG_FILE" ]; then
+    if [ "$BOOTMODE" ]; then
+        ui_print "$LOG_LEVEL $LOG_MSG" 2>/dev/null
+        return 0
+    fi
+    echo "$LOG_LEVEL $LOG_MSG"
+  else
+    if [[ "$LOG_LEVEL" == "! ERROR:" ]] || [[ "$LOG_LEVEL" == "× FATAL:" ]]; then
+      print_line
+    fi
+    echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE" 2>> "$LOG_FILE" 
+    if [[ "$LOG_LEVEL" == "! ERROR:" ]] || [[ "$LOG_LEVEL" == "× FATAL:" ]]; then
+      print_line
+    fi
   fi
 }
 
-update_module_description(){
+init_variables() {
+    local key="$1"
+    local config_file="$2"
+    local value
+
+    if [[ ! -f "$config_file" ]]; then
+        logowl "Configuration file $config_file does not exist." "ERROR" >&2
+        return 1
+    fi
+
+    value=$(sed -n "s/^$key=\(.*\)/\1/p" "$config_file")
+
+    if [[ -z "$value" ]]; then
+        logowl "Key '$key' is NOT found in $config_file" "WARN" >&2
+        return 2
+    fi
+
+    echo "$value"
+}
+
+verify_variables() {
+    local config_var_name="$1"
+    local config_var_value="$2"
+    local validation_pattern="$3"
+    # local default_value="$4"
+    local script_var_name=$(echo "$config_var_name" | tr '[:lower:]' '[:upper:]')
+
+    if [ -n "$config_var_value" ] && [[ "$config_var_value" =~ $validation_pattern ]]; then
+        logowl "Detect current var: $config_var_name=$config_var_value"
+        export "$script_var_name"="$config_var_value"
+        logowl "Set $script_var_name=$config_var_value" "TIPS"
+    else
+        logowl "Detect unavailable var: $config_var_name=$config_var_value"
+        logowl "Will keep the value as default one"
+        # if [ -n "$default_value" ]; then
+        #     logowl "Keep $script_var_name as default value ($default_value)"
+        #     export "$script_var_name"="$default_value"
+        # else
+        #     logowl "No default value provided for $script_var_name, keep empty"
+        #     export "$script_var_name"=""
+        # fi
+    fi
+}
+
+update_module_description() {
   local DESCRIPTION="$1"
   local MODULE_PROP="$2"
   if [ -z "$DESCRIPTION" ] || [ -z "$MODULE_PROP" ]; then
@@ -110,7 +159,7 @@ update_module_description(){
   sed -i "/^description=/c\description=$DESCRIPTION" "$MODULE_PROP"
 }
 
-debug_print_values(){
+debug_print_values() {
   logowl "env Info"
   env | sed 's/^/- /'
   logowl "special Info"
@@ -120,7 +169,7 @@ debug_print_values(){
   logowl "MAGISK_VER_CODE: $MAGISK_VER_CODE, MAGISK_VER: $MAGISK_VER"
 }
 
-show_system_info(){
+show_system_info() {
   logowl "Device: $(getprop ro.product.brand) $(getprop ro.product.model) ($(getprop ro.product.device))"
   logowl "Android $(getprop ro.build.version.release) (API $API), $ARCH"
   mem_info=$(free -m)
@@ -139,7 +188,7 @@ print_line() {
   printf '%*s\n' "$length" | tr ' ' '-'
 }
 
-file_compare(){
+file_compare() {
   local file_a="$1"
   local file_b="$2"
   if [ -z "$file_a" ] || [ -z "$file_b" ]; then
@@ -212,7 +261,7 @@ extract() {
   fi
 }
 
-set_module_files_perm(){
+set_module_files_perm() {
   logowl "Setting permissions"
   set_perm_recursive "$MODPATH" 0 0 0755 0644
 }
@@ -227,14 +276,14 @@ clean_old_logs() {
     fi
 
     if [ -z "$files_max" ]; then
-        files_max=66
+        files_max=30
     fi
 
     files_count=$(ls -1 "$log_dir" | wc -l)
     if [ "$files_count" -gt "$files_max" ]; then
         logowl "Detect too many log files" "WARN"
         logowl "$files_count files, current max allowed: $files_max"
-        logowl "Clearing old logs..."
+        logowl "Clearing old logs"
         ls -1t "$log_dir" | tail -n +$((files_max + 1)) | while read -r file; do
             rm -f "$log_dir/$file"
         done
