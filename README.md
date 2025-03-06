@@ -29,9 +29,9 @@
 3. 为了获得预装软件所在的目录/文件夹，你需要提前做好功课<br>
 例如使用 [App Manager](https://github.com/MuntashirAkon/AppManager)<br>
 或使用Root Explorer、MiXplorer在 <code>/system</code> 处手动寻找并复制预装软件的文件夹名<br>
-4. 打开 <code>/data/adb/bloatwareslayer/target.txt</code>，<br>
+4. 打开 <code>/data/adb/bloatwareslayer/target.conf</code>，<br>
 并将你通过步骤3获得的预装软件所在的文件夹名放在上面，**一行一个**<br>
-5. 保存 target.txt 的更改，并重新启动后查看效果<br><br>
+5. 保存 target.conf 的更改，并重新启动后查看效果<br><br>
 
 你可以在模块描述里看到被该模块屏蔽的APP数 (slain)<br>
 未找到目录的APP数 (missing)<br>
@@ -39,17 +39,17 @@
 ![Bloatware Slayer v1.2.0](webpage/img/bs_work_normal.jpg)
 <br><br>
 例如：我需要卸载小爱同学，那么我会通过 AppManager 查看小爱同学所在的文件夹，得知其名字是 <code>VoiceAssistAndroidT</code>，
-然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.txt</code> ，回车并保存更改后重启设备。<br>
+然后将 <code>VoiceAssistAndroidT</code> 复制到 <code>target.conf</code> ，回车并保存更改后重启设备。<br>
 
 <details open>
 <summary>注意</summary>
 <ol>
-<li><code>target.txt</code> 支持"#"号注释整行，Bloatware Slayer 不会处理被注释掉的行和空行。</li><br>
+<li><code>target.conf</code> 支持"#"号注释整行，Bloatware Slayer 不会处理被注释掉的行和空行。</li><br>
 <li>你也可以自定义路径，例如：<code>/system/app/MiVideo/</code>。</li><br>
 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。<br><br>
 <li>由于现如今绝大多数设备都是 SAR (System-as-root)，你可能在 AppManager 中看到的资源目录名不是 <code>/system</code> 开头 (例如  <code>/product/app/Scanner</code>)，为了确保挂载生效，请手动在这类路径前面添加 <code>/system</code> ，否则 Bloatware Slayer 会直接忽略该路径</li><br>
-<li>为了节省时间和减少资源消耗，现在<code>target.txt</code>会随着每次系统启动自动更新为预装APP对应的系统目录，未来会加入若干选项以控制该行为</li><br>
-<li>若你看到的资源目录以 <code>/data</code> 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 <code>target.txt</code> 中，因为Bloatware Slayer的处理也不会对这类软件生效</li><br>
+<li>为了节省时间和减少资源消耗，现在<code>target.conf</code>会随着每次系统启动自动更新为预装APP对应的系统目录，未来会加入若干选项以控制该行为</li><br>
+<li>若你看到的资源目录以 <code>/data</code> 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 <code>target.conf</code> 中，因为Bloatware Slayer的处理也不会对这类软件生效</li><br>
 </ol>
 </details>
 <details>
@@ -92,7 +92,7 @@ bs_log_core_(时间戳).txt 是Bloatware Slayer v1.2.0+ 的核心功能+附加�
 ## 救砖
 
 Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会自动禁用模块的挂载功能并自动重启<br>
-重启后，你会在模块状态上看见相应信息，请自行调整 <code>target.txt</code> ，删除不该被禁用的项目后重新启动<br>
+重启后，你会在模块状态上看见相应信息，请自行调整 <code>target.conf</code> ，删除不该被禁用的项目后重新启动<br>
 默认的等待时长是300秒（5分钟），也就是说 Bloatware Slayer 会在等待5分钟后自我禁用并重新启动。
 若你的系统正在更新，请临时禁用或卸载该模块，之后再安装。
 
@@ -115,12 +115,12 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 这些 APP 被放在系统内置的白名单内，大部分限制对它们而言无效，
 最关键的一点是，<br><b>一旦系统检测到它们被卸载或不存在，就直接拒绝开机</b><br>
 一直停在开机动画界面或者拒绝提供某些服务。<br><br>
-如果你将某些 APP 加入了 <code>target.txt</code> 但是卡在了开机动画甚至是开机第一屏，<br>
+如果你将某些 APP 加入了 <code>target.conf</code> 但是卡在了开机动画甚至是开机第一屏，<br>
 要么这些 APP 是<b>维持系统正常运行秩序所必须的 APP</b>，<br>
 要么是<b>这些 APP 就是所谓的“一卸载就罢工”的 APP</b><br>
 这个时候无论是排除法还是需要进入系统，就需要<b>救砖手段</b>了，以下是一些救砖建议：<br>
 
-1. 对于 <b>Magisk Alpha</b>，当设备<b>两次无法正常进入系统时</b>，<b>在第三次启动就会自动进入安全模式，并禁用所有模块</b>，此时你可以进入并修改 target.txt<br>
+1. 对于 <b>Magisk Alpha</b>，当设备<b>两次无法正常进入系统时</b>，<b>在第三次启动就会自动进入安全模式，并禁用所有模块</b>，此时你可以进入并修改 target.conf<br>
 2. 对于 <b>KernelSU / APatch</b>，在开机第一屏到开机动画期间可以<b>连续按下音量减键十次左右（连续按，不是长按）</b>,<br>
   只要你的设备的 KernelSU 内核将救砖模式的代码编译在内，那么有大概率进入 KernelSU / APatch 的安全模式，所有模块会被禁用<br>
 3. 对于支持第三方 Recovery 的设备，当你使用 Magisk 时，你也可以<b>直接使用这类 Recovery 的模块管理界面，轻松禁用 Bloatware Slayer</b><br>
