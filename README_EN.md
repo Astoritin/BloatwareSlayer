@@ -112,5 +112,5 @@ If you add certain apps to <code>target.txt</code> and the device gets stuck on 
 
 ## Help and Support
 
-If you encounter any problems, please [click here](https://github.com/Astoritin/Bloatware_Slayer/issues) to submit feedback.<br>
-[Pull Request](https://github.com/Astoritin/Bloatware_Slayer/pulls) is always welcome to improve this module.
+If you encounter any problems, please [click here](https://github.com/Astoritin/BloatwareSlayer/issues) to submit feedback.<br>
+[Pull Request](https://github.com/Astoritin/BloatwareSlayer/pulls) is always welcome to improve this module.
