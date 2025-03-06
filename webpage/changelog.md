@@ -6,18 +6,19 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 ## 1.2.1
 
 - 支持自定义判定设备变砖的时限，默认为300秒 (5分钟) ，你可以根据你的设备的正常启动时间自行修改该值：`/data/adb/bloatwareslayer/settings.conf`的`brick_timeout`为你想要设定的等待时间 (正整数，单位为秒) 以免造成不必要的等待或误判
-- 现在，【模块状态提示跟随禁用/卸载而变化】为可选功能，默认禁用以节省电量和系统资源消耗，如有需求可手动修改`/data/adb/bloatwareslayer/settings.conf`的`update_desc_on_action`为`true`以开启该功能
-- 现在，【系统启动时自动更新 target.txt 的项目为预装软件所在路径】为可选功能，默认启用以大幅减少下次系统启动时模块所耗费的时间，如不需要或者想要保留自己修改的 target.txt 可手动修改`/data/adb/bloatwareslayer/settings.conf`的`auto_update_target_list`为`false`以关闭该功能
-- 现在,【触发救砖模式时自动禁用模块】为可选功能，默认启用以阻止特定情形下用户忘记去除 target.txt 的不稳定项目便直接重启结果发现设备再度"变砖"的情况，如不想每次设备变砖时手动启用模块可手动修改`/data/adb/bloatwareslayer/settings.conf`的`disable_module_as_brick`为`false`以关闭该功能
-- 日志输出代码微调以提高日志记录效率
-
 - Support for customizing the timeout duration for determining whether the device is bricked. The default value is 300 seconds (5 minutes). You can adjust this value according to your device's normal boot time by setting the `brick_timeout` value  in `/data/adb/bloatwareslayer/settings.conf` to your desired waiting time (a positive integer,in seconds) to avoid unnecessary waiting or misjudgment
 
+- 现在，【模块状态提示跟随禁用/卸载而变化】为可选功能，默认禁用以节省电量和系统资源消耗，如有需求可手动修改`/data/adb/bloatwareslayer/settings.conf`的`update_desc_on_action`为`true`以开启该功能
 - Now, the feature of 【module status description changing realtime with disable/uninstall】 is optional. It is disabled by default to save power and system resource consumption. If needed, you can manually enable this feature by setting `update_desc_on_action` to `true` in `/data/adb/bloatwareslayer/settings.conf`
-- Now, the feature of 【automatically updating the target.txt entries with bloatware‘s paths at system boot】 is optional. It is enabled by default to significantly reduce the time consumed by the module during the next system startup. If you do NOT need this feature or wish to retain your custom modifications to target.txt, you can manually disable it by setting `auto_update_target_list` to `false` in `/data/adb/bloatwareslayer/settings.conf`
-- Now, the feature of 【automatically disable the module as triggering the brick rescue mode】 is optional. It is enabled by default to prevent the situation where users forget to remove unstable entries from target.txt and directly reboot the device,resulting in the device becoming "bricked" again. If you do NOT want to manually enable the module every time the device becomes bricked, you can disable this feature by setting `disable_module_as_brick` to `false` in `/data/adb/bloatwareslayer/settings.conf`
-- Minor adjustments to the log output code to improve logging efficiency
 
+- 现在，【系统启动时自动更新 target.txt 的项目为预装软件所在路径】为可选功能，默认启用以大幅减少下次系统启动时模块所耗费的时间，如不需要或者想要保留自己修改的 target.txt 可手动修改`/data/adb/bloatwareslayer/settings.conf`的`auto_update_target_list`为`false`以关闭该功能
+- Now, the feature of 【automatically updating the target.txt entries with bloatware‘s paths at system boot】 is optional. It is enabled by default to significantly reduce the time consumed by the module during the next system startup. If you do NOT need this feature or wish to retain your custom modifications to target.txt, you can manually disable it by setting `auto_update_target_list` to `false` in `/data/adb/bloatwareslayer/settings.conf`
+
+- 现在，【触发救砖模式时自动禁用模块】为可选功能，默认启用以阻止特定情形下用户忘记去除 target.txt 的不稳定项目便直接重启结果发现设备再度"变砖"的情况，如不想每次设备变砖时手动启用模块可手动修改`/data/adb/bloatwareslayer/settings.conf`的`disable_module_as_brick`为`false`以关闭该功能
+- Now, the feature of 【automatically disable the module as triggering the brick rescue mode】 is optional. It is enabled by default to prevent the situation where users forget to remove unstable entries from target.txt and directly reboot the device,resulting in the device becoming "bricked" again. If you do NOT want to manually enable the module every time the device becomes bricked, you can disable this feature by setting `disable_module_as_brick` to `false` in `/data/adb/bloatwareslayer/settings.conf`
+
+- 日志输出代码微调以提高日志记录效率
+- Minor adjustments to the log output code to improve logging efficiency
 
 ## 1.2.0
 
