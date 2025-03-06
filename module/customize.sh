@@ -2,8 +2,8 @@
 SKIPUNZIP=1
 
 CONFIG_DIR=/data/adb/bloatwareslayer
+CONFIG_FILE="$CONFIG_DIR/settings.conf"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/bs_log_setup_$(date +"%Y-%m-%d_%H-%M-%S").txt"
 VERIFY_DIR="$TMPDIR/.aa_bs_verify"
 MOD_NAME="$(grep_prop name "${TMPDIR}/module.prop")"
 MOD_VER="$(grep_prop version "${TMPDIR}/module.prop") ($(grep_prop versionCode "${TMPDIR}/module.prop"))"
@@ -28,7 +28,7 @@ logowl "Version: $MOD_VER"
 init_logowl "$LOG_DIR"
 show_system_info
 install_env_check 
-clean_old_logs "$LOG_DIR" 30
+clean_old_logs "$LOG_DIR" 20
 logowl "Extract module file(s)"
 extract "$ZIPFILE" 'aautilities.sh' "$VERIFY_DIR"
 extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
@@ -43,6 +43,14 @@ if [ ! -f "$CONFIG_DIR/target.txt" ]; then
 else
   logowl "Detect target.txt already existed"
   logowl "Skip overwriting target.txt"
+fi
+if [ ! -f "$CONFIG_FILE" ]; then
+  logowl "settings.conf does not exist"
+  extract "$ZIPFILE" 'settings.conf' "$TMPDIR"
+  mv "$TMPDIR/settings.conf" "$CONFIG_FILE" || abort "! Failed to create settings.conf!"
+else
+  logowl "Detect settings.conf already existed"
+  logowl "Skip overwriting settings.conf"
 fi
 set_module_files_perm
 logowl "Welcome to use ${MOD_NAME}!"
