@@ -64,7 +64,9 @@ Moreover, there are quite a few APPs whose APP names have no relation to their s
 
 Regarding package names, please refer to [**"Confirmed feature that will not be added: Detecting package names is permanently off the table"**](https://github.com/Astoritin/Bloatware_Slayer/issues/6#issuecomment-2693035556).  
 
-**Secondly, although this module operates in a Systemless (non-system-modifying) manner, you must always know and be certain of what you are doing.** You need to know which system apps you should disable, **instead of blindly copying someone else's list and then shifting all the blame to this Magisk module when problems arise.**  
+**Secondly, although this module operates in a Systemless (non-system-modifying) manner, you must always know and be certain of what you are doing.** You need to know which system apps you should disable, **instead of blindly copying someone else's list and then shifting all the blame to this Magisk module when problems arise.**
+
+</details>
 
 ## Configuration Settings
 
