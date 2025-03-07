@@ -69,7 +69,8 @@
 ## 配置设置
 
 自 v1.2.1 起， Bloatware Slayer 支持手动启用或禁用以下功能，请打开配置文件<code>/data/adb/bloatwareslayer/settings.conf</code>查看并修改。<br>
-1. **<code>brick_timeout</code>**：设定判断设备变砖的时限(Timeout)，要求正整数，以秒为单位，如果不在<code>settings.conf</code>中指定，则默认值是<code>300</code>秒(5分钟)，<code>settings.conf</code>内的默认值为180秒(3分钟)。
+1. **<code>brick_timeout</code>**：设定判断设备变砖的时限(Timeout)，要求正整数，以秒为单位。
+ - 如果不在<code>settings.conf</code>中指定，则默认值是<code>300</code>秒(5分钟)，<code>settings.conf</code>内的默认值为180秒(3分钟)。
 2. **<code>disable_module_as_brick</code>**：设定是否在触发设备变砖时自动禁用该模块。默认情况下为<code>true</code>(启用)，你也可以设置为<code>false</code>以禁用该功能。<br>
  - 若启用，模块在检测到设备变砖时就只会跳过挂载而不会自我禁用，在排除<code>target.conf</code>中的不稳定项目后即可自行重新启动，无需再进入Root管理器重新启用本模块。<br>
 3. **<code>auto_update_target_list</code>**：切换每次启动时是否更新 target.conf 中的项目为预装应用所在路径，默认情况下为<code>true</code>(启用)以加快下次系统的启动速度。<br>
