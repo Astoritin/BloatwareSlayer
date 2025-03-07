@@ -66,13 +66,13 @@
 其二，虽然该模块是在 Systemless (不修改系统) 的情况下运行，但是**你始终需要知道并确定自己正在做的事情**，你必须知道自己需要屏蔽掉哪些系统 APP，**而不是照搬别人的列表，出问题了就把责任全部推给本 Magisk 模块**。
 </details><br>
 
-## 配置设置
+## 配置文件
 
 自 v1.2.1 起， Bloatware Slayer 支持手动启用或禁用以下功能，请打开配置文件<code>/data/adb/bloatwareslayer/settings.conf</code>查看并修改。<br>
 1. **<code>brick_timeout</code>**：设定判断设备变砖的时限(Timeout)，要求正整数，以秒为单位。
  - 如果不在<code>settings.conf</code>中指定，则默认值是<code>300</code>秒(5分钟)，<code>settings.conf</code>内的默认值为180秒(3分钟)。
 2. **<code>disable_module_as_brick</code>**：设定是否在触发设备变砖时自动禁用该模块。默认情况下为<code>true</code>(启用)，你也可以设置为<code>false</code>以禁用该功能。<br>
- - 若启用，模块在检测到设备变砖时就只会跳过挂载而不会自我禁用，在排除<code>target.conf</code>中的不稳定项目后即可自行重新启动，无需再进入Root管理器重新启用本模块。<br>
+ - 若禁用，则模块在检测到设备变砖时就**只会跳过挂载而不会自我禁用**，在排除<code>target.conf</code>中的不稳定项目后即可自行重新启动，无需再进入Root管理器重新启用本模块。<br>
 3. **<code>auto_update_target_list</code>**：切换每次启动时是否更新 target.conf 中的项目为预装应用所在路径，默认情况下为<code>true</code>(启用)以加快下次系统的启动速度。<br>
  - 如果你不希望<code>target.conf</code>被模块自动更新掉，想保留自己添加的注解或者保留未找到的项目，则可以设定为<code>false</code>。
 4. **<code>update_desc_on_action</code>**：在模块被禁用/卸载时更新模块状态描述。是一个没有什么用且会增加消耗的功能，默认<code>false</code>(禁用)。<br>
@@ -84,11 +84,11 @@
 你可以查看它并在反馈遇到的问题时提交该日志<br>
 <details><br>
 <summary>注意</summary>
-<del>log_pfd_(时间戳).txt 是Bloatware Slayer v1.0.9- 的核心功能相关的日志，由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。由于post-fs-data.sh已于 v1.1.0+ 移除，你不应该在反馈问题时提交该日志。</del><br><br>
-<del>log_s_(时间戳).txt 是Bloatware Slayer v1.1.0- 附加功能相关的日志，v1.1.0+ 的核心功能的日志，时间戳已经正常初始化。</del><br><br>
-<del>bs_log_setup_(时间戳).txt 是Bloatware Slayer 刷入时产生的碎片文件，目前……还没有什么大用。</del><br><br>
-bs_log_core_(时间戳).txt 是Bloatware Slayer v1.2.0+ 的核心功能+附加功能相关的日志。<br><br><br>
-<b>反馈问题时，请直接打包整个logs文件夹后上传。</b><br>
+<del>log_pfd_(时间戳).txt 是Bloatware Slayer v1.0.9- 的核心功能相关的日志，由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。由于post-fs-data.sh已于 v1.1.0+ 移除，你不应该在反馈问题时提交该日志。</del><br>
+<del>log_s_(时间戳).txt 是Bloatware Slayer v1.1.0- 附加功能相关的日志，v1.1.0+ 的核心功能的日志，时间戳已经正常初始化。</del><br>
+<del>bs_log_setup_(时间戳).txt 是Bloatware Slayer 刷入时产生的碎片文件，目前……还没有什么大用。</del><br>
+bs_log_core_(时间戳).txt 是Bloatware Slayer v1.2.0+ 的核心功能+附加功能相关的日志。<br>
+<b>反馈问题时，请直接打包整个logs文件夹后上传。</b>
 </details><br>
 
 ## 救砖
