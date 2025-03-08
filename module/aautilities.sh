@@ -34,9 +34,26 @@ install_env_check() {
     logowl "Install from $ROOT_SOL"
   else
     ROOT_SOL="Recovery"
+    print_line
     logowl "Install module in Recovery mode is not support especially for KernelSU / APatch!" "FATAL"
     logowl "Please install this module in Magisk / KernelSU / APatch APP!" "FATAL"
+    print_line
+    abort
   fi
+}
+
+module_intro() {  
+    MODULE_PROP="${MODDIR}/module.prop"
+    MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
+    MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
+    MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
+    print_line
+    logowl "$MOD_NAME"
+    logowl "By $MOD_AUTHOR"
+    logowl "Version: $MOD_VER"
+    logowl "Root solution: $ROOT_SOL"
+    logowl "Current time stamp: $(date +"%Y-%m-%d %H:%M:%S")"
+    print_line
 }
 
 init_logowl() {
@@ -55,7 +72,7 @@ init_logowl() {
     }
     echo "- Log directory created successfully: $LOG_DIR"
   else
-    echo "- Log directory already exists: $LOG_DIR"
+    echo "- Log directory: $LOG_DIR"
   fi
 }
 
@@ -95,11 +112,11 @@ logowl() {
     echo "$LOG_LEVEL $LOG_MSG"
   else
     if [[ "$LOG_LEVEL" == "! ERROR:" ]] || [[ "$LOG_LEVEL" == "× FATAL:" ]]; then
-      print_line
+      print_line >> "$LOG_FILE"
     fi
-    echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE" 2>> "$LOG_FILE" 
+    echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE" 2>> "$LOG_FILE"
     if [[ "$LOG_LEVEL" == "! ERROR:" ]] || [[ "$LOG_LEVEL" == "× FATAL:" ]]; then
-      print_line
+      print_line >> "$LOG_FILE"
     fi
   fi
 }
@@ -132,11 +149,11 @@ verify_variables() {
     local script_var_name=$(echo "$config_var_name" | tr '[:lower:]' '[:upper:]')
 
     if [ -n "$config_var_value" ] && [[ "$config_var_value" =~ $validation_pattern ]]; then
-        logowl "Detect current var: $config_var_name=$config_var_value"
+        # logowl "Detect current var: $config_var_name=$config_var_value"
         export "$script_var_name"="$config_var_value"
         logowl "Set $script_var_name=$config_var_value" "TIPS"
     else
-        logowl "Detect unavailable var: $config_var_name=$config_var_value"
+        logowl "Unavailable var: $config_var_name=$config_var_value"
         logowl "Will keep the value as default one"
         # if [ -n "$default_value" ]; then
         #     logowl "Keep $script_var_name as default value ($default_value)"
@@ -160,13 +177,15 @@ update_module_description() {
 }
 
 debug_print_values() {
-  logowl "env Info"
+  print_line
+  logowl "Environment Info"
+  print_line
   env | sed 's/^/- /'
-  logowl "special Info"
-  logowl "BOOTMODE: $BOOTMODE"
-  logowl "KSU: $KSU, KSU_KERNEL_VER_CODE: $KSU_KERNEL_VER_CODE, KSU_VER_CODE: $KSU_VER_CODE"
-  logowl "APATCH: $APATCH, APATCH_VER_CODE: $APATCH_VER_CODE"
-  logowl "MAGISK_VER_CODE: $MAGISK_VER_CODE, MAGISK_VER: $MAGISK_VER"
+  print_line
+  logowl "Specific Info"
+  print_line
+  set | grep '^[^=]*=' | sed 's/^/- /'
+  print_line
 }
 
 show_system_info() {
@@ -185,7 +204,8 @@ show_system_info() {
 
 print_line() {
   local length=${1:-60}
-  printf '%*s\n' "$length" | tr ' ' '-'
+  local line=$(printf "%-${length}s" | tr ' ' '-')
+  echo "$line"
 }
 
 file_compare() {
@@ -289,7 +309,6 @@ clean_old_logs() {
         done
         logowl "Cleared!"
     else
-        logowl "No need to clear"
-        logowl "$files_count files now, current max allowed: $files_max"
+        logowl "Detect $files_count files in $log_dir"
     fi
 }
