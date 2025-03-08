@@ -1,7 +1,13 @@
-# Bloatware Slayer / 干掉预装软件
+## Bloatware Slayer / 干掉预装软件
 A Magisk module to remove bloatware in systemlessly way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
 ## Changelog / 变更日志
+
+## 1.2.2
+
+1. `target.conf` 现在支持文件夹名/目录名旁存在注释，例如：`VoiceAssistantT #超级小爱` / Support comment next to the APP path and APP folder name in `target.conf`
+2. 修复部分逻辑永远不会被执行的bug / Fix the bug which caused some logical codes will NOT execute permanently
+3. 独立部分日志输出代码为一个函数，提升可维护度 / Separate some logging output codes into a function to improve the maintainability of this module
 
 ## 1.2.1
 
