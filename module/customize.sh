@@ -29,20 +29,20 @@ init_logowl "$LOG_DIR"
 show_system_info
 install_env_check 
 clean_old_logs "$LOG_DIR" 20
-logowl "Extract module file(s)"
+logowl "Extract module files"
 extract "$ZIPFILE" 'aautilities.sh' "$VERIFY_DIR"
 extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
 extract "$ZIPFILE" 'aautilities.sh' "$MODPATH"
 extract "$ZIPFILE" 'module.prop' "$MODPATH"
 extract "$ZIPFILE" 'service.sh' "$MODPATH"
 extract "$ZIPFILE" 'uninstall.sh' "$MODPATH"
-if [ ! -f "$CONFIG_DIR/target.txt" ]; then
-  logowl "target.txt does not exist"
-  extract "$ZIPFILE" 'target.txt' "$TMPDIR"
-  mv "$TMPDIR/target.txt" "$CONFIG_DIR/target.txt" || abort "! Failed to create target.txt!"
+if [ ! -f "$CONFIG_DIR/target.conf" ]; then
+  logowl "target.conf does not exist"
+  extract "$ZIPFILE" 'target.conf' "$TMPDIR"
+  mv "$TMPDIR/target.conf" "$CONFIG_DIR/target.conf" || abort "! Failed to create target.conf!"
 else
-  logowl "Detect target.txt already existed"
-  logowl "Skip overwriting target.txt"
+  logowl "Detect target.conf already existed"
+  logowl "Skip overwriting target.conf"
 fi
 if [ ! -f "$CONFIG_FILE" ]; then
   logowl "settings.conf does not exist"
