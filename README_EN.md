@@ -83,7 +83,7 @@ Starting from version v1.2.1, Bloatware Slayer supports manually enabling or dis
 4. **<code>update_desc_on_action</code>**: Updates the module status description when the module is disabled or uninstalled. This is a mostly useless feature that increases resource consumption and is disabled(<code>false</code>) by default.  
    - If you want to see a prompt when you click the disable or uninstall button, you can set this to <code>true</code> to enable the feature.
 
-5. **<code>system_app_paths</code>**: Support customizing the scan of system directories the bloatware located in. Paths starts with / and separated by spaces, for example: <code>/system/app /system/priv-app</code>.
+5. **<code>system_app_paths</code>**: Support customizing the scan of system directories the bloatware located in. Paths starts with / and separated by spaces, for example: <code>system_app_paths=/system/app /system/priv-app</code>.
 
 ## Logs
 
