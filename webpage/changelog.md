@@ -6,7 +6,7 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 ### 1.2.3
 
 - 支持自定义扫描预装软件所在的系统目录，如有需求可手动修改`/data/adb/bloatwareslayer/settings.conf`的`system_app_paths`的值（以/开头，用空格隔开）
-- Support customizing the scan of system directories the bloatware located in. If needed, you can manually modify the value of system_app_paths in `/data/adb/bloatwareslayer/settings.conf` (starting with `/` and separated by spaces).
+- Support customizing the scan of system directories the bloatware located in. If needed, you can manually modify the value of `system_app_paths` in `/data/adb/bloatwareslayer/settings.conf` (starting with `/` and separated by spaces).
 
 ### 1.2.2
 
