@@ -1,15 +1,20 @@
 ## Bloatware Slayer / 干掉预装软件
 A Magisk module to remove bloatware in systemlessly way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
-## Changelog / 变更日志
+### Changelog / 变更日志
 
-## 1.2.2
+### 1.2.3
+
+- 支持自定义扫描的系统目录，如有需求可手动修改`/data/adb/bloatwareslayer/settings.conf`的`system_app_paths`的值（以/开头，用空格隔开）
+- Support customizing the scan of system directories. If needed, you can manually modify the value of system_app_paths in /data/adb/bloatwareslayer/settings.conf (starting with / and separated by spaces).
+
+### 1.2.2
 
 1. `target.conf` 现在支持文件夹名/目录名旁存在注释，例如：`VoiceAssistantT #超级小爱` / Support comment next to the APP path and APP folder name in `target.conf`
 2. 修复部分逻辑永远不会被执行的bug / Fix the bug which caused some logical codes will NOT execute permanently
 3. 独立部分日志输出代码为一个函数，提升可维护度 / Separate some logging output codes into a function to improve the maintainability of this module
 
-## 1.2.1
+### 1.2.1
 
 - 支持自定义判定设备变砖的时限，默认为300秒 (5分钟) ，你可以根据你的设备的正常启动时间自行修改该值：`/data/adb/bloatwareslayer/settings.conf`的`brick_timeout`为你想要设定的等待时间 (正整数，单位为秒) 以免造成不必要的等待或误判
 - Support for customizing the timeout duration for determining whether the device is bricked. The default value is 300 seconds (5 minutes). You can adjust this value according to your device's normal boot time by setting the `brick_timeout` value  in `/data/adb/bloatwareslayer/settings.conf` to your desired waiting time (a positive integer,in seconds) to avoid unnecessary waiting or misjudgment
@@ -26,7 +31,7 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 - 日志输出代码微调以提高日志记录效率
 - Minor adjustments to the log output code to improve logging efficiency
 
-## 1.2.0
+### 1.2.0
 
 - Remove unnecessary status.info completely
 - 彻底移除不必要的 status.info
@@ -37,7 +42,7 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 - Fix the unavailable unbrick feature
 - 修复失效的救砖功能
 
-## 1.1.0
+### 1.1.0
 
 - Critical change: Abandon post-fs-data.sh completely and migrate the core functions to service.sh, significantly reduce the boot time of staying in splash logo screen caused by Bloatware Slayer.
 - 重大变更：彻底抛弃 post-fs-data.sh ，模块的核心功能已被迁移到 service.sh 中，大幅度缩减开机第一屏的等待时间
@@ -50,7 +55,7 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 - improve the output of logs
 - 优化日志输出
 
-## 已确认不会添加的功能：检测包名 / Detecting packages name is permanently off the table
+### 已确认不会添加的功能：检测包名 / Detecting packages name is permanently off the table
 
 原因如下：/ The reason are as follows:
 
@@ -66,7 +71,7 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 ~~- 在 KernelSU 中的，哪怕只需要执行一次，挂载阶段的日志输出会重复很多次，但是在 Magisk 并没有这个问题。我推断这可能是 KernelSU 特有的问题，并且目前没有修复它的想法。~~
 ~~- The output of logs in mounting stage will repeat many times even if only need to execute one time in KernelSU. But there is no such problem in Magisk. I infer that this problem maybe **unique to KernelSU (KernelSU only)** and have no idea to do about it so far.~~
 
-## 1.0.9
+### 1.0.9
 
 - 现在的模块描述中，移除的显示优先级比禁用高
 - Now the priority of status remove showing in module description is higher than disable
@@ -77,7 +82,7 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 - 优化日志输出，移除部分不必要的代码
 - Optimize log output and remove some unnecessary code
 
-## 1.0.8
+### 1.0.8
 
 - 现在，当`/data/adb/bloatwareslayer/logs`下的日志过多，Bloatware Slayer会在安装或更新过程中清除较早的日志
 - Bloatware Slayer will clean old logs in updating or installing if there are too many files under the folder `/data/adb/bloatwareslayer/logs`
