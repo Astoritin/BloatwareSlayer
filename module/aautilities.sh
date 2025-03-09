@@ -121,11 +121,17 @@ logowl() {
   fi
 }
 
+
 init_variables() {
+    # init_variables: a function to initiate variables
+    # key: the key name
+    # config_file: the path and filename of the key it located
+    # value: the value of the key
     local key="$1"
     local config_file="$2"
     local value
 
+    # Config file not found 
     if [[ ! -f "$config_file" ]]; then
         logowl "Configuration file $config_file does not exist." "ERROR" >&2
         return 1
@@ -137,16 +143,30 @@ init_variables() {
         logowl "Key '$key' is NOT found in $config_file" "WARN" >&2
         return 2
     fi
-
+    # Output the value
     echo "$value"
 }
 
 verify_variables() {
+    # verify_variables: a function to verify the availability of variables and export it
+    # config_var_name: the name of variable
+    # config_var_value: the value of variable
+    # validation_pattern: the principal for checking whether it is a available variable or not
+    # default_value: (NOT used) if unavailable, the value should be set as default
+    # script_var_name: transport the letters of variable name to upper case
+  
     local config_var_name="$1"
     local config_var_value="$2"
     local validation_pattern="$3"
     # local default_value="$4"
     local script_var_name=$(echo "$config_var_name" | tr '[:lower:]' '[:upper:]')
+
+    # if pattern is empty, export the variable directly
+    if [[ -z "$validation_pattern" ]]; then
+        export "$script_var_name"="$config_var_value"
+        logowl "Validation pattern is empty. Directly exporting $script_var_name=$config_var_value" "TIPS"
+        return
+    fi
 
     if [ -n "$config_var_value" ] && [[ "$config_var_value" =~ $validation_pattern ]]; then
         # logowl "Detect current var: $config_var_name=$config_var_value"
