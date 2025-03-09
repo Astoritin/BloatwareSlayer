@@ -64,16 +64,20 @@ config_loader() {
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
     update_desc_on_action=$(init_variables "update_desc_on_action" "$CONFIG_FILE")
+    system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE" "true")
 
     logowl "brick_timeout: $brick_timeout"
     logowl "disable_module_as_brick: $disable_module_as_brick"
     logowl "auto_update_target_list: $auto_update_target_list"
     logowl "update_desc_on_action: $update_desc_on_action"
+    logowl "system_app_paths: ${system_app_paths:0:10}"
 
     verify_variables "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$" "300"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$" "true"
     verify_variables "auto_update_target_list" "$auto_update_target_list" "^(true|false)$" "false"
     verify_variables "update_desc_on_action" "$update_desc_on_action" "^(true|false)$" "false"
+    verify_variables "system_app_paths" "$system_app_paths" "" "/system/app /system/product/app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
+
 }
 
 preparation() {
@@ -229,12 +233,12 @@ config_loader
 print_line >> "$LOG_FILE"
 brick_rescue
 preparation
-# logowl "Variables before processing"
-# debug_print_values >> "$LOG_FILE"
+logowl "Variables before processing"
+debug_print_values >> "$LOG_FILE"
 bloatware_slayer
 module_status_update
-# logowl "Variables before case closed"
-# debug_print_values >> "$LOG_FILE"
+logowl "Variables before case closed"
+debug_print_values >> "$LOG_FILE"
 
 {    
 
