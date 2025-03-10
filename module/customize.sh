@@ -17,12 +17,6 @@ fi
 
 . "$TMPDIR/aautilities.sh"
 
-if [ ! -d "$LOG_DIR" ]; then
-  logowl "$LOG_DIR does not exist"
-  mkdir -p "$LOG_DIR" || abort "! Failed to create $LOG_DIR!"
-  logowl "Created $LOG_DIR"
-fi
-
 logowl "Setting up $MOD_NAME"
 logowl "Version: $MOD_VER"
 init_logowl "$LOG_DIR"
