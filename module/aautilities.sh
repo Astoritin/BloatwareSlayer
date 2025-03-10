@@ -137,8 +137,7 @@ init_variables() {
 
     # Fetch the value from config file
     value=$(sed -n "s/^$key=\(.*\)/\1/p" "$config_file" | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    logowl "Read value for $key: '$value'"
-
+  
     # Escape the value to safe one
     value=$(printf "%s" "$value" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
 
@@ -196,9 +195,9 @@ verify_variables() {
     fi
 
     if [ -n "$config_var_value" ]; then
-        logowl "Config var value is non-empty"
+        # logowl "Config var value is non-empty"
         if echo "$config_var_value" | grep -qE "$validation_pattern"; then
-            logowl "Config var value matches the pattern"
+            # logowl "Config var value matches the pattern"
             export "$script_var_name"="$config_var_value"
             logowl "Set $script_var_name=$config_var_value" "TIPS"
         else
