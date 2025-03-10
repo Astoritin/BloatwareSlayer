@@ -121,7 +121,6 @@ logowl() {
   fi
 }
 
-
 init_variables() {
     # init_variables: a function to initiate variables
     # key: the key name
@@ -131,20 +130,48 @@ init_variables() {
     local config_file="$2"
     local value
 
-    # Config file not found 
     if [[ ! -f "$config_file" ]]; then
         logowl "Configuration file $config_file does not exist." "ERROR" >&2
         return 1
     fi
 
-    value=$(sed -n "s/^$key=\(.*\)/\1/p" "$config_file")
+    # Fetch the value from config file
+    value=$(sed -n "s/^$key=\(.*\)/\1/p" "$config_file" | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    logowl "Read value for $key: '$value'"
 
+    # Escape the value to safe one
+    value=$(printf "%s" "$value" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
+
+    # Check whether the value is null or not
     if [[ -z "$value" ]]; then
         logowl "Key '$key' is NOT found in $config_file" "WARN" >&2
         return 2
     fi
-    # Output the value
+
+    # Special handling for boolean values
+    if [[ "$value" == "true" || "$value" == "false" ]]; then
+        logowl "Verified boolean: $value" "TIPS"
+        echo "$value"
+        return 0
+    fi
+
+    # regex: the regular expression to match the safe variable
+    local regex='^[a-zA-Z0-9/_\. -]*$'
+    local dangerous_chars='[`$();|<>]'
+
+    # Check for dangerous characters
+    if echo "$value" | grep -Eq "$dangerous_chars"; then
+        logowl "Detect $key contains potential dangerous characters" "ERROR"
+        return 3
+    elif ! echo "$value" | grep -Eq "$regex"; then
+        local result_of_verify=$(echo "$value" | grep -Eq "$regex")
+        logowl "Detect $key contains illegal characters, current regex: $regex, current value: $value, current result: $result_of_verify" "WARN"
+        return 4
+    fi
+
+    logowl "Verified the value of $key: $value" "TIPS"
     echo "$value"
+    return 0
 }
 
 verify_variables() {
@@ -152,7 +179,7 @@ verify_variables() {
     # config_var_name: the name of variable
     # config_var_value: the value of variable
     # validation_pattern: the principal for checking whether it is a available variable or not
-    # default_value: (NOT used) if unavailable, the value should be set as default
+    # default_value (unused): if unavailable, the value should be set as default
     # script_var_name: transport the letters of variable name to upper case
   
     local config_var_name="$1"
@@ -168,12 +195,27 @@ verify_variables() {
         return
     fi
 
-    if [ -n "$config_var_value" ] && [[ "$config_var_value" =~ $validation_pattern ]]; then
-        # logowl "Detect current var: $config_var_name=$config_var_value"
-        export "$script_var_name"="$config_var_value"
-        logowl "Set $script_var_name=$config_var_value" "TIPS"
+    if [ -n "$config_var_value" ]; then
+        logowl "Config var value is non-empty"
+        if echo "$config_var_value" | grep -qE "$validation_pattern"; then
+            logowl "Config var value matches the pattern"
+            export "$script_var_name"="$config_var_value"
+            logowl "Set $script_var_name=$config_var_value" "TIPS"
+        else
+            logowl "Config var value does NOT match the pattern" "WARN"
+            logowl "Unavailable var: $script_var_name=$config_var_value"
+            logowl "Will keep the value as default one"
+            # if [ -n "$default_value" ]; then
+            #     logowl "Keep $script_var_name as default value ($default_value)"
+            #     export "$script_var_name"="$default_value"
+            # else
+            #     logowl "No default value provided for $script_var_name, keep empty"
+            #     export "$script_var_name"=""
+            # fi
+        fi
     else
-        logowl "Unavailable var: $config_var_name=$config_var_value"
+        logowl "Config var value is empty" "WARN"
+        logowl "Unavailable var: $script_var_name=$config_var_value"
         logowl "Will keep the value as default one"
         # if [ -n "$default_value" ]; then
         #     logowl "Keep $script_var_name as default value ($default_value)"
@@ -257,12 +299,15 @@ file_compare() {
 }
 
 abort_verify() {
-  print_line
-  echo "! $1"
-  echo "! This zip may be corrupted or have been maliciously modified!"
-  echo "! Please try to download again or get it from official source!"
-  print_line
-  return 1
+    print_line
+    echo "! $1"
+    echo "! This zip may be corrupted or have been maliciously modified!"
+    echo "! Please try to download again or get it from official source!"
+    print_line
+    if [ "$BOOTMODE" ]; then
+        abort
+    fi
+    return 1
 }
 
 extract() {
