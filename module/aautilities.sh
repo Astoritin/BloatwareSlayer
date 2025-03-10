@@ -2,47 +2,55 @@ VERIFY_DIR="$TMPDIR/.aa_bs_verify"
 mkdir "$VERIFY_DIR"
 
 install_env_check() {
-  local MAGISK_BRANCH_NAME="Official"
-  ROOT_SOL="Magisk"
-  if [[ "$KSU" ]]; then
-    logowl "Install from KernelSU"
-    logowl "KernelSU version: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
-    ROOT_SOL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
-    if [[ "$(which magisk)" ]]; then
-      logowl "Detect multiple Root implements!" "WARN"
-      ROOT_SOL="Multiple"
-    fi
-  elif [[ "$APATCH" ]]; then
-    logowl "Install from APatch"
-    logowl "APatch version: $APATCH_VER_CODE"
-    ROOT_SOL="APatch ($APATCH_VER_CODE)"
-  elif [[ "$MAGISK_VER_CODE" || -n "$(magisk -v || magisk -V)" ]]; then
-    MAGISK_V_VER_NAME="$(magisk -v)"
-    MAGISK_V_VER_CODE="$(magisk -V)"
-    if [[ "$MAGISK_VER" == *"-alpha"* || "$MAGISK_V_VER_NAME" == *"-alpha"* ]]; then
-      MAGISK_BRANCH_NAME="Magisk Alpha"
-    elif [[ "$MAGISK_VER" == *"-lite"* || "$MAGISK_V_VER_NAME" == *"-lite"* ]]; then
-      MAGISK_BRANCH_NAME="Magisk Lite"
-    elif [[ "$MAGISK_VER" == *"-kitsune"* || "$MAGISK_V_VER_NAME" == *"-kitsune"* ]]; then
-      MAGISK_BRANCH_NAME="Kitsune Mask"
-    elif [[ "$MAGISK_VER" == *"-delta"* || "$MAGISK_V_VER_NAME" == *"-delta"* ]]; then
-      MAGISK_BRANCH_NAME="Magisk Delta"
+    # install_env_check: a function to check the current root solution
+    # Magisk branch name is Official by default
+    # Root solution is Magisk by default
+
+    MAGISK_BRANCH_NAME="Official"
+    ROOT_SOL="Magisk"
+
+    # Check each variables can represent the Root Solution
+    if [[ "$KSU" ]]; then
+      logowl "Install from KernelSU"
+      logowl "KernelSU version: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
+      ROOT_SOL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
+      if [[ "$(which magisk)" ]]; then
+        logowl "Detect multiple Root implements!" "WARN"
+        ROOT_SOL="Multiple"
+      fi
+    elif [[ "$APATCH" ]]; then
+      logowl "Install from APatch"
+      logowl "APatch version: $APATCH_VER_CODE"
+      ROOT_SOL="APatch ($APATCH_VER_CODE)"
+    elif [[ "$MAGISK_VER_CODE" || -n "$(magisk -v || magisk -V)" ]]; then
+      MAGISK_V_VER_NAME="$(magisk -v)"
+      MAGISK_V_VER_CODE="$(magisk -V)"
+      if [[ "$MAGISK_VER" == *"-alpha"* || "$MAGISK_V_VER_NAME" == *"-alpha"* ]]; then
+        MAGISK_BRANCH_NAME="Magisk Alpha"
+      elif [[ "$MAGISK_VER" == *"-lite"* || "$MAGISK_V_VER_NAME" == *"-lite"* ]]; then
+        MAGISK_BRANCH_NAME="Magisk Lite"
+      elif [[ "$MAGISK_VER" == *"-kitsune"* || "$MAGISK_V_VER_NAME" == *"-kitsune"* ]]; then
+        MAGISK_BRANCH_NAME="Kitsune Mask"
+      elif [[ "$MAGISK_VER" == *"-delta"* || "$MAGISK_V_VER_NAME" == *"-delta"* ]]; then
+        MAGISK_BRANCH_NAME="Magisk Delta"
+      else
+        MAGISK_BRANCH_NAME="Magisk"
+      fi
+      ROOT_SOL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
+      logowl "Install from $ROOT_SOL"
     else
-      MAGISK_BRANCH_NAME="Magisk"
+      ROOT_SOL="Recovery"
+      print_line
+      logowl "Install module in Recovery mode is not support especially for KernelSU / APatch!" "FATAL"
+      logowl "Please install this module in Magisk / KernelSU / APatch APP!" "FATAL"
+      print_line
+      abort
     fi
-    ROOT_SOL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
-    logowl "Install from $ROOT_SOL"
-  else
-    ROOT_SOL="Recovery"
-    print_line
-    logowl "Install module in Recovery mode is not support especially for KernelSU / APatch!" "FATAL"
-    logowl "Please install this module in Magisk / KernelSU / APatch APP!" "FATAL"
-    print_line
-    abort
-  fi
 }
 
-module_intro() {  
+module_intro() {
+    # module_intro: a function to show module basic info
+
     MODULE_PROP="${MODDIR}/module.prop"
     MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
     MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
@@ -57,68 +65,95 @@ module_intro() {
 }
 
 init_logowl() {
+    # init_logowl: a function to initiate the log directory
+    # to make sure the log directory exist
 
-  local LOG_DIR="$1"
-  if [ -z "$LOG_DIR" ]; then
-    echo "- Error: LOG_DIR is not provided!" >&2
-    return 1
-  fi
+    local LOG_DIR="$1"
+    if [ -z "$LOG_DIR" ]; then
+      logowl "LOG_DIR is not provided!" "ERROR"
+      return 1
+    fi
 
- if [ ! -d "$LOG_DIR" ]; then
-  echo "- Log directory: $LOG_DIR does not exist. Creating now"
-  mkdir -p "$LOG_DIR" || {
-    echo "- Error: Failed to create log directory: $LOG_DIR" >&2
-    return 2
-    }
-    echo "- Log directory created successfully: $LOG_DIR"
+  if [ ! -d "$LOG_DIR" ]; then
+      logowl "Log dir does NOT exist"
+      logowl "Creating $LOG_DIR"
+      mkdir -p "$LOG_DIR" || {
+        logowl "Failed to create $LOG_DIR" "ERROR" >&2
+        return 2
+      }
+      logowl "Done"
   else
-    echo "- Log directory: $LOG_DIR"
+      logowl "Detect existed log dir: $LOG_DIR"
   fi
 }
-
 logowl() {
+    # logowl: a function to format the log output
+    # LOG_MSG: the log message you need to print
+    # LOG_LEVEL: the level of this log message
+    
+    local LOG_MSG="$1"
+    local LOG_LEVEL="${2:-NONE}"
+    
+    # if calling this function but LOG_MSG is not ordered    
+    if [ -z "$LOG_MSG" ]; then
+      echo "! LOG_MSG is not provided yet!" >&2
+      return 3
+    fi
 
-  local LOG_MSG="$1"
-  local LOG_LEVEL="$2"
+    # Define log level symbols
+    local TIPS_SYMBOL="*"
+    local WARN_SYMBOL="- Warn:"
+    local ERROR_SYMBOL="! ERROR:"
+    local FATAL_SYMBOL="× FATAL:"
+    local DEFAULT_SYMBOL="-"
 
-  if [ -z "$LOG_MSG" ]; then
-    echo "! LOG_MSG is not provided yet!"
-    return 3
-  fi
+    # Determine log level symbol
+    case "$LOG_LEVEL" in
+      "T"|"TIPS")
+        LOG_LEVEL="$TIPS_SYMBOL"
+        ;;
+      "W"|"WARN")
+        LOG_LEVEL="$WARN_SYMBOL"
+        ;;
+      "E"|"ERROR")
+        LOG_LEVEL="$ERROR_SYMBOL"
+        ;;
+      "F"|"FATAL")
+        LOG_LEVEL="$FATAL_SYMBOL"
+        ;;
+      *)
+        LOG_LEVEL="$DEFAULT_SYMBOL"
+        ;;
+    esac
 
-  case "$LOG_LEVEL" in
-    "TIPS")
-      LOG_LEVEL="*"
-      ;;
-    "WARN")
-      LOG_LEVEL="- Warn:"
-      ;;
-    "ERROR")
-      LOG_LEVEL="! ERROR:"
-      ;;
-    "FATAL")
-      LOG_LEVEL="× FATAL:"
-      ;;
-    *)
-      LOG_LEVEL="-"
-      ;;
-  esac
+    # Check if LOG_FILE is writable
+    if [ -n "$LOG_FILE" ]; then
+      if [ ! -w "$LOG_FILE" ]; then
+        echo "! Error: LOG_FILE ($LOG_FILE) is not writable!" >&2
+        echo "! Will log to terminal ONLY" >&2
+        LOG_FILE=""
+      fi
+    fi
 
-  if [ -z "$LOG_FILE" ]; then
+    # Output log message
+    if [ -n "$LOG_FILE" ]; then
+      if [[ "$LOG_LEVEL" == "$ERROR_SYMBOL" ]] || [[ "$LOG_LEVEL" == "$FATAL_SYMBOL" ]]; then
+        print_line >> "$LOG_FILE" 2>&1
+      fi
+      echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE" 2>&1
+      if [[ "$LOG_LEVEL" == "$ERROR_SYMBOL" ]] || [[ "$LOG_LEVEL" == "$FATAL_SYMBOL" ]]; then
+        print_line >> "$LOG_FILE" 2>&1
+      fi
+    fi
+
+    # BOOTMODE is provided by Magisk / KernelSU / APatch
+    # It is true only if in Magisk manager / KernelSU env / APatch env
     if [ "$BOOTMODE" ]; then
-        ui_print "$LOG_LEVEL $LOG_MSG" 2>/dev/null
-        return 0
+      ui_print "$LOG_LEVEL $LOG_MSG" 2>/dev/null
+      return 0
+    else
+      echo "$LOG_LEVEL $LOG_MSG"
     fi
-    echo "$LOG_LEVEL $LOG_MSG"
-  else
-    if [[ "$LOG_LEVEL" == "! ERROR:" ]] || [[ "$LOG_LEVEL" == "× FATAL:" ]]; then
-      print_line >> "$LOG_FILE"
-    fi
-    echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE" 2>> "$LOG_FILE"
-    if [[ "$LOG_LEVEL" == "! ERROR:" ]] || [[ "$LOG_LEVEL" == "× FATAL:" ]]; then
-      print_line >> "$LOG_FILE"
-    fi
-  fi
 }
 
 init_variables() {
@@ -149,7 +184,7 @@ init_variables() {
 
     # Special handling for boolean values
     if [[ "$value" == "true" || "$value" == "false" ]]; then
-        logowl "Verified boolean: $value" "TIPS"
+        # logowl "Verified boolean: $value" "TIPS"
         echo "$value"
         return 0
     fi
@@ -168,7 +203,7 @@ init_variables() {
         return 4
     fi
 
-    logowl "Verified the value of $key: $value" "TIPS"
+    # logowl "Verified the value of $key: $value" "TIPS"
     echo "$value"
     return 0
 }
@@ -227,46 +262,56 @@ verify_variables() {
 }
 
 update_module_description() {
-  local DESCRIPTION="$1"
-  local MODULE_PROP="$2"
-  if [ -z "$DESCRIPTION" ] || [ -z "$MODULE_PROP" ]; then
-    logowl "DESCRIPTION or MODULE_PROP is not provided yet!" "ERROR"
-    return 3
-  fi
-  logowl "Update description: $DESCRIPTION"
-  sed -i "/^description=/c\description=$DESCRIPTION" "$MODULE_PROP"
+    # update_module_description: a function to update the value of the key "description"
+    # DESCRIPTION: the description you want to update to
+    # MODULE_PROP: the path of module.prop you want to modify
+
+    local DESCRIPTION="$1"
+    local MODULE_PROP="$2"
+    if [ -z "$DESCRIPTION" ] || [ -z "$MODULE_PROP" ]; then
+      logowl "DESCRIPTION or MODULE_PROP is not provided yet!" "ERROR"
+      return 3
+    fi
+    logowl "Update description: $DESCRIPTION"
+    sed -i "/^description=/c\description=$DESCRIPTION" "$MODULE_PROP"
 }
 
 debug_print_values() {
-  print_line
-  logowl "Environment Info"
-  print_line
-  env | sed 's/^/- /'
-  print_line
-  logowl "Specific Info"
-  print_line
-  set | grep '^[^=]*=' | sed 's/^/- /'
-  print_line
+    # debug_print_values: print the environment info and variables during this script running
+
+    print_line
+    logowl "Environment Info"
+    print_line
+    env | sed 's/^/- /'
+    print_line
+    logowl "Specific Info"
+    print_line
+    set | grep '^[^=]*=' | sed 's/^/- /'
+    print_line
 }
 
 show_system_info() {
-  logowl "Device: $(getprop ro.product.brand) $(getprop ro.product.model) ($(getprop ro.product.device))"
-  logowl "Android $(getprop ro.build.version.release) (API $API), $ARCH"
-  mem_info=$(free -m)
-  ram_total=$(echo "$mem_info" | awk '/Mem/ {print $2}')
-  ram_used=$(echo "$mem_info" | awk '/Mem/ {print $3}')
-  ram_free=$((ram_total - ram_used))
-  swap_total=$(echo "$mem_info" | awk '/Swap/ {print $2}')
-  swap_used=$(echo "$mem_info" | awk '/Swap/ {print $3}')
-  swap_free=$(echo "$mem_info" | awk '/Swap/ {print $4}')
-  logowl "RAM Space: ${ram_total}MB  Used:${ram_used}MB  Free:${ram_free}MB"
-  logowl "SWAP Space: ${swap_total}MB  Used:${swap_used}MB  Free:${swap_free}MB"
+    # show_system_info: to show the Device, Android and RAM info.
+
+    logowl "Device: $(getprop ro.product.brand) $(getprop ro.product.model) ($(getprop ro.product.device))"
+    logowl "Android $(getprop ro.build.version.release) (API $API), $ARCH"
+    mem_info=$(free -m)
+    ram_total=$(echo "$mem_info" | awk '/Mem/ {print $2}')
+    ram_used=$(echo "$mem_info" | awk '/Mem/ {print $3}')
+    ram_free=$((ram_total - ram_used))
+    swap_total=$(echo "$mem_info" | awk '/Swap/ {print $2}')
+    swap_used=$(echo "$mem_info" | awk '/Swap/ {print $3}')
+    swap_free=$(echo "$mem_info" | awk '/Swap/ {print $4}')
+    logowl "RAM Space: ${ram_total}MB  Used:${ram_used}MB  Free:${ram_free}MB"
+    logowl "SWAP Space: ${swap_total}MB  Used:${swap_used}MB  Free:${swap_free}MB"
 }
 
 print_line() {
-  local length=${1:-60}
-  local line=$(printf "%-${length}s" | tr ' ' '-')
-  echo "$line"
+    # print_line: a function to print separate line
+    
+    local length=${1:-60}
+    local line=$(printf "%-${length}s" | tr ' ' '-')
+    echo "$line"
 }
 
 file_compare() {
