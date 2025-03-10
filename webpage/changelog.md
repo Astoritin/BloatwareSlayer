@@ -3,6 +3,11 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ### Changelog / 变更日志
 
+### 1.2.4
+
+- 修复潜在的由于开放自定义扫描预装软件所在系统目录功能导致的安全问题
+- Fix the potential security issues arising from the function of customizing the scanning system directories of bloatware
+
 ### 1.2.3
 
 - 支持自定义扫描预装软件所在的系统目录，如有需求可手动修改`/data/adb/bloatwareslayer/settings.conf`的`system_app_paths`的值（以/开头，用空格隔开）
