@@ -264,7 +264,7 @@ verify_variables() {
 update_module_description() {
     # update_module_description: a function to update the value of the key "description"
     # DESCRIPTION: the description you want to update to
-    # MODULE_PROP: the path of module.prop you want to modify
+    # MODULE_PROP: the path of module.prop you want to update the description
 
     local DESCRIPTION="$1"
     local MODULE_PROP="$2"
@@ -315,34 +315,40 @@ print_line() {
 }
 
 file_compare() {
-  local file_a="$1"
-  local file_b="$2"
-  if [ -z "$file_a" ] || [ -z "$file_b" ]; then
-    logowl "Value a or value b does not exist!" "WARN"
-    return 2
-  fi
-  if [ ! -f "$file_a" ]; then
-    logowl "a is NOT a file!" "WARN"
-    return 3
-  fi
-  if [ ! -f "$file_b" ]; then
-    logowl "b is NOT a file!" "WARN"
-    return 3
-  fi
-  local hash_file_a=$(sha256sum "$file_a" | awk '{print $1}')
-  local hash_file_b=$(sha256sum "$file_b" | awk '{print $1}')
-  logowl "File a: $hash_file_a"
-  logowl "File b: $hash_file_b"
-  if [ "$hash_file_a" == "$hash_file_b" ]; then
-    logowl "The hash of file a is equal to file b, they are the same files!"
-    return 0
-  else
-    logowl "The hash of file a is NOT equal to file b, they are NOT the same files!"
-    return 1
-  fi
+    # file_compare: a function to compare whether file a and file b is same or not
+    # file_a: the path of file a
+    # file_b: the path of file b
+
+    local file_a="$1"
+    local file_b="$2"
+    if [ -z "$file_a" ] || [ -z "$file_b" ]; then
+      logowl "Value a or value b does not exist!" "WARN"
+      return 2
+    fi
+    if [ ! -f "$file_a" ]; then
+      logowl "a is NOT a file!" "WARN"
+      return 3
+    fi
+    if [ ! -f "$file_b" ]; then
+      logowl "b is NOT a file!" "WARN"
+      return 3
+    fi
+    local hash_file_a=$(sha256sum "$file_a" | awk '{print $1}')
+    local hash_file_b=$(sha256sum "$file_b" | awk '{print $1}')
+    # logowl "File a: $hash_file_a"
+    # logowl "File b: $hash_file_b"
+    if [ "$hash_file_a" == "$hash_file_b" ]; then
+        # logowl "The hash of file a is equal to file b, they are the same files!"
+        return 0
+    else
+        # logowl "The hash of file a is NOT equal to file b, they are NOT the same files!"
+        return 1
+    fi
 }
 
 abort_verify() {
+    # abort_verify: a function to abort verify because of detecting hash does NOT match
+
     print_line
     echo "! $1"
     echo "! This zip may be corrupted or have been maliciously modified!"
@@ -355,47 +361,64 @@ abort_verify() {
 }
 
 extract() {
-  zip=$1
-  file=$2
-  dir=$3
-  junk_paths=$4
-  [ -z "$junk_paths" ] && junk_paths=false
-  opts="-o"
-  [ $junk_paths = true ] && opts="-oj"
+    # extract: a function to extract zip and verify the hash
+    # zip: the path of zip file
+    # file: the filename you want to extract from zip file
+    # dir: the dir you want to extract to
+    #
+    # junk_paths: whether preserve the file's folders in zip file or not
+    # For example, a file in zip file is: /META/AA/config.ini
+    # if false, file config.ini will be extracted into /(target dir)/META/AA/config.ini
+    # if true, file config.ini will be extracted into /(target dir)/config.ini
 
-  file_path=""
-  hash_path=""
-  if [ $junk_paths = true ]; then
-    file_path="$dir/$(basename "$file")"
-    hash_path="$VERIFY_DIR/$(basename "$file").sha256"
-  else
-    file_path="$dir/$file"
-    hash_path="$VERIFY_DIR/$file.sha256"
-  fi
+    zip=$1
+    file=$2
+    dir=$3
+    junk_paths=$4
+    [ -z "$junk_paths" ] && junk_paths=false
+    opts="-o"
+    [ $junk_paths = true ] && opts="-oj"
 
-  unzip $opts "$zip" "$file" -d "$dir" >&2
-  [ -f "$file_path" ] || abort_verify "$file does not exist!"
-  logowl "Extract $file -> $file_path" >&1
+    file_path=""
+    hash_path=""
+    if [ $junk_paths = true ]; then
+      file_path="$dir/$(basename "$file")"
+      hash_path="$VERIFY_DIR/$(basename "$file").sha256"
+    else
+      file_path="$dir/$file"
+      hash_path="$VERIFY_DIR/$file.sha256"
+    fi
 
-  unzip $opts "$zip" "$file.sha256" -d "$VERIFY_DIR" >&2
-  [ -f "$hash_path" ] || abort_verify "$file.sha256 does not exist!"
+    unzip $opts "$zip" "$file" -d "$dir" >&2
+    [ -f "$file_path" ] || abort_verify "$file does not exist!"
+    logowl "Extract $file -> $file_path" >&1
 
-  expected_hash="$(cat "$hash_path")"
-  calculated_hash="$(sha256sum "$file_path" | cut -d ' ' -f1)"
+    unzip $opts "$zip" "$file.sha256" -d "$VERIFY_DIR" >&2
+    [ -f "$hash_path" ] || abort_verify "$file.sha256 does not exist!"
 
-  if [ "$expected_hash" == "$calculated_hash" ]; then
-    logowl "Verified $file" >&1
-  else
-    abort_verify "Failed to verify $file"
-  fi
+    expected_hash="$(cat "$hash_path")"
+    calculated_hash="$(sha256sum "$file_path" | cut -d ' ' -f1)"
+
+    if [ "$expected_hash" == "$calculated_hash" ]; then
+      logowl "Verified $file" >&1
+    else
+      abort_verify "Failed to verify $file"
+    fi
 }
 
 set_module_files_perm() {
-  logowl "Setting permissions"
-  set_perm_recursive "$MODPATH" 0 0 0755 0644
+    # set_module_files_perm: set module files's permission
+    # only use in installing module
+
+    logowl "Setting permissions"
+    set_perm_recursive "$MODPATH" 0 0 0755 0644
 }
 
 clean_old_logs() {
+    # clean_old_logs: a function to clean logs dir as detecting too many logs
+    # log_dir: the log directory you want to clean
+    # files_max: the max value of files you allow to keep in logs dir
+ 
     local log_dir="$1"
     local files_max="$2"
     
