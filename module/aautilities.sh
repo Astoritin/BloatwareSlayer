@@ -92,7 +92,7 @@ logowl() {
     # LOG_LEVEL: the level of this log message
     
     local LOG_MSG="$1"
-    local LOG_LEVEL="${2:-NONE}"
+    local LOG_LEVEL="${2:-DEFAULT}"
     
     # if calling this function but LOG_MSG is not ordered    
     if [ -z "$LOG_MSG" ]; then
@@ -105,6 +105,7 @@ logowl() {
     local WARN_SYMBOL="- Warn:"
     local ERROR_SYMBOL="! ERROR:"
     local FATAL_SYMBOL="× FATAL:"
+    local NONE_SYMBOL=" "
     local DEFAULT_SYMBOL="-"
 
     # Determine log level symbol
@@ -120,6 +121,9 @@ logowl() {
         ;;
       "F"|"FATAL")
         LOG_LEVEL="$FATAL_SYMBOL"
+        ;;
+      "N"|"NONE")
+        LOG_LEVEL="$NONE_SYMBOL"
         ;;
       *)
         LOG_LEVEL="$DEFAULT_SYMBOL"
@@ -354,6 +358,9 @@ abort_verify() {
     echo "! This zip may be corrupted or have been maliciously modified!"
     echo "! Please try to download again or get it from official source!"
     print_line
+
+    # BOOTMODE is provided by Magisk / KernelSU / APatch
+    # It is true only if in Magisk manager / KernelSU env / APatch env
     if [ "$BOOTMODE" ]; then
         abort
     fi
