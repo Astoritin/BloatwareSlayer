@@ -17,11 +17,11 @@ fi
 
 . "$TMPDIR/aautilities.sh"
 
+install_env_check
 logowl "Setting up $MOD_NAME"
 logowl "Version: $MOD_VER"
 init_logowl "$LOG_DIR"
 show_system_info
-install_env_check 
 clean_old_logs "$LOG_DIR" 20
 logowl "Extract module files"
 extract "$ZIPFILE" 'aautilities.sh' "$VERIFY_DIR"
