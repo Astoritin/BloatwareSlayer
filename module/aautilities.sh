@@ -37,7 +37,7 @@ install_env_check() {
         MAGISK_BRANCH_NAME="Magisk"
       fi
       ROOT_SOL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
-      logowl "Install from $ROOT_SOL"
+      logowl "Installing from $ROOT_SOL"
     else
       ROOT_SOL="Recovery"
       print_line
@@ -55,7 +55,10 @@ module_intro() {
     MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
     MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
     MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
+
+    install_env_check
     print_line
+
     logowl "$MOD_NAME"
     logowl "By $MOD_AUTHOR"
     logowl "Version: $MOD_VER"
@@ -76,89 +79,66 @@ init_logowl() {
 
   if [ ! -d "$LOG_DIR" ]; then
       logowl "Log dir does NOT exist"
-      logowl "Creating $LOG_DIR"
       mkdir -p "$LOG_DIR" || {
         logowl "Failed to create $LOG_DIR" "ERROR" >&2
         return 2
       }
-      logowl "Done"
+      logowl "Created $LOG_DIR"
   else
-      logowl "Detect existed log dir: $LOG_DIR"
+      logowl "Detect log dir: $LOG_DIR existed"
   fi
 }
+
 logowl() {
     # logowl: a function to format the log output
     # LOG_MSG: the log message you need to print
     # LOG_LEVEL: the level of this log message
-    
     local LOG_MSG="$1"
-    local LOG_LEVEL="${2:-DEFAULT}"
-    
-    # if calling this function but LOG_MSG is not ordered    
+    local LOG_LEVEL="${2-:DEF}"
+
     if [ -z "$LOG_MSG" ]; then
-      echo "! LOG_MSG is not provided yet!" >&2
-      return 3
+        echo "! LOG_MSG is not provided yet!"
+        return 3
     fi
 
-    # Define log level symbols
-    local TIPS_SYMBOL="*"
-    local WARN_SYMBOL="- Warn:"
-    local ERROR_SYMBOL="! ERROR:"
-    local FATAL_SYMBOL="× FATAL:"
-    local NONE_SYMBOL=" "
-    local DEFAULT_SYMBOL="-"
-
-    # Determine log level symbol
     case "$LOG_LEVEL" in
-      "T"|"TIPS")
-        LOG_LEVEL="$TIPS_SYMBOL"
+        "TIPS")
+        LOG_LEVEL="*"
         ;;
-      "W"|"WARN")
-        LOG_LEVEL="$WARN_SYMBOL"
+        "WARN")
+        LOG_LEVEL="- Warn:"
         ;;
-      "E"|"ERROR")
-        LOG_LEVEL="$ERROR_SYMBOL"
+        "ERROR")
+        LOG_LEVEL="! ERROR:"
         ;;
-      "F"|"FATAL")
-        LOG_LEVEL="$FATAL_SYMBOL"
+        "FATAL")
+        LOG_LEVEL="× FATAL:"
         ;;
-      "N"|"NONE")
-        LOG_LEVEL="$NONE_SYMBOL"
+        "NONE")
+        LOG_LEVEL=" "
         ;;
-      *)
-        LOG_LEVEL="$DEFAULT_SYMBOL"
+        *)
+        LOG_LEVEL="-"
         ;;
     esac
 
-    # Check if LOG_FILE is writable
-    if [ -n "$LOG_FILE" ]; then
-      if [ ! -w "$LOG_FILE" ]; then
-        echo "! Error: LOG_FILE ($LOG_FILE) is not writable!" >&2
-        echo "! Will log to terminal ONLY" >&2
-        LOG_FILE=""
-      fi
-    fi
-
-    # Output log message
-    if [ -n "$LOG_FILE" ]; then
-      if [[ "$LOG_LEVEL" == "$ERROR_SYMBOL" ]] || [[ "$LOG_LEVEL" == "$FATAL_SYMBOL" ]]; then
-        print_line >> "$LOG_FILE" 2>&1
-      fi
-      echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE" 2>&1
-      if [[ "$LOG_LEVEL" == "$ERROR_SYMBOL" ]] || [[ "$LOG_LEVEL" == "$FATAL_SYMBOL" ]]; then
-        print_line >> "$LOG_FILE" 2>&1
-      fi
-    fi
-
-    # BOOTMODE is provided by Magisk / KernelSU / APatch
-    # It is true only if in Magisk manager / KernelSU env / APatch env
-    if [ "$BOOTMODE" ]; then
-      ui_print "$LOG_LEVEL $LOG_MSG" 2>/dev/null
-      return 0
+    if [ -z "$LOG_FILE" ]; then
+        if [ "$BOOTMODE" ]; then
+            ui_print "$LOG_LEVEL $LOG_MSG" 2>/dev/null
+            return 0
+        fi
+        echo "$LOG_LEVEL $LOG_MSG"
     else
-      echo "$LOG_LEVEL $LOG_MSG"
+        if [[ "$LOG_LEVEL" == "! ERROR:" ]] || [[ "$LOG_LEVEL" == "× FATAL:" ]]; then
+        print_line >> "$LOG_FILE"
+        fi
+        echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE"
+        if [[ "$LOG_LEVEL" == "! ERROR:" ]] || [[ "$LOG_LEVEL" == "× FATAL:" ]]; then
+        print_line >> "$LOG_FILE"
+        fi
     fi
 }
+
 
 init_variables() {
     # init_variables: a function to initiate variables
@@ -216,52 +196,36 @@ verify_variables() {
     # verify_variables: a function to verify the availability of variables and export it
     # config_var_name: the name of variable
     # config_var_value: the value of variable
-    # validation_pattern: the principal for checking whether it is a available variable or not
-    # default_value (unused): if unavailable, the value should be set as default
-    # script_var_name: transport the letters of variable name to upper case
+    # validation_pattern: the regex pattern for checking the validity of the variable value
+    # default_value (optional): if the ordered value is unavailable, the value should be set as default
+    # script_var_name: the name of the variable in uppercase for exporting
   
     local config_var_name="$1"
     local config_var_value="$2"
     local validation_pattern="$3"
-    # local default_value="$4"
+    local default_value="${4:-}"
     local script_var_name=$(echo "$config_var_name" | tr '[:lower:]' '[:upper:]')
 
-    # if pattern is empty, export the variable directly
-    if [[ -z "$validation_pattern" ]]; then
+    if [ -n "$config_var_value" ] && echo "$config_var_value" | grep -qE "$validation_pattern"; then
         export "$script_var_name"="$config_var_value"
-        logowl "Validation pattern is empty. Directly exporting $script_var_name=$config_var_value" "TIPS"
-        return
-    fi
-
-    if [ -n "$config_var_value" ]; then
-        # logowl "Config var value is non-empty"
-        if echo "$config_var_value" | grep -qE "$validation_pattern"; then
-            # logowl "Config var value matches the pattern"
-            export "$script_var_name"="$config_var_value"
-            logowl "Set $script_var_name=$config_var_value" "TIPS"
-        else
-            logowl "Config var value does NOT match the pattern" "WARN"
-            logowl "Unavailable var: $script_var_name=$config_var_value"
-            logowl "Will keep the value as default one"
-            # if [ -n "$default_value" ]; then
-            #     logowl "Keep $script_var_name as default value ($default_value)"
-            #     export "$script_var_name"="$default_value"
-            # else
-            #     logowl "No default value provided for $script_var_name, keep empty"
-            #     export "$script_var_name"=""
-            # fi
-        fi
+        logowl "Set $script_var_name=$config_var_value" "TIPS"
     else
-        logowl "Config var value is empty" "WARN"
+        logowl "Config var value is empty or does NOT match the pattern" "WARN"
         logowl "Unavailable var: $script_var_name=$config_var_value"
-        logowl "Will keep the value as default one"
-        # if [ -n "$default_value" ]; then
-        #     logowl "Keep $script_var_name as default value ($default_value)"
-        #     export "$script_var_name"="$default_value"
-        # else
-        #     logowl "No default value provided for $script_var_name, keep empty"
-        #     export "$script_var_name"=""
-        # fi
+
+        # Check if a default value is provided
+        if [ -n "$default_value" ]; then
+            # Use eval to check if the variable is already set
+            if eval "[ -z \"\${$script_var_name+x}\" ]"; then
+                logowl "Using default value for $script_var_name: $default_value" "TIPS"
+                export "$script_var_name"="$default_value"
+            else
+                logowl "Variable $script_var_name already set, skipping default value" "WARN"
+            fi
+        else
+            logowl "No default value provided for $script_var_name, keeping its current state" "TIPS"
+            # Do nothing if no default value is provided
+        fi
     fi
 }
 
