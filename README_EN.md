@@ -68,9 +68,9 @@ Regarding package names, please refer to [**"Confirmed feature that will not be 
 
 </details>
 
-## Configuration Settings
+## Configuration File
 
-Starting from version v1.2.1, Bloatware Slayer supports manually enabling or disabling the following features. Please open the configuration file <code>/data/adb/bloatwareslayer/settings.conf</code> to view and modify the settings. If not specified in the <code>settings.conf</code> file, the default value is <code>300</code> seconds (5 minutes). However, the default value within the <code>settings.conf</code> file is <code>180</code> seconds (3 minutes).
+Starting from version v1.2.1, Bloatware Slayer supports manually enabling or disabling the following features. Please open the configuration file <code>/data/adb/bloatwareslayer/settings.conf</code> to view and modify the settings if needed. If not specified in the <code>settings.conf</code> file, the default value is <code>300</code> seconds (5 minutes). However, the default value within the <code>settings.conf</code> file is <code>180</code> seconds (3 minutes).
 
 1. **<code>brick_timeout</code>**: Sets the timeout for determining if the device has bricked. It requires a positive integer, measured in seconds. The default value is <code>300</code> seconds (5 minutes).
 
