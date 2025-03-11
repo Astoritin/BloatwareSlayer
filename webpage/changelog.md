@@ -3,6 +3,14 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ### Changelog / 变更日志
 
+### 1.2.5
+
+- Remove some redundant code
+- 移除部分冗余代码
+- Optimize log output
+- 优化日志输出
+- SHA256: `bd70a8317a3b19edafba3d3ba2312ef56e5dd37a6f9644161878d0a1fb3ef690`
+
 ### 1.2.4
 
 - 修复潜在的由于开放自定义扫描预装软件所在系统目录功能导致的安全问题
