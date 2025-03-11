@@ -26,13 +26,23 @@ DISABLE_MODULE_AS_BRICK=true
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
 brick_rescue() {
+    # brick_rescue: a function to execute brick rescue method to save the device from being "bricked" by Bloatware Slayer itself
+    # WARN: It won't conflict with other brick rescue method
+    # but this in-built method is for correcting the bricked by Bloatware Slayer itself  
+    # if the bricked is caused by other modules / behaviors, Bloatware Slayer has nothing to do with it
+    #
+    # BRICKED_STATUS: a empty file with a filename "bricked" located in /data/adb/bloatwareslayer
+    # if detecting /data/adb/bloatwareslayer/bricked, module will skip mounting to prevent from being bricked by Bloatware Slayer itself
+    #
+    # DISABLE_MODULE_AS_BRICK: a key in settings.conf to control the behavior when approaching bricked
+    # if true, will disable itself and skip mounting
+    # if false, will skip mounting ONLY, module itself is still enable
     
     if [ -f "$BRICKED_STATUS" ]; then
         logowl "Detect flag bricked!" "FATAL"
         logowl "Skip service.sh process"
         DESCRIPTION="[❌Disabled. Auto disabled from brick! Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way 🎉✨"
-        sed -i "/^description=/c\description=$DESCRIPTION" "$MODULE_PROP"
-        logowl "Update module.prop"
+        update_module_description "$DESCRIPTION" "$MODULE_PROP"
         logowl "Skip mounting"
         rm -rf "$BRICKED_STATUS"
         if [ $? -eq 0 ]; then
@@ -46,20 +56,21 @@ brick_rescue() {
             touch "$MODDIR/disable"
         fi
         exit 1
+        logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
+        logowl "Will NOT disable $MOD_NAME after reboot"
     else
-        logowl "Flag bricked does not detect"
+        logowl "Flag bricked does NOT detect"
         logowl "$MOD_NAME will keep going"
     fi
 }
 
 config_loader() {
+    # config_loader: a function to load the config file saved in $CONFIG_FILE
+    # the format of $CONFIG_FILE: value=key, one key-value pair per line
+    # for system_app_paths, please keep in a line and separate the paths by a space
 
     logowl "Start loading configuration"
-    if [[ ! -f "$CONFIG_FILE" ]]; then
-        logowl "Configuration file does not exist: $CONFIG_FILE" "ERROR"
-        logowl "$MOD_NAME will use default values"
-        return 1
-    fi
+
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
@@ -75,6 +86,19 @@ config_loader() {
 }
 
 preparation() {
+    # preparation: a function to initiate the directories and some other preparation steps
+    #
+    # $EMPTY_DIR: an empty folder (/data/adb/bloatwareslayer/empty) to replace the system folders to "delete" them by mounting
+    #
+    # $TARGET_LIST: the path of config file target.conf located in (/data/adb/bloatwareslayer/target.conf)
+    # $TARGET_LIST_BSA: the path of config file target_bsa.conf located in (/data/adb/bloatwareslayer/target_bsa.conf)
+    # $TARGET_LIST_BSA is generated and arranged by Bloatware Slayer itself, you shouldn't edit it and save the critical information here
+    #
+    # $AUTO_UPDATE_TARGET_LIST: a key in settings.conf to control the behavior whether updating target.conf to available paths only on each time booting.
+    # true by default because it will change the target.conf into directories path to reduce the time of next time booting
+    # If false, Bloatware Slayer will NOT update target.conf automatically
+    #
+    # $UPDATE_TARGET_LIST: different from $AUTO_UPDATE_TARGET_LIST, this boolean variable is for Bloatware Slayer itself (inner behavior) to judge whether need to update or not by checking the hashcode of $TARGET_LIST and $TARGET_LIST_BSA
 
     if [ -d "$EMPTY_DIR" ]; then
         logowl "Detect $EMPTY_DIR existed"
@@ -86,7 +110,7 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does not exist!" "FATAL"
-        DESCRIPTION="[❌Disabled. Target list does not exist! Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+        DESCRIPTION="[❌Disabled. Target list does not exist! Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way🎉✨"
         update_module_description "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -115,6 +139,7 @@ preparation() {
 }
 
 bloatware_slayer() {
+    # bloatware_slayer: the core function for bloatware slayer
 
     TOTAL_APPS_COUNT=0
     BLOCKED_APPS_COUNT=0
@@ -181,7 +206,7 @@ bloatware_slayer() {
         done
     done < "$TARGET_LIST"
 
-    if [ "$UPDATE_TARGET_LIST" == true ] && [ "$AUTO_UPDATE_TARGET_LIST" == "true" ]; then
+    if [ "$UPDATE_TARGET_LIST" = "true" ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
         logowl "Update target list" "TIPS"
         cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
         chmod 0644 "$TARGET_LIST_BSA"
@@ -191,6 +216,10 @@ bloatware_slayer() {
 }
 
 module_status_update() {
+    # module_status_update: a function to update module status according to the result in function bloatware_slayer
+    # TOTAL_APPS_COUNT: the count of all the APPs in target.conf
+    # BLOCKED_APPS_COUNT: the count of the APPs being blocked by Bloatware Slayer successfully
+    # APP_NOT_FOUND: the count of the APPs not found or failed to block
 
     APP_NOT_FOUND=$((TOTAL_APPS_COUNT - BLOCKED_APPS_COUNT))
     logowl "$TOTAL_APPS_COUNT APP(s) in total"
@@ -199,16 +228,16 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-            DESCRIPTION="[😋Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉"
+            DESCRIPTION="[😋Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-            DESCRIPTION="[😋Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉"
+            DESCRIPTION="[😋Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0]; then
-                DESCRIPTION="[😋Enabled. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉"
+                DESCRIPTION="[😋Enabled. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             else
                 logowl "! Current blocked apps count: $TOTAL_APPS_COUNT <= 0"
-                DESCRIPTION="[❌Disabled. Abnormal status! Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+                DESCRIPTION="[❌Disabled. Abnormal status! Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way🎉✨"
             fi
         fi
         update_module_description "$DESCRIPTION" "$MODULE_PROP"
@@ -220,10 +249,9 @@ module_status_update() {
 
 . "$MODDIR/aautilities.sh"
 
-install_env_check
-module_intro >> "$LOG_FILE" 
-logowl "Starting service.sh"
+module_intro >> "$LOG_FILE"
 init_logowl "$LOG_DIR"
+logowl "Starting service.sh"
 config_loader
 print_line >> "$LOG_FILE"
 brick_rescue
@@ -234,6 +262,10 @@ logowl "Variables before case closed"
 debug_print_values >> "$LOG_FILE"
 
 {    
+
+    # the code block to wait for system boot complete and judge whether system is being bricked or not
+    # this task will run in background mode, it will NOT block the system booting at all so please take it easy
+    # $BRICK_TIMEOUT: a key in settings.conf to control the behavior of waiting for system boot complete and the timeout to infer device being bricked
 
     logowl "Current booting timeout: $BRICK_TIMEOUT"
     while [ "$(getprop sys.boot_completed)" != "1" ]; do
@@ -258,6 +290,11 @@ debug_print_values >> "$LOG_FILE"
     logowl "service.sh case closed!"
     print_line >> "$LOG_FILE"
 
+
+    # $UPDATE_DESC_ON_ACTION: a key in settings.conf to control the behavior as clicking on the disable or uninstall button in Root Manager
+    # disable by default because it is just for the better interaction in Root Manager
+    # and cause the consumption of system resources since it needs to keep running in the background
+
     MOD_DESC_OLD=$(sed -n 's/^description=//p' "$MODULE_PROP")
     MOD_LAST_STATUS=""
     MOD_CURRENT_STATUS=""
@@ -279,10 +316,10 @@ debug_print_values >> "$LOG_FILE"
             logowl "Detect status changed:$MOD_LAST_STATUS -> $MOD_CURRENT_STATUS"
             if [ "$MOD_CURRENT_STATUS" == "remove" ]; then
                 logowl "Detect module is set as remove"
-                MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+                MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way🎉✨"
             elif [ "$MOD_CURRENT_STATUS" == "disable" ]; then
                 logowl "Detect module is set as disable"
-                MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+                MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way🎉✨"
             else
                 logowl "Detect module is set as enabled"
                 MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
