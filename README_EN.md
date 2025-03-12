@@ -77,7 +77,7 @@ Starting from version v1.2.1, Bloatware Slayer supports manually enabling or dis
 2. **<code>disable_module_as_brick</code>**: Determines whether the module should automatically disable itself when the device is detected as bricked. By default, it is set to <code>true</code> (enabled), but you can set it to <code>false</code> to disable this feature.  
    - When enabled, the module will disable itself to prevent further issues. If you set it to <code>false</code>, the module will only skip mounting without disabling itself. This allows you to troubleshoot and reboot the system after removing unstable items from <code>target.conf</code>, without needing to re-enable the module via Root manager manually.
 
-3. **<code>auto_update_target_list</code>**: Toggles whether to update the items in <code>target.conf</code> to the paths of pre-installed apps during each startup. By default, it is set to <code>true</code> (enabled) to speed up system startup.  
+3. **<code>auto_update_target_list</code>**: Control the behavior whether to update the items in <code>target.conf</code> to the paths of pre-installed apps during each startup. By default, it is set to <code>true</code> (enabled) to speed up system startup.  
    - If you prefer to keep your custom comments or retain items in <code>target.conf</code> that were not found by the module, you can set this to <code>false</code>.
 
 4. **<code>update_desc_on_action</code>**: Updates the module status description when the module is disabled or uninstalled. This is a mostly useless feature that increases resource consumption and is disabled(<code>false</code>) by default.  
