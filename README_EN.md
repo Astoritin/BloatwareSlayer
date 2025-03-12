@@ -135,7 +135,7 @@ If you add certain apps to <code>target.conf</code> and the device gets stuck on
 - Root: Magisk Alpha 28102
 2. Xiaomi MIUI 12.5.4, Android 10, Device: Redmi Note 7 Pro 6+128GB (violet, stock ROM)
 - Root: Magisk Alpha 28102
-3. DroidUI-X，Android 15，Device：Redmi Note 7 Pro 6+128GB (violet，AOSP based ROM)
+3. DroidUI-X，Android 14，Device：Redmi Note 7 Pro 6+128GB (violet，AOSP based ROM)
 - Root：KernelSU with Magic Mount 1.0.3
 - Root: KernelSU with OverlayFS 0.9.5
 4. Flyme 8.0.5.0A, Android 7.1.2, Device: Meizu M6 Note 4+64GB (m1721, stock ROM)
