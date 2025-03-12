@@ -73,7 +73,7 @@
  - 如果不在<code>settings.conf</code>中指定，则默认值是<code>300</code>秒(5分钟)，<code>settings.conf</code>内的默认值为180秒(3分钟)。
 2. **<code>disable_module_as_brick</code>**：设定是否在触发设备变砖时自动禁用该模块。默认情况下为<code>true</code>(启用)，你也可以设置为<code>false</code>以禁用该功能。<br>
  - 若禁用，则模块在检测到设备变砖时就**只会跳过挂载而不会自我禁用**，在排除<code>target.conf</code>中的不稳定项目后即可自行重新启动，无需再进入Root管理器重新启用本模块。<br>
-3. **<code>auto_update_target_list</code>**：切换每次启动时是否更新 target.conf 中的项目为预装应用所在路径，默认情况下为<code>true</code>(启用)以加快下次系统的启动速度。<br>
+3. **<code>auto_update_target_list</code>**：每次启动时是否更新 target.conf 中的项目为预装应用所在路径，默认情况下为<code>true</code>(启用)以加快下次系统的启动速度。<br>
  - 如果你不希望<code>target.conf</code>被模块自动更新掉，想保留自己添加的注解或者保留未找到的项目，则可以设定为<code>false</code>。
 4. **<code>update_desc_on_action</code>**：在模块被禁用/卸载时更新模块状态描述。是一个没有什么用且会增加消耗的功能，默认<code>false</code>(禁用)。<br>
  - 如果你希望在点击禁用或卸载按钮后见到提示，那么可以改成<code>true</code>启用此功能。
