@@ -101,7 +101,7 @@ preparation() {
     # $UPDATE_TARGET_LIST: different from $AUTO_UPDATE_TARGET_LIST, this boolean variable is for Bloatware Slayer itself (inner behavior) to judge whether need to update or not by checking the hashcode of $TARGET_LIST and $TARGET_LIST_BSA
 
     if [ -d "$EMPTY_DIR" ]; then
-        logowl "Detect $EMPTY_DIR existed"
+        logowl "$EMPTY_DIR already exists"
         rm -rf "$EMPTY_DIR"
     fi
     logowl "Create $EMPTY_DIR"
@@ -109,14 +109,14 @@ preparation() {
     chmod 755 "$EMPTY_DIR"
 
     if [ ! -f "$TARGET_LIST" ]; then
-        logowl "Target list does not exist!" "FATAL"
-        DESCRIPTION="[❌Disabled. Target list does not exist! Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way🎉✨"
+        logowl "Target list does NOT exist!" "FATAL"
+        DESCRIPTION="[❌Disabled. Target list does NOT exist! Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way🎉✨"
         update_module_description "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
 
     if [ -f "$TARGET_LIST_BSA" ] && [ "$AUTO_UPDATE_TARGET_LIST" == "true" ]; then
-        logowl "target list ($MOD_NAME Arranged) file existed"
+        logowl "Target list ($MOD_NAME Arranged) file already exists"
         logowl "Detect flag AUTO_UPDATE_TARGET_LIST=true"
         if file_compare "$TARGET_LIST" "$TARGET_LIST_BSA"; then
             logowl "Files are identical, no changes detected"
@@ -146,6 +146,12 @@ bloatware_slayer() {
     logowl "Start $MOD_NAME process"
     while IFS= read -r line; do
 
+        if check_value_safety "TLL" "$line"; then
+            logowl "Processing value: $line"
+        else
+            logowl "Skip current line since safety check failed" "WARN" >&2
+            continue
+        fi
         line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
         logowl "Current line: $line"
         if [ -z "$line" ]; then
@@ -249,8 +255,8 @@ module_status_update() {
 
 . "$MODDIR/aautilities.sh"
 
-module_intro >> "$LOG_FILE"
 init_logowl "$LOG_DIR"
+module_intro >> "$LOG_FILE"
 logowl "Starting service.sh"
 config_loader
 print_line >> "$LOG_FILE"
