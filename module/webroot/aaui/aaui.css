@@ -1,0 +1,108 @@
+body {
+    font-family: 'Google Sans', 'Roboto', sans-serif;
+    font-size: 16px; /* 默认字体大小 */
+    line-height: 1.5; /* 默认行高 */
+    color: #333; /* 默认文本颜色 */
+}
+
+.buttons_container {
+  display: flex;
+  align-items: center; /* 垂直居中对齐 */
+  flex-wrap: nowrap; /* 禁止换行 */
+  gap: 12px;
+}
+
+.bs_status_block {
+    display: flex; /* 使用 Flexbox 布局 */
+    box-sizing: border-box; /* 包含 padding 和 border 在内计算宽度 */
+    justify-content: space-between; /* 子元素在容器内水平分布，两端对齐 */
+    align-items: center; /* 子元素在容器内垂直居中 */
+    width: 100%; /* 容器宽度为父容器的 80% */
+    margin: 0 auto; /* 水平居中对齐 */
+    padding: 16px; /* 内边距为 16px */
+}
+
+.bs_status_card{
+    display: flex;
+    flex-direction: row;
+    background-color: #6750A4 !important;
+    color: #ffffff;
+    gap: 12px;
+    padding: 18px;
+    margin: 0 auto;
+    margin-top: -3px;
+    width: 98%;
+}
+
+.bs_status_card svg path {
+    fill: #ffffff;
+}
+
+.bs_status_text{
+    font-family: 'Google Sans', 'Roboto', sans-serif;
+    font-size:large;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* 添加轻微阴影 */
+}
+
+.bs_title_block{
+    display: flex; /* 使用 Flexbox 布局 */
+    box-sizing: border-box; /* 包含 padding 和 border 在内计算宽度 */
+    justify-content: left; /* 子元素在容器内水平分布，两端对齐 */
+    align-items: center; /* 子元素在容器内垂直居中 */
+    width: 100%;
+    margin: 0 auto; /* 水平居中对齐 */
+    padding: 16px; /* 内边距为 16px */
+}
+
+.bs_title_text {
+    font-size: 24px;
+    font-family: 'Google Sans', 'Roboto', sans-serif;
+    font-weight: 700; /* 设置为粗体 */
+    line-height: 1.2; /* 设置行高为字体大小的1.2倍 */
+    color: #555; /* 设置为深灰色 */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* 添加轻微阴影 */
+}
+
+@media (max-width: 768px) {
+    .bs_status_text {
+        font-size: 14px; /* 在小屏幕上减小字体大小 */
+    }
+
+    .bs_title_text {
+        font-size: 20px; /* 在小屏幕上减小标题字体大小 */
+    }
+}
+
+.bs_switch_container{
+    font-size: 18px;
+    display: flex;
+    flex-direction: column; /* 垂直排列每个设置项 */
+    justify-content: space-between; /* 左右对齐 */
+    gap: 10px; /* 设置项之间的间距 */
+    width: 97%;
+    margin: 0 auto;
+}
+
+.bs_switch_item {
+    display: flex;
+    align-items: center; /* 垂直居中对齐 */
+    justify-content: flex-start; /* 水平起始对齐 */
+    gap: 20px;
+}
+
+.bs_switch_item span {
+    text-align: left; /* 文本左侧对齐 */
+    flex-grow: 1; /* 让文本占据剩余空间 */
+    margin-right: 10px; /* 在文本和开关之间添加间距 */
+}
+
+.bs_switch_item mdui-switch {
+    margin-left: auto; /* 将开关推到右侧 */
+}
+
+.bs_switch_item mdui-text-field {
+    width: 135px; /* 固定宽度 */
+    max-width: 135px; /* 最大宽度 */
+    height: 45px;
+    max-height: 45px;
+}
