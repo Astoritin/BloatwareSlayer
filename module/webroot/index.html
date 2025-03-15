@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bloatware Slayer WebUI</title>
+  <link rel="stylesheet" href="mdui/mdui.css">
+  <link rel="stylesheet" href="aaui/aaui.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="bs_status_block">
+    <div class="bs_title_text">Bloatware Slayer <span id="bs_version">1.2.6</span></div>
+    <div class="buttons_container">
+      <mdui-button-icon id="bs_btn_reboot" variant="tonal" icon="reboot" title="reboot">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+        </svg>
+      </mdui-button-icon>
+      <mdui-button-icon id="bs_btn_close" variant="tonal" icon="close" title="close">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </mdui-button-icon>
+    </div>
+  </div>
+
+    <mdui-card class="bs_status_card" variant="elevated">
+    
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="m18 7-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41 6 19l1.41-1.41L1.83 12 .41 13.41z"/>
+        </svg>
+        Enabled. Slain: 22 APP(s), Not found: 12 APP(s), in Total: 34 APP(s)
+
+    </mdui-card>
+
+    <br>
+  <div class="bs_title_block bs_title_text">Settings</div>
+    <div class="bs_switch_container">
+      <div class="bs_switch_item"><span>Update target list each time automatically</span><mdui-switch checked-icon="" checked></mdui-switch></div>
+      <div class="bs_switch_item"><span>Disable module itself as approaching brick</span><mdui-switch checked-icon="" checked></mdui-switch></div>
+      <div class="bs_switch_item"><span>Update module description as clicking on disable or uninstall button in Root Manager</span><mdui-switch checked-icon=""></mdui-switch></div>
+      <div class="bs_switch_item"><span>Timeout to judge device approaching brick</span><mdui-text-field type="number" minlength="0" min="0" maxlength="4" max="1800" clearable></mdui-text-field></div>
+    </div>
+    <div class="bs_title_block">
+      <mdui-button>Discard changes</mdui-button>
+      <div class="bs_title_block"><mdui-button>Reset settings</mdui-button></div>
+      <div style="justify-content: right;" class="bs_title_block">
+        <mdui-button disabled>Apply now</mdui-button>
+      </div>
+    </div>      
+  </div>
+  <div class="bs_operation_container">
+    
+  </div>
+
+  <script src="mdui/mdui.global.js"></script>
+  <script>
+    document.querySelector('mdui-button').addEventListener('click', () => {
+      mdui.snackbar({ message: 'I see you clicking on here!' });
+    });
+  </script>
+</body>
+</html>
