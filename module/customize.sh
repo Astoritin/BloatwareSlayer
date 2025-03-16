@@ -21,8 +21,8 @@ logowl "Setting up $MOD_NAME"
 logowl "Version: $MOD_VER"
 install_env_check
 show_system_info
-init_logowl "$LOG_DIR"
-clean_old_logs "$LOG_DIR" 20
+init_logowl "$LOG_DIR" > /dev/null 2>&1
+clean_old_logs "$LOG_DIR" 20 > /dev/null 2>&1
 logowl "Essential checks"
 extract "$ZIPFILE" 'aautilities.sh' "$VERIFY_DIR"
 extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
@@ -48,11 +48,6 @@ else
   logowl "settings.conf already exists"
   logowl "Skip overwriting settings.conf"
 fi
-logowl "Extract WebUI Project files"
-extract "$ZIPFILE" 'webroot/index.html' "$MODPATH"
-extract "$ZIPFILE" 'webroot/mdui/mdui.css' "$MODPATH"
-extract "$ZIPFILE" 'webroot/mdui/mdui.global.js' "$MODPATH"
-extract "$ZIPFILE" 'webroot/aaui/aaui.css' "$MODPATH"
 rm -rf "$VERIFY_DIR"
 set_module_files_perm
 logowl "Welcome to use ${MOD_NAME}!"
