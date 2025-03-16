@@ -161,23 +161,10 @@ init_variables() {
         echo "$value"
         return 0
     else
-        local status=$?
-        case $status in
-            2)
-                logowl "Key '$key' is NOT found" "WARN" >&2
-                ;;
-            3)
-                logowl "Key '$key' contains potential dangerous characters" "ERROR" >&2
-                ;;
-            4)
-                logowl "Key '$key' contains illegal characters" "WARN" >&2
-                ;;
-            *)
-                logowl "Unknown error occurred while verifying key '$key'" "ERROR" >&2
-                ;;
-        esac
-        return $status
+        local result=$?
+        return "$result"
     fi
+
 }
 
 check_value_safety(){
@@ -188,16 +175,26 @@ check_value_safety(){
     # Escape the value to safe one
     value=$(printf "%s" "$value" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
 
-    # Check whether the value is null or not
+    # Check if the value is null
     if [[ -z "$value" ]]; then
+        logowl "Detect empty value, status code: 1" "WARN"
+        return 1
+    fi
+
+    # If the value is start with "#", then take this line as comment line
+    if [ "${value:0:1}" = "#" ]; then
+        logowl "Detect comment symbol, status code: 2" "WARN"
         return 2
     fi
 
     # Special handling for boolean values
     if [[ "$value" == "true" || "$value" == "false" ]]; then
-        # logowl "Verified boolean: $value" "TIPS"
+        logowl "Verified $key=$value (boolean)" "TIPS"
         return 0
     fi
+
+    # fetch the main content before symbol "#"
+    value=$(echo "$value" | cut -d'#' -f1 | xargs)
 
     # regex: the regular expression to match the safe variable
     local regex='^[a-zA-Z0-9/_\. -]*$'
@@ -205,13 +202,16 @@ check_value_safety(){
 
     # Check for dangerous characters
     if echo "$value" | grep -Eq "$dangerous_chars"; then
+        logowl "Key '$key' contains potential dangerous characters" "ERROR" >&2
         return 3
     fi
     if ! echo "$value" | grep -Eq "$regex"; then
+        logowl "Key '$key' contains illegal characters" "WARN" >&2
         return 4
     fi
 
     # If all checks pass
+    logowl "Verified $key=$value" "TIPS"
     return 0
 }
 
