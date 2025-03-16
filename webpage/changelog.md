@@ -7,6 +7,7 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 - Add the security check for config file / 增加对配置文件的安全检查
 - Several minor changes / 若干细微改动
+- SHA256: `8d39f63172fc436cc8edb641f194667623592ab1659147b3c63c5654938636f3`
 
 ### 1.2.5
 
