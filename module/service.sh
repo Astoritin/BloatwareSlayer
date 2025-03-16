@@ -146,14 +146,12 @@ bloatware_slayer() {
     logowl "Start $MOD_NAME process"
     while IFS= read -r line; do
 
-        if check_value_safety "TLL" "$line"; then
-            logowl "Processing value: $line"
+        if check_value_safety "target.conf" "$line"; then
+            logowl "Current line: $line"
         else
-            logowl "Skip current line since safety check failed" "WARN" >&2
             continue
         fi
         line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-        logowl "Current line: $line"
         if [ -z "$line" ]; then
             logowl "Detect empty line, skip processing" "TIPS"
             continue
