@@ -3,6 +3,13 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ### Changelog / 变更日志
 
+### 1.2.6
+
+1. Add the security check for config file
+- 增加对配置文件的安全检查
+2. Several minor changes
+- 若干细微改动
+
 ### 1.2.5
 
 - Remove some redundant code
