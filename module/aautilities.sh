@@ -1,5 +1,59 @@
-VERIFY_DIR="$TMPDIR/.aa_bs_verify"
-mkdir "$VERIFY_DIR"
+if ! command -v abort >/dev/null 2>&1; then
+    logowl "Detect abort does NOT available!" "WARN"
+    abort() {
+        echo "[!] $1"
+        exit 1
+    }
+fi
+
+detect_kernelsu() {
+    if [ -n "$KSU" ]; then
+        logowl "Install from KernelSU"
+        logowl "KernelSU version: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
+        ROOT_SOL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
+        if [ -n "$(which magisk)" ]; then
+            logowl "Detect multiple Root implements!" "WARN"
+            ROOT_SOL="Multiple"
+        fi
+        return 0
+    fi
+    return 1
+}
+
+detect_apatch() {
+    if [ -n "$APATCH" ]; then
+        logowl "Install from APatch"
+        logowl "APatch version: $APATCH_VER_CODE"
+        ROOT_SOL="APatch ($APATCH_VER_CODE)"
+        return 0
+    fi
+    return 1
+}
+
+detect_magisk() {
+    if [ -n "$MAGISK_VER_CODE" ] || [ -n "$(magisk -v || magisk -V)" ]; then
+        MAGISK_V_VER_NAME="$(magisk -v)"
+        MAGISK_V_VER_CODE="$(magisk -V)"
+        case "$MAGISK_VER $MAGISK_V_VER_NAME" in
+            *"-alpha"*) MAGISK_BRANCH_NAME="Magisk Alpha" ;;
+            *"-lite"*)  MAGISK_BRANCH_NAME="Magisk Lite" ;;
+            *"-kitsune"*) MAGISK_BRANCH_NAME="Kitsune Mask" ;;
+            *"-delta"*) MAGISK_BRANCH_NAME="Magisk Delta" ;;
+            *) MAGISK_BRANCH_NAME="Magisk" ;;
+        esac
+        ROOT_SOL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
+        logowl "Installing from $ROOT_SOL"
+        return 0
+    fi
+    return 1
+}
+
+detect_recovery() {
+    ROOT_SOL="Recovery"
+    logowl "Install module in Recovery mode is not supported, especially for KernelSU / APatch!" "FATAL"
+    logowl "Please install this module in Magisk / KernelSU / APatch APP!" "FATAL"
+    abort
+}
 
 install_env_check() {
     # install_env_check: a function to check the current root solution
@@ -9,44 +63,11 @@ install_env_check() {
     MAGISK_BRANCH_NAME="Official"
     ROOT_SOL="Magisk"
 
-    # Check each variables can represent the Root Solution
-    if [[ "$KSU" ]]; then
-      logowl "Install from KernelSU"
-      logowl "KernelSU version: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
-      ROOT_SOL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
-      if [[ "$(which magisk)" ]]; then
-        logowl "Detect multiple Root implements!" "WARN"
-        ROOT_SOL="Multiple"
-      fi
-    elif [[ "$APATCH" ]]; then
-      logowl "Install from APatch"
-      logowl "APatch version: $APATCH_VER_CODE"
-      ROOT_SOL="APatch ($APATCH_VER_CODE)"
-    elif [[ "$MAGISK_VER_CODE" || -n "$(magisk -v || magisk -V)" ]]; then
-      MAGISK_V_VER_NAME="$(magisk -v)"
-      MAGISK_V_VER_CODE="$(magisk -V)"
-      if [[ "$MAGISK_VER" == *"-alpha"* || "$MAGISK_V_VER_NAME" == *"-alpha"* ]]; then
-        MAGISK_BRANCH_NAME="Magisk Alpha"
-      elif [[ "$MAGISK_VER" == *"-lite"* || "$MAGISK_V_VER_NAME" == *"-lite"* ]]; then
-        MAGISK_BRANCH_NAME="Magisk Lite"
-      elif [[ "$MAGISK_VER" == *"-kitsune"* || "$MAGISK_V_VER_NAME" == *"-kitsune"* ]]; then
-        MAGISK_BRANCH_NAME="Kitsune Mask"
-      elif [[ "$MAGISK_VER" == *"-delta"* || "$MAGISK_V_VER_NAME" == *"-delta"* ]]; then
-        MAGISK_BRANCH_NAME="Magisk Delta"
-      else
-        MAGISK_BRANCH_NAME="Magisk"
-      fi
-      ROOT_SOL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
-      logowl "Installing from $ROOT_SOL"
-    else
-      ROOT_SOL="Recovery"
-      print_line
-      logowl "Install module in Recovery mode is not support especially for KernelSU / APatch!" "FATAL"
-      logowl "Please install this module in Magisk / KernelSU / APatch APP!" "FATAL"
-      print_line
-      abort
+    if ! detect_kernelsu && ! detect_apatch && ! detect_magisk; then
+        detect_recovery
     fi
 }
+
 
 module_intro() {
     # module_intro: a function to show module basic info
@@ -95,49 +116,44 @@ logowl() {
     # LOG_MSG: the log message you need to print
     # LOG_LEVEL: the level of this log message
     local LOG_MSG="$1"
-    local LOG_LEVEL="${2-:DEF}"
+    local LOG_LEVEL="${2:-DEF}"
 
     if [ -z "$LOG_MSG" ]; then
         echo "! LOG_MSG is not provided yet!"
-        return 3
+        return 1
     fi
 
     case "$LOG_LEVEL" in
-        "TIPS")
-        LOG_LEVEL="*"
-        ;;
-        "WARN")
-        LOG_LEVEL="- Warn:"
-        ;;
-        "ERROR")
-        LOG_LEVEL="! ERROR:"
-        ;;
-        "FATAL")
-        LOG_LEVEL="× FATAL:"
-        ;;
-        "NONE")
-        LOG_LEVEL=" "
-        ;;
-        *)
-        LOG_LEVEL="-"
-        ;;
+        "TIPS") LOG_LEVEL="*" ;;
+        "WARN") LOG_LEVEL="- Warn:" ;;
+        "ERROR") LOG_LEVEL="! ERROR:" ;;
+        "FATAL") LOG_LEVEL="× FATAL:" ;;
+        "NONE") LOG_LEVEL=" " ;;
+        *) LOG_LEVEL="-" ;;
     esac
 
     if [ -z "$LOG_FILE" ]; then
-        if [ "$BOOTMODE" ]; then
+        if command -v ui_print >/dev/null 2>&1 && [ "$BOOTMODE" ]; then
             ui_print "$LOG_LEVEL $LOG_MSG" 2>/dev/null
-            return 0
+        else
+            echo "$LOG_LEVEL $LOG_MSG"
         fi
-        echo "$LOG_LEVEL $LOG_MSG"
     else
-        if [[ "$LOG_LEVEL" == "! ERROR:" ]] || [[ "$LOG_LEVEL" == "× FATAL:" ]]; then
-        print_line >> "$LOG_FILE"
+        if [ "$LOG_LEVEL" = "! ERROR:" ] || [ "$LOG_LEVEL" = "× FATAL:" ]; then
+            print_line >> "$LOG_FILE"
         fi
         echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE"
-        if [[ "$LOG_LEVEL" == "! ERROR:" ]] || [[ "$LOG_LEVEL" == "× FATAL:" ]]; then
-        print_line >> "$LOG_FILE"
+        if [ "$LOG_LEVEL" = "! ERROR:" ] || [ "$LOG_LEVEL" = "× FATAL:" ]; then
+            print_line >> "$LOG_FILE"
         fi
     fi
+}
+
+print_line() {
+    # print_line: a function to print separate line
+    local length=${1:-50}
+    local line=$(printf "%-${length}s" | tr ' ' '-')
+    echo "$line"
 }
 
 init_variables() {
@@ -172,9 +188,6 @@ check_value_safety(){
     local key="$1"
     local value="$2"
 
-    # Escape the value to safe one
-    value=$(printf "%s" "$value" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
-
     # Check if the value is null
     if [[ -z "$value" ]]; then
         logowl "Detect empty value, status code: 1" "WARN"
@@ -192,6 +205,9 @@ check_value_safety(){
         logowl "Verified $key=$value (boolean)" "TIPS"
         return 0
     fi
+
+    # Escape the value to safe one
+    value=$(printf "%s" "$value" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
 
     # fetch the main content before symbol "#"
     value=$(echo "$value" | cut -d'#' -f1 | xargs)
@@ -271,13 +287,14 @@ debug_print_values() {
     # debug_print_values: print the environment info and variables during this script running
 
     print_line
-    logowl "Environment Info"
+    logowl "All Environment Variables"
     print_line
     env | sed 's/^/- /'
     print_line
-    logowl "Specific Info"
+
+    logowl "All Shell Variables"
     print_line
-    set | grep '^[^=]*=' | sed 's/^/- /'
+    ( set -o posix; set ) | sed 's/^/- /'
     print_line
 }
 
@@ -285,7 +302,7 @@ show_system_info() {
     # show_system_info: to show the Device, Android and RAM info.
 
     logowl "Device: $(getprop ro.product.brand) $(getprop ro.product.model) ($(getprop ro.product.device))"
-    logowl "Android $(getprop ro.build.version.release) (API $API), $ARCH"
+    logowl "OS: Android $(getprop ro.build.version.release) (API $(getprop ro.build.version.sdk)), $(getprop ro.product.cpu.abi | cut -d '-' -f1)"
     mem_info=$(free -m)
     ram_total=$(echo "$mem_info" | awk '/Mem/ {print $2}')
     ram_used=$(echo "$mem_info" | awk '/Mem/ {print $3}')
@@ -297,13 +314,6 @@ show_system_info() {
     logowl "SWAP: ${swap_total}MB  Used:${swap_used}MB  Free:${swap_free}MB"
 }
 
-print_line() {
-    # print_line: a function to print separate line
-    
-    local length=${1:-50}
-    local line=$(printf "%-${length}s" | tr ' ' '-')
-    echo "$line"
-}
 
 file_compare() {
     # file_compare: a function to compare whether file a and file b is same or not
@@ -339,6 +349,8 @@ file_compare() {
 
 abort_verify() {
     # abort_verify: a function to abort verify because of detecting hash does NOT match
+
+    rm -rf "$VERIFY_DIR"
     print_line
     logowl "$1" "WARN"
     logowl "This zip may be corrupted or have been maliciously modified!" "WARN"
@@ -360,8 +372,7 @@ extract() {
     zip=$1
     file=$2
     dir=$3
-    junk_paths=$4
-    [ -z "$junk_paths" ] && junk_paths=false
+    junk_paths=${4:-false}
     opts="-o"
     [ $junk_paths = true ] && opts="-oj"
 
