@@ -8,6 +8,10 @@ VERIFY_DIR="$TMPDIR/.aa_bs_verify"
 MOD_NAME="$(grep_prop name "${TMPDIR}/module.prop")"
 MOD_VER="$(grep_prop version "${TMPDIR}/module.prop") ($(grep_prop versionCode "${TMPDIR}/module.prop"))"
 
+if [ ! -d "$VERIFY_DIR" ]; then
+    mkdir -p "$VERIFY_DIR"
+fi
+
 echo "- Extract aautilities.sh"
 unzip -o "$ZIPFILE" 'aautilities.sh' -d "$TMPDIR" >&2
 if [ ! -f "$TMPDIR/aautilities.sh" ]; then
@@ -20,9 +24,9 @@ fi
 logowl "Setting up $MOD_NAME"
 logowl "Version: $MOD_VER"
 install_env_check
-show_system_info
 init_logowl "$LOG_DIR" > /dev/null 2>&1
 clean_old_logs "$LOG_DIR" 20 > /dev/null 2>&1
+show_system_info
 logowl "Essential checks"
 extract "$ZIPFILE" 'aautilities.sh' "$VERIFY_DIR"
 extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
