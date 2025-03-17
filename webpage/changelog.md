@@ -6,8 +6,9 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 ### 1.2.6
 
 - Add the security check for config file / 增加对配置文件的安全检查
+- Remove Bash ONLY code and enhance the compatibility for POSIX shell / 移除 Bash 专属代码，增强了对 POSIX shell 的兼容性
 - Several minor changes / 若干细微改动
-- SHA256: `933e8e3a189c92b4263940e51316f442f8687c7adc71a19bb680d8fcd0a2835a`
+- SHA256: `a5dabd9930752c24d10ed8bc87930a4b6e79578fdb24079d09a63553e0c06e37`
 
 ### 1.2.5
 
