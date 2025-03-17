@@ -4,7 +4,7 @@ SKIPUNZIP=1
 CONFIG_DIR=/data/adb/bloatwareslayer
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 LOG_DIR="$CONFIG_DIR/logs"
-VERIFY_DIR="$TMPDIR/.aa_bs_verify"
+VERIFY_DIR="$TMPDIR/.aa_verify"
 MOD_NAME="$(grep_prop name "${TMPDIR}/module.prop")"
 MOD_VER="$(grep_prop version "${TMPDIR}/module.prop") ($(grep_prop versionCode "${TMPDIR}/module.prop"))"
 
