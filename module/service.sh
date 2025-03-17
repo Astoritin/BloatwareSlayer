@@ -167,21 +167,28 @@ bloatware_slayer() {
             logowl "Detect only comment contains in this line only, skip processing" "TIPS"
             continue
         fi
-        if [[ "$package" =~ \\ ]]; then
-            logowl "Replace '\\' with '/' in path: $package" "WARN"
-            package=$(echo "$package" | sed -e 's/\\/\//g')
-        fi
-        logowl "Current processed line: $package"
 
+        case "$package" in
+            *\\*)
+                logowl "Replace '\\' with '/' in path: $package" "WARN"
+                package=$(echo "$package" | sed -e 's/\\/\//g')
+                ;;
+        esac
+        logowl "After processed: $package"
         TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT+1))
         for path in $SYSTEM_APP_PATHS; do
-            if [[ "${package:0:1}" == "/" ]]; then
+            first_char=$(printf '%s' "$line" | cut -c1)
+            if [ "$first_char" == "/" ]; then
                 app_path="$package"
                 logowl "Detect custom dir: $app_path"
-                if [[ ! "$app_path" =~ ^/system ]]; then
-                    logowl "Unsupport custom path: $app_path" "WARN"
-                    break
-                fi
+                case "$app_path" in
+                    /system*)
+                        ;;
+                    *)
+                        logowl "Unsupport custom path: $app_path" "WARN"
+                        break
+                        ;;
+                esac
             else
                 app_path="$path/$package"
             fi
@@ -200,7 +207,7 @@ bloatware_slayer() {
                     logowl "Failed to mount: $app_path, error code: $?" "ERROR"
                 fi
             else
-                if [[ "${package:0:1}" == "/" ]]; then
+                if [ "${package:0:1}" == "/" ]; then
                     logowl "Custom dir not found: $app_path" "WARN"
                     break
                 else
