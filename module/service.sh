@@ -44,7 +44,7 @@ brick_rescue() {
         DESCRIPTION="[❌Disabled. Auto disabled from brick! Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way 🎉✨"
         update_module_description "$DESCRIPTION" "$MODULE_PROP"
         logowl "Skip mounting"
-        rm -rf "$BRICKED_STATUS"
+        rm -f "$BRICKED_STATUS"
         if [ $? -eq 0 ]; then
             logowl "Bricked status cleared"
         else
@@ -54,11 +54,11 @@ brick_rescue() {
             logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
             logowl "Will disable $MOD_NAME automatically after reboot"
             touch "$MODDIR/disable"
-            exit 1
         else
             logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
             logowl "Will NOT disable $MOD_NAME after reboot"
         fi
+        exit 1
     else
         logowl "Flag bricked does NOT detect"
         logowl "$MOD_NAME will keep going"
@@ -153,16 +153,16 @@ bloatware_slayer() {
             continue
         fi
         line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-        first_char=$(expr substr "$line" 1 1)
+        first_char=$(printf '%s' "$line" | cut -c1)
         if [ -z "$line" ]; then
             logowl "Detect empty line, skip processing" "TIPS"
             continue
-        elif [ -n "$line" ] && [ "$first_char" = "/" ]; then
+        elif [ "$first_char" = "#" ]; then
             logowl 'Detect comment symbol "#", skip processing' "TIPS"
             continue
         fi
 
-        package=${line%%#*}
+        package=$(echo "$line" | cut -d '#' -f1)
         package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
         if [ -z "$package" ]; then
@@ -179,8 +179,8 @@ bloatware_slayer() {
         logowl "After processed: $package"
         TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT+1))
         for path in $SYSTEM_APP_PATHS; do
-            first_char=$(expr substr "$line" 1 1)
-            if [ -n "$line" ] && [ "$first_char" = "/" ]; then
+            first_char=$(printf '%s' "$line" | cut -c1)
+            if [ "$first_char" = "/" ]; then
                 app_path="$package"
                 logowl "Detect custom dir: $app_path"
                 case "$app_path" in
@@ -197,7 +197,8 @@ bloatware_slayer() {
             logowl "Checking dir: $app_path"
             if [ -d "$app_path" ]; then
                 logowl "Execute mount -o bind $EMPTY_DIR $app_path"
-                if mount -o bind "$EMPTY_DIR" "$app_path"; then
+                mount -o bind "$EMPTY_DIR" "$app_path"
+                if [ $? -eq 0 ]; then
                     logowl "Succeeded"
                     BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                     if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
@@ -208,8 +209,7 @@ bloatware_slayer() {
                     logowl "Failed to mount: $app_path, error code: $?" "ERROR"
                 fi
             else
-                first_char=$(expr substr "$package" 1 1)
-                if [ -n "$package" ] && [ "$first_char" = "/" ]; then
+                if [ "$first_char" = "/" ]; then
                     logowl "Custom dir not found: $app_path" "WARN"
                     break
                 else
