@@ -116,7 +116,7 @@ logowl() {
     # LOG_MSG: the log message you need to print
     # LOG_LEVEL: the level of this log message
     LOG_MSG="$1"
-    LOG_LEVEL="${2:-DEF}"
+    LOG_LEVEL="$2"
 
     if [ -z "$LOG_MSG" ]; then
         echo "! LOG_MSG is not provided yet!"
