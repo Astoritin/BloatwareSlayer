@@ -1,3 +1,6 @@
 #!/system/bin/sh
+MODDIR=${0%/*}
 
-rm -rf "/data/adb/bloatwareslayer"
+CONFIG_DIR="/data/adb/bloatwareslayer"
+
+rm -rf "$CONFIG_DIR"
