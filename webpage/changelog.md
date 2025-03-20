@@ -3,6 +3,14 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ### Changelog / 变更日志
 
+### 1.2.7
+
+- Add action.sh as shortcut to open the config directory with root file managers
+- 新增 `action.sh` 以便于快捷用 `Root` 文件相关的管理器打开配置文件目录
+- Add old version migration feature in flashing / installing process to clean the remnant files by old versions
+- 在安装过程中增加旧版本迁移功能以对部分旧版本残留文件进行清理
+- SHA256: `4f5ddf7f473df4f4acc44eb9b1e141ce5f867de6008e6d39c73e17acad19b9af`
+
 ### 1.2.6
 
 - Add the security check for config file / 增加对配置文件的安全检查
