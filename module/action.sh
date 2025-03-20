@@ -23,12 +23,13 @@ com.amaze.filemanager/com.amaze.filemanager.activities.MainActivity
 io.github.muntashirakon.AppManager/io.github.muntashirakon.AppManager.fm.FmActivity
 io.github.muntashirakon.AppManager.debug/io.github.muntashirakon.AppManager.fm.FmActivity
 nextapp.fx/nextapp.fx.ui.ExplorerActivity
+me.zhanghai.android.files/me.zhanghai.android.files.filelist.FileListActivity
 "
 
 init_logowl "$LOG_DIR"
-print_line >> "$LOG_DIR"
+print_line
 module_intro
-print_line >> "$LOG_DIR"
+print_line
 logowl "Starting action.sh"
 
 IFS=$'\n'
@@ -46,6 +47,7 @@ for fm in $ROOT_FILE_MANAGERS; do
         result="$?"
         if [ $? -eq 0 ]; then
             logowl "Succeeded, code: $result"
+            print_line
             logowl "action.sh case closed!"
             exit 0
         else
@@ -57,4 +59,5 @@ for fm in $ROOT_FILE_MANAGERS; do
 
 done
 
+print_line
 logowl "action.sh case closed!"
