@@ -29,7 +29,6 @@ me.zhanghai.android.files/me.zhanghai.android.files.filelist.FileListActivity
 init_logowl "$LOG_DIR"
 print_line
 module_intro
-print_line
 logowl "Starting action.sh"
 
 IFS=$'\n'
