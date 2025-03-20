@@ -7,7 +7,7 @@ CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 EMPTY_DIR="$CONFIG_DIR/empty"
 TARGET_LIST="$CONFIG_DIR/target.conf"
-TARGET_LIST_BSA="$CONFIG_DIR/target_bsa.conf"
+TARGET_LIST_BSA="$CONFIG_DIR/logs/target_bsa.conf"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_log_core_$(date +"%Y-%m-%d_%H-%M-%S").log"
 
@@ -92,7 +92,7 @@ preparation() {
     # $EMPTY_DIR: an empty folder (/data/adb/bloatwareslayer/empty) to replace the system folders to "delete" them by mounting
     #
     # $TARGET_LIST: the path of config file target.conf located in (/data/adb/bloatwareslayer/target.conf)
-    # $TARGET_LIST_BSA: the path of config file target_bsa.conf located in (/data/adb/bloatwareslayer/target_bsa.conf)
+    # $TARGET_LIST_BSA: the path of config file target_bsa.conf located in (/tmp/target_bsa.conf)
     # $TARGET_LIST_BSA is generated and arranged by Bloatware Slayer itself, you shouldn't edit it and save the critical information here
     #
     # $AUTO_UPDATE_TARGET_LIST: a key in settings.conf to control the behavior whether updating target.conf to available paths only on each time booting.
@@ -265,10 +265,10 @@ module_status_update() {
 init_logowl "$LOG_DIR"
 module_intro >> "$LOG_FILE"
 show_system_info
-print_line >> "$LOG_FILE"
+print_line
 logowl "Starting service.sh"
 config_loader
-print_line >> "$LOG_FILE"
+print_line
 brick_rescue
 preparation
 bloatware_slayer
@@ -285,7 +285,7 @@ debug_print_values >> "$LOG_FILE"
     logowl "Current booting timeout: $BRICK_TIMEOUT"
     while [ "$(getprop sys.boot_completed)" != "1" ]; do
         if [ $BRICK_TIMEOUT -le "0" ]; then
-            print_line >> "$LOG_FILE"
+            print_line
             logowl "Detect failed to boot after reaching the set limit, your device may be bricked by !" "FATAL"
             logowl "Please make sure no improper APP(s) being blocked!" "FATAL"
             logowl "Mark status as bricked"
@@ -303,7 +303,7 @@ debug_print_values >> "$LOG_FILE"
 
     logowl "Boot complete! Final countdown: $BRICK_TIMEOUT s"
     logowl "service.sh case closed!"
-    print_line >> "$LOG_FILE"
+    print_line
 
 
     # $UPDATE_DESC_ON_ACTION: a key in settings.conf to control the behavior as clicking on the disable or uninstall button in Root Manager
