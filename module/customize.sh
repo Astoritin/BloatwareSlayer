@@ -21,6 +21,43 @@ fi
 
 . "$TMPDIR/aautilities.sh"
 
+migrate_old_files() {
+    # migrate the files from old versions of Bloatware Slayer
+    logowl "Migrating old files"
+
+    # migrate from v1.0.0 ~ v1.2.0
+    if [ -f "$CONFIG_DIR/target.txt" ] && [ ! -f "$CONFIG_DIR/target.conf"  ]; then
+        logowl "Detect old config file"
+        logowl "Migrate target.txt -> target.conf"
+        mv "$CONFIG_DIR/target.txt" "$CONFIG_DIR/target.conf"
+    elif [ -f "$CONFIG_DIR/target.txt" ] && [ -f "$CONFIG_DIR/target.conf" ]; then
+        logowl "Both target.txt and target.conf exist"
+        logowl "Merging contents"
+        cat "$CONFIG_DIR/target.txt" >> "$CONFIG_DIR/target.conf"
+        sort -u "$CONFIG_DIR/target.txt" >> "$CONFIG_DIR/target.conf"
+        logowl "Merged, target.txt has been removed"
+        rm -f "$CONFIG_DIR/target.txt"
+    fi
+
+    # cleanup remnant from v1.0.5
+    if [ -f "$CONFIG_DIR/root.txt" ]; then
+        logowl "Detect old root solution logging file"
+        rm -f "$CONFIG_DIR/root.txt"
+        logowl "Removed root.txt"
+    fi
+
+    # cleanup remnant from v1.0.6 ~ v1.1.2
+    if [ -f "$CONFIG_DIR/status.info" ]; then
+        logowl "Detect old status logging file"
+        rm -f "$CONFIG_DIR/status.info"
+        logowl "Removed status.info"
+    fi
+    
+    # cleanup remnant of target list bloatware slayer arranged file
+    rm -f "$CONFIG_DIR/target_bsa.conf"
+    rm -f "$CONFIG_DIR/target_bsa.txt"
+}
+
 logowl "Setting up $MOD_NAME"
 logowl "Version: $MOD_VER"
 install_env_check
@@ -57,47 +94,3 @@ fi
 rm -rf "$VERIFY_DIR"
 set_module_files_perm
 logowl "Welcome to use ${MOD_NAME}!"
-
-migrate_old_files() {
-    # migrate the files from old versions of Bloatware Slayer
-    logowl "Migrating old files"
-
-    # migrate from v1.0.0 ~ v1.2.0
-    if [ -f "$CONFIG_DIR/target.txt" ] && [ ! -f "$CONFIG_DIR/target.conf"  ]; then
-        logowl "Detect old config file"
-        logowl "Migrate target.txt -> target.conf"
-        mv "$CONFIG_DIR/target.txt" "$CONFIG_DIR/target.conf"
-    elif [ -f "$CONFIG_DIR/target.txt" ] && [ -f "$CONFIG_DIR/target.conf" ]; then
-        logowl "Both target.txt and target.conf exist"
-        logowl "Merging contents"
-        cat "$CONFIG_DIR/target.txt" >> "$CONFIG_DIR/target.conf"
-        sort -u "$CONFIG_DIR/target.txt" >> "$CONFIG_DIR/target.conf"
-        logowl "Merged, target.txt has been removed"
-        rm -f "$CONFIG_DIR/target.txt"
-    fi
-
-    # cleanup remnant from v1.0.5
-    if [ -f "$CONFIG_DIR/root.txt" ]; then
-        logowl "Detect old root solution logging file"
-        rm -f "$CONFIG_DIR/root.txt"
-        logowl "Removed root.txt"
-    fi
-
-    # cleanup remnant of old mount method from v1.0.0 ~ v1.1.0
-    if [ -d "$MODDIR/system" ]; then
-        logowl "Detect remnant old /system folder from old mount method"
-        rm -rf "$MODDIR/system"
-        logowl "Removed $MODDIR/system"
-    fi
-
-    # cleanup remnant from v1.0.6 ~ v1.1.2
-    if [ -f "$CONFIG_DIR/status.info" ]; then
-        logowl "Detect old status logging file"
-        rm -f "$CONFIG_DIR/status.info"
-        logowl "Removed status.info"
-    fi
-    
-    # cleanup remnant of target list bloatware slayer arranged file
-    rm -f "$CONFIG_DIR/target_bsa.conf"
-    rm -f "$CONFIG_DIR/target_bsa.txt"
-}
