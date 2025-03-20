@@ -61,10 +61,10 @@ migrate_old_files() {
 logowl "Setting up $MOD_NAME"
 logowl "Version: $MOD_VER"
 install_env_check
-init_logowl "$LOG_DIR" > /dev/null 2>&1
-clean_old_logs "$LOG_DIR" 20 > /dev/null 2>&1
-show_system_info
+init_logowl "$LOG_DIR"
 migrate_old_files
+clean_old_logs "$LOG_DIR" 20
+show_system_info
 logowl "Essential checks"
 extract "$ZIPFILE" 'aautilities.sh' "$VERIFY_DIR"
 extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
