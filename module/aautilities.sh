@@ -129,7 +129,7 @@ logowl() {
         "ERROR") LOG_LEVEL="! ERROR:" ;;
         "FATAL") LOG_LEVEL="× FATAL:" ;;
         "NONE") LOG_LEVEL=" " ;;
-        "EMPTY") LOG_LEVEL="-" ;;
+        "VANILLA") LOG_LEVEL="V" ;;
         *) LOG_LEVEL="-" ;;
     esac
 
@@ -138,16 +138,18 @@ logowl() {
             print_line "$LOG_FILE"
             echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE"
             print_line "$LOG_FILE"
-        elif [ "$LOG_LEVEL" = "--" ]; then
+        elif [ "$LOG_LEVEL" = "V" ]; then
             echo "$LOG_MSG" >> "$LOG_FILE"
         else
             echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE"
         fi
     else
         if command -v ui_print >/dev/null 2>&1 && [ "$BOOTMODE" ]; then
-            ui_print "$LOG_LEVEL $LOG_MSG"
-        elif [ "$LOG_LEVEL" = "--" ]; then
-            echo "$LOG_MSG"
+            if [ "$LOG_LEVEL" = "V" ]; then
+                ui_print "$LOG_MSG"
+            else
+                ui_print "$LOG_LEVEL $LOG_MSG"
+            fi
         else
             echo "$LOG_LEVEL $LOG_MSG"
         fi
@@ -159,7 +161,7 @@ print_line() {
     length=${1:-50}
 
     line=$(printf "%-${length}s" | tr ' ' '-')
-    logowl "$line" "EMPTY"
+    logowl "$line" "VANILLA"
 }
 
 init_variables() {
