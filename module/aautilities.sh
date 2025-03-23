@@ -72,7 +72,7 @@ install_env_check() {
 module_intro() {
     # module_intro: a function to show module basic info
 
-    MODULE_PROP="${MODDIR}/module.prop"
+    MODULE_PROP="$MODDIR/module.prop"
     MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
     MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
     MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
@@ -164,7 +164,6 @@ init_variables() {
     # value: the value of the key
     key="$1"
     config_file="$2"
-    value
 
     if [ ! -f "$config_file" ]; then
         logowl "Configuration file $config_file does NOT exist" "ERROR" >&2
@@ -195,11 +194,8 @@ check_value_safety(){
         return 1
     fi
 
-    # If the value is start with "#", then take this line as comment line
-    if [ "${value:0:1}" = "#" ]; then
-        logowl "Detect comment symbol, status code: 2" "WARN"
-        return 2
-    fi
+    # Escape the value to safe one
+    value=$(printf "%s" "$value" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
 
     # Special handling for boolean values
     if [ "$value" = "true" ] || [ "$value" = "false" ]; then
@@ -207,8 +203,12 @@ check_value_safety(){
         return 0
     fi
 
-    # Escape the value to safe one
-    value=$(printf "%s" "$value" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
+    # If the value is start with "#", then take this line as comment line
+    first_char=$(printf '%s' "$value" | cut -c1)
+    if [ "$first_char" = "#" ]; then
+        logowl "Detect comment symbol, status code: 2" "WARN"
+        return 2
+    fi
 
     # fetch the main content before symbol "#"
     value=$(echo "$value" | cut -d'#' -f1 | xargs)
@@ -405,12 +405,32 @@ extract() {
     fi
 }
 
-set_module_files_perm() {
-    # set_module_files_perm: set module files's permission
-    # only use in installing module
+cleanup_and_create() {
+    # cleanup_and_create: delete old dir and recreate the new one
 
-    logowl "Setting permissions"
-    set_perm_recursive "$MODPATH" 0 0 0755 0644
+    cac_target="$1"
+    cac_perm="$2"
+    
+    if [ -d "$cac_target" ]; then
+        logowl "Remove old $cac_target folder"
+        rm -rf "$cac_target"
+        logowl "Create $cac_target"
+        mkdir -p "$cac_target"
+        if [ -n "$cac_perm" ]; then
+            logowl "Set permissions ($cac_perm) for $cac_target"
+            chmod "$cac_perm" "$cac_target"
+        fi
+    elif [ -f "$cac_target" ]; then
+        logowl "Remove old $cac_target file"
+        rm -f "$cac_target"
+        logowl "Create $cac_target"
+        touch "$cac_target"
+        if [ -n "$cac_perm" ]; then
+            logowl "Set permissions ($cac_perm) for $cac_target"
+            chmod "$cac_perm" "$cac_target"
+        fi
+    fi
+
 }
 
 clean_old_logs() {
