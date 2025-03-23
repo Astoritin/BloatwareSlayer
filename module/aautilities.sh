@@ -129,6 +129,7 @@ logowl() {
         "ERROR") LOG_LEVEL="! ERROR:" ;;
         "FATAL") LOG_LEVEL="× FATAL:" ;;
         "NONE") LOG_LEVEL=" " ;;
+        "EMPTY") LOG_LEVEL="-" ;;
         *) LOG_LEVEL="-" ;;
     esac
 
@@ -137,12 +138,16 @@ logowl() {
             print_line "$LOG_FILE"
             echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE"
             print_line "$LOG_FILE"
+        elif [ "$LOG_LEVEL" = "--" ]; then
+            echo "$LOG_MSG" >> "$LOG_FILE"
         else
             echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE"
         fi
     else
         if command -v ui_print >/dev/null 2>&1 && [ "$BOOTMODE" ]; then
             ui_print "$LOG_LEVEL $LOG_MSG"
+        elif [ "$LOG_LEVEL" = "--" ]; then
+            echo "$LOG_MSG"
         else
             echo "$LOG_LEVEL $LOG_MSG"
         fi
@@ -154,7 +159,7 @@ print_line() {
     length=${1:-50}
 
     line=$(printf "%-${length}s" | tr ' ' '-')
-    logowl "$line"
+    logowl "$line" "EMPTY"
 }
 
 init_variables() {
@@ -190,7 +195,7 @@ check_value_safety(){
 
     # Check if the value is null
     if [ -z "$value" ]; then
-        logowl "Detect empty value, status code: 1" "WARN"
+        logowl "Detect empty value (code: 1)" "WARN"
         return 1
     fi
 
@@ -206,7 +211,7 @@ check_value_safety(){
     # If the value is start with "#", then take this line as comment line
     first_char=$(printf '%s' "$value" | cut -c1)
     if [ "$first_char" = "#" ]; then
-        logowl "Detect comment symbol, status code: 2" "WARN"
+        logowl "Detect comment symbol (code: 2)" "WARN"
         return 2
     fi
 
@@ -403,34 +408,6 @@ extract() {
       abort_verify "Failed to verify $file"
       rm -rf "$VERIFY_DIR"
     fi
-}
-
-cleanup_and_create() {
-    # cleanup_and_create: delete old dir and recreate the new one
-
-    cac_target="$1"
-    cac_perm="$2"
-    
-    if [ -d "$cac_target" ]; then
-        logowl "Remove old $cac_target folder"
-        rm -rf "$cac_target"
-        logowl "Create $cac_target"
-        mkdir -p "$cac_target"
-        if [ -n "$cac_perm" ]; then
-            logowl "Set permissions ($cac_perm) for $cac_target"
-            chmod "$cac_perm" "$cac_target"
-        fi
-    elif [ -f "$cac_target" ]; then
-        logowl "Remove old $cac_target file"
-        rm -f "$cac_target"
-        logowl "Create $cac_target"
-        touch "$cac_target"
-        if [ -n "$cac_perm" ]; then
-            logowl "Set permissions ($cac_perm) for $cac_target"
-            chmod "$cac_perm" "$cac_target"
-        fi
-    fi
-
 }
 
 clean_old_logs() {
