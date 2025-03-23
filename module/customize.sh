@@ -5,8 +5,8 @@ CONFIG_DIR="/data/adb/bloatwareslayer"
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 LOG_DIR="$CONFIG_DIR/logs"
 VERIFY_DIR="$TMPDIR/.aa_verify"
-MOD_NAME="$(grep_prop name "${TMPDIR}/module.prop")"
-MOD_VER="$(grep_prop version "${TMPDIR}/module.prop") ($(grep_prop versionCode "${TMPDIR}/module.prop"))"
+MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
+MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
 
 if [ ! -d "$VERIFY_DIR" ]; then
     mkdir -p "$VERIFY_DIR"
@@ -71,6 +71,7 @@ extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
 logowl "Extract module files"
 extract "$ZIPFILE" 'aautilities.sh' "$MODPATH"
 extract "$ZIPFILE" 'module.prop' "$MODPATH"
+extract "$ZIPFILE" 'post-fs-data.sh' "$MODPATH"
 extract "$ZIPFILE" 'service.sh' "$MODPATH"
 extract "$ZIPFILE" 'action.sh' "$MODPATH"
 extract "$ZIPFILE" 'uninstall.sh' "$MODPATH"
@@ -91,6 +92,9 @@ else
     logowl "settings.conf already exists"
     logowl "Skip overwriting settings.conf"
 fi
+system_mtime=$(stat -c %y "/system")
+echo "$system_mtime" > "$LOG_DIR/system_mtime.info"
 rm -rf "$VERIFY_DIR"
-set_module_files_perm
-logowl "Welcome to use ${MOD_NAME}!"
+logowl "Setting permissions"
+set_perm_recursive "$MODPATH" 0 0 0755 0644
+logowl "Welcome to use $MOD_NAME!"
