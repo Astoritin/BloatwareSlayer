@@ -9,7 +9,7 @@ EMPTY_DIR="$CONFIG_DIR/empty"
 TARGET_LIST="$CONFIG_DIR/target.conf"
 TARGET_LIST_BSA="$CONFIG_DIR/logs/target_bsa.conf"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/bs_log_core_s_$(date +"%Y-%m-%d_%H-%M-%S").log"
+LOG_FILE="$LOG_DIR/bs_log_brickd_$(date +"%Y-%m-%d_%H-%M-%S").log"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
@@ -24,7 +24,7 @@ config_loader() {
     # the format of $CONFIG_FILE: value=key, one key-value pair per line
     # for system_app_paths, please keep in a line and separate the paths by a space
 
-    logowl "Start loading configuration"
+    logowl "Loading config"
 
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
@@ -84,9 +84,9 @@ debug_print_values >> "$LOG_FILE"
     logowl "Boot complete! Final countdown: $BRICK_TIMEOUT s"
     rm -f "$BRICKED_STATUS"
     if [ $? -eq 0 ]; then
-        logowl "Bricked status cleared since system boot complete"
+        logowl "Bricked status reset"
     else
-        logowl "Failed to clear bricked status" "FATAL"
+        logowl "Failed to reset bricked status" "FATAL"
     fi
     print_line
     logowl "service.sh case closed!"
