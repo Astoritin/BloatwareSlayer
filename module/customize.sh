@@ -92,8 +92,6 @@ else
     logowl "settings.conf already exists"
     logowl "Skip overwriting settings.conf"
 fi
-system_mtime=$(stat -c %y "/system")
-echo "$system_mtime" > "$LOG_DIR/system_mtime.info"
 rm -rf "$VERIFY_DIR"
 logowl "Setting permissions"
 set_perm_recursive "$MODPATH" 0 0 0755 0644
