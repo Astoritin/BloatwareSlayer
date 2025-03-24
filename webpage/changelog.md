@@ -18,6 +18,43 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 - Fix the problems of some logical loophole
 - 修复一些逻辑漏洞问题
 
+### 关于 WebUI 支持的说明：暂不考虑。
+
+原因如下：
+其一，我自己用不到，付出与回报不成正比。
+Bloatware Slayer 是我写来自用的模块，而我的主要设备用的都是 Magisk Alpha。
+也就是说，除非使用 KsuWebUI APP，我没有什么机会用到 WebUI。
+为了这么个我用不到的功能添加 WebUI 恕我真的不能接受；
+
+其二，模块会变得过于臃肿，我自己也觉得 WebUI 目前也只是一种炫技，而 Bloatware Slayer 自身变成 Bloatware 一样的东西真的很地狱笑话。
+原本 Magisk 模块大小还算适中 (15KB)，加入 WebUI 后，为了在离线状态下也能无间断加载页面，必须把部分资源也一同导入到模块内。
+而加了那些离线资源，模块的 zip 文件大小变成 116KB。可想而知，在解压过后只会更得更大；
+
+其三，WebUI 的引入带来了更多的问题。
+为了防止被各类软件轻易检测到 Bloatware Slayer 的存在，Bloatware Slayer 的配置文件一直都放在 `/data/adb/bloatwareslayer/`
+在安卓没有相关漏洞的前提下，这个目录在无 Root 权限+ SELinux 强制执行的情况下，普通 APP 是无法访问的。
+前端的特性注定前端的原生 API 无法访问即使是安卓世界中都要以 root 的身份才能访问的目录，
+也就是说要想这么做必须用 KernelSU 提供的 API (具体来说就是 ksu.exec )。这既带来了便利，也带来了一定的安全问题和维护难度。
+目前 Bloatware Slayer 尚不稳定，我实在是不想再开放一个潜在的需要维护的入口。
+
+### Note on WebUI Support: Not considered for now.
+
+The reasons are as follows:
+
+1. I don't need it personally, while the effort-to-reward ratio isn't right.<br>
+Bloatware Slayer is a self-use module, as my main devices use Magisk Alpha.<br>
+I have little chance to use WebUI unless I use the KsuWebUI APP, and I can't accept maintaining a feature I won't use.<br><br>
+2. The module would become too bloated. WebUI is currently just a showy feature.<br>
+It would be ironic if Bloatware Slayer became like bloatware.<br>
+The original Magisk module size was moderate (15KB).<br>
+Adding WebUI requires importing resources for offline use, making the zip file 116KB.<br>
+It would be even larger when unzipped.<br><br>
+3. WebUI brings more issues.<br>
+Bloatware Slayer's config files are in `/data/adb/bloatwareslayer/` to avoid easy detection.<br>
+Normal apps can't access this directory without Root and SELinux permissive mode, even the front-end native APIs.<br>
+Using KernelSU's API (ksu.exec) brings convenience, but also security risks and maintenance challenges.<br>
+Bloatware Slayer is unstable still, I don't want to open another potential maintenance entry and I feel so sorry for any inconvenience.<br>
+
 ### 1.2.7
 
 - Add action.sh as shortcut to open the config directory with root file managers
