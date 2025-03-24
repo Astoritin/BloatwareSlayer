@@ -5,7 +5,6 @@ CONFIG_DIR="/data/adb/bloatwareslayer"
 
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
-EMPTY_DIR="$CONFIG_DIR/empty"
 TARGET_LIST="$CONFIG_DIR/target.conf"
 TARGET_LIST_BSA="$CONFIG_DIR/logs/target_bsa.conf"
 LOG_DIR="$CONFIG_DIR/logs"
@@ -16,9 +15,13 @@ MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
 
+EMPTY_DIR="$CONFIG_DIR/empty"
+MIRROR_DIR="$MODDIR/system"
+
 UPDATE_TARGET_LIST=true
 AUTO_UPDATE_TARGET_LIST=true
 DISABLE_MODULE_AS_BRICK=true
+SLAY_MODE="MB"
 
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
@@ -67,10 +70,12 @@ config_loader() {
     auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
     system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
+    slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
 
     verify_variables "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
     verify_variables "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
+    verify_variables "slay_mode" "$slay_mode" "^(MB|MN)$"
 
 }
 
@@ -89,14 +94,27 @@ preparation() {
 
     logowl "Some preparations"
 
-    if [ -n "$MODDIR" ] && [ -d "$EMPTY_DIR" ]; then
-        logowl "Remove old empty folder"
-        rm -rf "$EMPTY_DIR"
+    if [ "$SLAY_MODE" = "MB" ]; then
+        logowl "Current mode: MB (Mount Bind)"
+        if [ -n "$MODDIR" ] && [ -d "$EMPTY_DIR" ]; then
+            logowl "Remove old empty folder"
+            rm -rf "$EMPTY_DIR"
+        fi
+        logowl "Create $EMPTY_DIR"
+        mkdir -p "$EMPTY_DIR"
+        logowl "Set permissions"
+        chmod 0755 "$EMPTY_DIR"
+    elif [ "$SLAY_MODE" = "MN" ]; then
+        logowl "Current mode: MN (Make Node)"
+        if [ -n "$MODDIR" ] && [ -d "$MIRROR_DIR" ]; then
+            logowl "Remove old mirror folder"
+            rm -rf "$MIRROR_DIR"
+        fi
+        logowl "Create $MIRROR_DIR"
+        mkdir -p "$MIRROR_DIR"
+        logowl "Set permissions"
+        chmod 0755 "$MIRROR_DIR"
     fi
-    logowl "Create $EMPTY_DIR"
-    mkdir -p "$EMPTY_DIR"
-    logowl "Set permissions"
-    chmod 0755 "$EMPTY_DIR"
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
@@ -191,18 +209,39 @@ bloatware_slayer() {
 
             logowl "Checking dir: $app_path"
             if [ -d "$app_path" ]; then
-                logowl "Execute mount -o bind $EMPTY_DIR $app_path"
-                mount -o bind "$EMPTY_DIR" "$app_path"
-                result_mount_bind=$?
-                if [ $result_mount_bind -eq 0 ]; then
-                    logowl "Succeeded (code: $result_mount_bind)"
-                    BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-                    if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
-                        echo "$app_path" >> "$TARGET_LIST_BSA"
+                if [ "$SLAY_MODE" = "MB" ]; then
+                    logowl "Execute mount -o bind $EMPTY_DIR $app_path"
+                    mount -o bind "$EMPTY_DIR" "$app_path"
+                    result_mount_bind=$?
+                    if [ $result_mount_bind -eq 0 ]; then
+                        logowl "Succeeded (code: $result_mount_bind)"
+                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                        if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
+                            echo "$app_path" >> "$TARGET_LIST_BSA"
+                        fi
+                        break
+                    else
+                        logowl "Failed to mount: $app_path (code: $result_mount_bind)" "ERROR"
                     fi
-                    break
-                else
-                    logowl "Failed to mount: $app_path (code: $result_mount_bind)" "ERROR"
+                elif [ "$SLAY_MODE" = "MN" ]; then
+                    app_path_parent_dir=$(dirname "$app_path")
+                    mirror_parent_dir="$MODDIR/$app_path_parent_dir"
+                    mirror_app_path="$MODDIR/$app_path"
+                    logowl "Create parent path: $mirror_parent_dir"
+                    mkdir -p "$mirror_parent_dir"
+                    logowl "Execute mknod $mirror_app_path c 0 0"
+                    mknod "$mirror_app_path" c 0 0
+                    result_make_node="$?"
+                    if [ $result_make_node -eq 0 ]; then
+                        logowl "Succeeded (code: $result_make_node)"
+                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                        if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
+                            echo "$app_path" >> "$TARGET_LIST_BSA"
+                        fi
+                        break
+                    else
+                        logowl "Failed to make node: $mirror_app_path (code: $result_make_node)" "ERROR"
+                    fi
                 fi
             else
                 if [ "$first_char" = "/" ]; then
