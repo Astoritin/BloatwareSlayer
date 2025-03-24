@@ -32,7 +32,7 @@ Bloatware Slayer 是我写来自用的模块，而我的主要设备用的都是
 
 其三，WebUI 的引入带来了更多的问题。
 为了防止被各类软件轻易检测到 Bloatware Slayer 的存在，Bloatware Slayer 的配置文件一直都放在 `/data/adb/bloatwareslayer/`
-在安卓没有相关漏洞的前提下，这个目录在无 Root 权限+ SELinux 强制执行的情况下，普通 APP 是无法访问的。
+这个目录在安卓系统没有相关漏洞的前提下，无 Root 权限+ SELinux 强制执行的普通 APP 是无法访问的。
 前端的特性注定前端的原生 API 无法访问即使是安卓世界中都要以 root 的身份才能访问的目录，
 也就是说要想这么做必须用 KernelSU 提供的 API (具体来说就是 ksu.exec )。这既带来了便利，也带来了一定的安全问题和维护难度。
 目前 Bloatware Slayer 尚不稳定，我实在是不想再开放一个潜在的需要维护的入口。
