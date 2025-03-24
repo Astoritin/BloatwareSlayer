@@ -94,22 +94,29 @@ preparation() {
 
     logowl "Some preparations"
 
+    if [ -n "$MODDIR" ] && [ -d "$MIRROR_DIR" ]; then
+        logowl "Remove old mirror folder"
+        rm -rf "$MIRROR_DIR"
+    fi
+    if [ -n "$MODDIR" ] && [ -d "$EMPTY_DIR" ]; then
+        logowl "Remove old empty folder"
+        rm -rf "$EMPTY_DIR"
+    fi
+
+    if [ $MAGISK_V_VER_CODE -lt 28102 ] || [ -z $KSU ] || [ -z $APATCH ]; then
+        logowl "Detect current environment does NOT support removing bloatware by mknod!" "ERROR"
+        logowl "Will switch back to mount bind"
+        SLAY_MODE="MB"
+    fi
+
     if [ "$SLAY_MODE" = "MB" ]; then
         logowl "Current mode: MB (Mount Bind)"
-        if [ -n "$MODDIR" ] && [ -d "$EMPTY_DIR" ]; then
-            logowl "Remove old empty folder"
-            rm -rf "$EMPTY_DIR"
-        fi
         logowl "Create $EMPTY_DIR"
         mkdir -p "$EMPTY_DIR"
         logowl "Set permissions"
         chmod 0755 "$EMPTY_DIR"
     elif [ "$SLAY_MODE" = "MN" ]; then
         logowl "Current mode: MN (Make Node)"
-        if [ -n "$MODDIR" ] && [ -d "$MIRROR_DIR" ]; then
-            logowl "Remove old mirror folder"
-            rm -rf "$MIRROR_DIR"
-        fi
         logowl "Create $MIRROR_DIR"
         mkdir -p "$MIRROR_DIR"
         logowl "Set permissions"
