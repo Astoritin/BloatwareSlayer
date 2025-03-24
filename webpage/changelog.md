@@ -3,6 +3,21 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ### Changelog / 变更日志
 
+### 1.2.8
+
+- Introduce experimental feature mknod
+- 引入实验性功能： mknod
+- Bloatware Slayer uses mount bind (`MB`) by default, you can switch it into mknod (`MD`) by adding this line in `/data/adb/bloatwareslayer/settings.conf`: `slay_mode=MD` (MD, make node; MB, mount bind)
+- 现在Bloatware Slayer默认使用 mount bind方法，你可以通过在 `/data/adb/bloatwareslayer/settings.conf` 配置文件中添加以下条目以手工切换到mknod模式:   `slay_mode=MD` (MD, mknod; MB, mount bind)
+- NOTICE: mknod will ONLY work on KernelSU / APatch / Magisk 28102+, Bloatware Slayer will keep using mount bind if detects not support environment
+- 注意: mknod 模式仅在 KernelSU / APatch / Magisk 28102+ 上起作用，若检测到不支持的环境，Bloatware Slayer会继续使用 mount bind
+- mknod method supports "delete" folders and files systemlessly, mount bind will "clear" the folders content ONLY
+- mknod 方案支持不修改系统的前提下彻底“删除”文件夹和文件，mount bind 仅会“清空”文件夹内容
+- Remove feature: update module description as clicking on the remove/uninstall or disable button since this feature is so useless
+- 由于过于无用，功能：卸载/禁用模块时更新模块描述已被移除
+- Fix the problems of some logical loophole
+- 修复一些逻辑漏洞问题
+
 ### 1.2.7
 
 - Add action.sh as shortcut to open the config directory with root file managers
