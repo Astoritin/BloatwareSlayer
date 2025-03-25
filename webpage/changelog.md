@@ -17,6 +17,7 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 - 由于过于无用，功能：卸载/禁用模块时更新模块描述已被移除
 - Fix the problems of some logical loophole
 - 修复一些逻辑漏洞问题
+- SHA256: `006fa5a9875e62b1343ef7cd8f80cc25d2ada94c19d91fc795f78d91c4690ddb`
 
 ### 关于 WebUI 支持的说明：暂不考虑。
 
