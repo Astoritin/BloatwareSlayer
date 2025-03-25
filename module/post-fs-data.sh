@@ -27,6 +27,7 @@ SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/priv-app /syst
 
 SYSTEM_TIMESTAMP=$(stat -c "%y" /system | awk '{print $1 " " $2}' | sed 's/\.[0-9]\+//')
 DIRS_BEING_EFFECTED=""
+DIRS_BEING_EFFECTED_FILE="$CONFIG_DIR/logs/timestamp.txt"
 
 brick_rescue() {
     # brick_rescue: a function to execute brick rescue method to save the device from being "bricked" by Bloatware Slayer itself
@@ -52,7 +53,7 @@ brick_rescue() {
         else
             logowl "Starting brick rescue"
             logowl "Skip post-fs-data.sh process"
-            DESCRIPTION="[❌ Disabled. Auto disable from brick! 🏷 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+            DESCRIPTION="[❌ Disabled. Auto disable from brick! 🏆 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
             update_module_description "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip mounting"
             exit 1
@@ -100,6 +101,8 @@ preparation() {
     if [ -n "$MODDIR" ] && [ -d "$MIRROR_DIR" ]; then
         logowl "Remove old mirror folder"
         rm -rf "$MIRROR_DIR"
+        logowl "Remove old timestamp file"
+        rm -f "$DIRS_BEING_EFFECTED_FILE"
     fi
     if [ -n "$MODDIR" ] && [ -d "$EMPTY_DIR" ]; then
         logowl "Remove old empty folder"
@@ -130,13 +133,14 @@ preparation() {
         logowl "Current mode: MN (Make Node)"
         logowl "Create $MIRROR_DIR"
         mkdir -p "$MIRROR_DIR"
+        touch "$DIRS_BEING_EFFECTED_FILE"
         logowl "Set permissions"
         chmod 0755 "$MIRROR_DIR"
     fi
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
-        DESCRIPTION="[❌ No effect. Target list does NOT exist! 🏷 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+        DESCRIPTION="[❌ No effect. Target list does NOT exist! 🏆 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
         update_module_description "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -279,6 +283,21 @@ bloatware_slayer() {
         chmod 0644 "$TARGET_LIST_BSA"
         chmod 0644 "$TARGET_LIST"
     fi
+
+    if [ "$SLAY_MODE" = "MN" ]; then
+
+        if [ -n "$DIRS_BEING_EFFECTED" ]; then
+            DIRS_BEING_EFFECTED=$(echo "$DIRS_BEING_EFFECTED" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+        fi
+
+        SYSTEM_TIMESTAMP=$(echo "$SYSTEM_TIMESTAMP" | awk '{print substr($0, 1, index($0, ".")-1)}')
+        DIRS_BEING_EFFECTED=$(echo "$DIRS_BEING_EFFECTED" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+        echo "system_timestamp=$SYSTEM_TIMESTAMP" > "$DIRS_BEING_EFFECTED_FILE"
+        echo "dirs_being_effected=$DIRS_BEING_EFFECTED" >> "$DIRS_BEING_EFFECTED_FILE"
+    
+    fi
+
 }
 
 module_status_update() {
@@ -295,25 +314,25 @@ module_status_update() {
     logowl "$APP_NOT_FOUND APP(s) not found"
 
     if [ "$SLAY_MODE" = "MB" ]; then
-        MODE_MOD="Mount Bind"
+        MODE_MOD="Stable (Mount Bind)"
     elif [ "$SLAY_MODE" = "MN" ]; then
-        MODE_MOD="Make Node"
+        MODE_MOD="Trial (Make Node)"
     else
         MODE_MOD="?"
     fi
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-            DESCRIPTION="[😋 Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚙ Mode: $MODE_MOD, 🏷 Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+            DESCRIPTION="[😋 Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡ Mode: $MODE_MOD, 🏆 Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-            DESCRIPTION="[😋 Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! ⚙ Mode: $MODE_MOD, 🏷 Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+            DESCRIPTION="[😋 Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! ⚡ Mode: $MODE_MOD, 🏆 Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[😋 No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚙ Mode: $MODE_MOD, 🏷 Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+                DESCRIPTION="[😋 No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡ Mode: $MODE_MOD, 🏆 Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌ No effect. Abnormal status! ⚙ Mode: $MODE_MOD, 🏷 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+                DESCRIPTION="[❌ No effect. Abnormal status! ⚡ Mode: $MODE_MOD, 🏆 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
             fi
         fi
         update_module_description "$DESCRIPTION" "$MODULE_PROP"
@@ -321,29 +340,6 @@ module_status_update() {
         logowl "module.prop not found, skip updating" "WARN"
     fi
 
-}
-
-restore_system_timestamp() {
-
-    logowl "Restore system timestamp"
-    logowl "/system timestamp: $SYSTEM_TIMESTAMP"
-    logowl "Current being effected dirs: $DIRS_BEING_EFFECTED"
-
-    if [ -n "$DIRS_BEING_EFFECTED" ]; then
-        DIRS_BEING_EFFECTED=$(echo "$DIRS_BEING_EFFECTED" | tr ' ' '\n' | sort -u | tr '\n' ' ')
-    fi
-
-    logowl "DIRS_BEING_EFFECTED: $DIRS_BEING_EFFECTED (sorted)"
-
-    for dir_being_effected in $DIRS_BEING_EFFECTED; do
-        find "$dir_being_effected" -exec touch -d "$SYSTEM_TIMESTAMP" {} \;
-    done
-
-    print_line
-    logowl "Timestamp result"
-    print_line
-    ls -lR $DIRS_BEING_EFFECTED | sed 's/^/- /' >> "$LOG_FILE"
-    print_line
 }
 
 . "$MODDIR/aautilities.sh"
