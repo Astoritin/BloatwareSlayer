@@ -19,6 +19,9 @@ MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^version
 BRICK_TIMEOUT=180
 DISABLE_MODULE_AS_BRICK=true
 
+DIRS_BEING_EFFECTED_FILE="$CONFIG_DIR/logs/timestamp.txt"
+SYSTEM_TIMESTAMP="2009-01-01 00:00:00"
+
 config_loader() {
     # config_loader: a function to load the config file saved in $CONFIG_FILE
     # the format of $CONFIG_FILE: value=key, one key-value pair per line
@@ -28,10 +31,41 @@ config_loader() {
 
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
+    slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
+    system_timestamp=$(init_variables "system_timestamp" "$DIRS_BEING_EFFECTED_FILE" "true")
+    dirs_being_effected=$(init_variables "dirs_being_effected" "$DIRS_BEING_EFFECTED_FILE")
 
     verify_variables "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
+    verify_variables "slay_mode" "$slay_mode" "^(MB|MN)$"
+    verify_variables "system_timestamp" "$system_timestamp" "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}$"
+    verify_variables "dirs_being_effected" "$dirs_being_effected" "^/data/[^/]+(/[^/]+)*$"
 
+}
+
+restore_system_timestamp() {
+
+    logowl "Restore system timestamp"
+    logowl "/system timestamp: $SYSTEM_TIMESTAMP"
+    logowl "Current being effected dirs: $DIRS_BEING_EFFECTED"
+
+    if [ -n "$DIRS_BEING_EFFECTED" ]; then
+        DIRS_BEING_EFFECTED=$(echo "$DIRS_BEING_EFFECTED" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+    fi
+
+    logowl "DIRS_BEING_EFFECTED: $DIRS_BEING_EFFECTED (sorted)"
+
+    for dir_being_effected in $DIRS_BEING_EFFECTED; do
+        find "$dir_being_effected" -exec touch -d "$SYSTEM_TIMESTAMP" {} \;
+    done
+
+    print_line
+    logowl "Timestamp result"
+    print_line
+    if [ -n "$DIRS_BEING_EFFECTED" ]; then
+        ls -lR "$DIRS_BEING_EFFECTED" | sed 's/^/- /' >> "$LOG_FILE"
+    fi
+    print_line
 }
 
 . "$MODDIR/aautilities.sh"
@@ -43,6 +77,10 @@ print_line
 logowl "Starting service.sh"
 config_loader
 print_line
+
+if [ "$SLAY_MODE" = "MN" ] && [ -f "$DIRS_BEING_EFFECTED_FILE" ]; then
+    restore_system_timestamp
+fi
 
 {    
 
@@ -79,8 +117,8 @@ print_line
         sleep 1
     done
 
-    logowl "Congratulations!"
-    logowl "Boot complete! Current final countdown: $BRICK_TIMEOUT s"
+    logowl "Congratulations! Boot complete!"
+    logowl "Current final countdown: $BRICK_TIMEOUT s"
     rm -f "$BRICKED_STATUS"
     if [ $? -eq 0 ]; then
         logowl "Bricked status reset"
