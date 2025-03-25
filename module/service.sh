@@ -43,8 +43,6 @@ print_line
 logowl "Starting service.sh"
 config_loader
 print_line
-logowl "Variables before case closed"
-debug_print_values >> "$LOG_FILE"
 
 {    
 
@@ -81,7 +79,8 @@ debug_print_values >> "$LOG_FILE"
         sleep 1
     done
 
-    logowl "Boot complete! Final countdown: $BRICK_TIMEOUT s"
+    logowl "Congratulations!"
+    logowl "Boot complete! Current final countdown: $BRICK_TIMEOUT s"
     rm -f "$BRICKED_STATUS"
     if [ $? -eq 0 ]; then
         logowl "Bricked status reset"
