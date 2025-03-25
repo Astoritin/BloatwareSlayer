@@ -136,9 +136,9 @@ logowl() {
 
     if [ -n "$LOG_FILE" ]; then
         if [ "$LOG_LEVEL" = "! ERROR:" ] || [ "$LOG_LEVEL" = "× FATAL:" ]; then
-            print_line
+            echo "----------------------------------------------------" >> "$LOG_FILE"
             echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE"
-            print_line
+            echo "----------------------------------------------------" >> "$LOG_FILE"
         elif [ "$LOG_LEVEL" = "_" ]; then
             echo "$LOG_MSG" >> "$LOG_FILE"
         else
@@ -146,7 +146,11 @@ logowl() {
         fi
     else
         if command -v ui_print >/dev/null 2>&1 && [ "$BOOTMODE" ]; then
-            if [ "$LOG_LEVEL" = "_" ]; then
+            if [ "$LOG_LEVEL" = "! ERROR:" ] || [ "$LOG_LEVEL" = "× FATAL:" ]; then
+                ui_print "----------------------------------------------------"
+                ui_print "$LOG_LEVEL $LOG_MSG"
+                ui_print "----------------------------------------------------"
+            elif [ "$LOG_LEVEL" = "_" ]; then
                 ui_print "$LOG_MSG"
             else
                 ui_print "$LOG_LEVEL $LOG_MSG"
