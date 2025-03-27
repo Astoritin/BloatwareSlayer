@@ -23,11 +23,7 @@ AUTO_UPDATE_TARGET_LIST=true
 DISABLE_MODULE_AS_BRICK=true
 SLAY_MODE="MB"
 
-SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
-
-SYSTEM_TIMESTAMP=$(stat -c "%y" /system | awk '{print $1 " " $2}' | sed 's/\.[0-9]\+//')
-DIRS_BEING_EFFECTED=""
-DIRS_BEING_EFFECTED_FILE="$CONFIG_DIR/logs/timestamp.txt"
+SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
 brick_rescue() {
     # brick_rescue: a function to execute brick rescue method to save the device from being "bricked" by Bloatware Slayer itself
@@ -53,7 +49,7 @@ brick_rescue() {
         else
             logowl "Starting brick rescue"
             logowl "Skip post-fs-data.sh process"
-            DESCRIPTION="[❌ Disabled. Auto disable from brick! 🏆 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+            DESCRIPTION="[❌ Disabled. Auto disable from brick! ⭐ Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
             update_module_description "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip mounting"
             exit 1
@@ -79,7 +75,7 @@ config_loader() {
     verify_variables "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
     verify_variables "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
-    verify_variables "slay_mode" "$slay_mode" "^(MB|MN)$"
+    verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
 
 }
 
@@ -101,26 +97,34 @@ preparation() {
     if [ -n "$MODDIR" ] && [ -d "$MIRROR_DIR" ]; then
         logowl "Remove old mirror folder"
         rm -rf "$MIRROR_DIR"
-        logowl "Remove old timestamp file"
-        rm -f "$DIRS_BEING_EFFECTED_FILE"
     fi
     if [ -n "$MODDIR" ] && [ -d "$EMPTY_DIR" ]; then
         logowl "Remove old empty folder"
         rm -rf "$EMPTY_DIR"
     fi
 
-    if [ -n "$MAGISK_V_VER_CODE" ]; then
-        if [ $MAGISK_V_VER_CODE -lt 28102 ]; then
-            logowl "$MOD_NAME needs Magisk version 28102 or higher (current $MAGISK_V_VER_CODE)!" "ERROR"
+    if [ "$SLAY_MODE" = "MN" ]; then
+        if [ -n "$MAGISK_V_VER_CODE" ]; then
+            if [ $MAGISK_V_VER_CODE -lt 28102 ]; then
+                logowl "$MOD_NAME needs Magisk version 28102 or higher (current $MAGISK_V_VER_CODE)!" "ERROR"
+                SLAY_MODE="MB"
+            fi
+        elif [ -n "$KSU" ]; then
+            logowl "Detect $MOD_NAME running on KernelSU, which supports mknod mode"
+        elif [ -n "$APATCH" ]; then
+            logowl "Detect $MOD_NAME running on APatch, which supports mknod mode"
+        else
+            logowl "$MOD_NAME needs Magisk 28102+, KernelSU, or APatch!" "ERROR"
             SLAY_MODE="MB"
         fi
-    elif [ -n "$KSU" ]; then
-        logowl "$MOD_NAME using KernelSU, which supports mknod mode."
-    elif [ -n "$APATCH" ]; then
-        logowl "$MOD_NAME using APatch, which supports mknod mode."
-    else
-        logowl "$MOD_NAME needs Magisk 28102+, KernelSU, or APatch!" "ERROR"
+    fi
+
+    if [ "$SLAY_MODE" = "MR" ]; then
+        if [ -n "$KSU" ] || [ -n "$APATCH" ]; then
+        logowl "MR (Magisk Replace) mode is NOT available as $MOD_NAME running on KernelSU / APatch!" "ERROR"
+        logowl "Please use Magisk if you try to use MR (Magisk Replace) mode!"
         SLAY_MODE="MB"
+        fi
     fi
 
     if [ "$SLAY_MODE" = "MB" ]; then
@@ -133,14 +137,19 @@ preparation() {
         logowl "Current mode: MN (Make Node)"
         logowl "Create $MIRROR_DIR"
         mkdir -p "$MIRROR_DIR"
-        touch "$DIRS_BEING_EFFECTED_FILE"
+        logowl "Set permissions"
+        chmod 0755 "$MIRROR_DIR"
+    elif [ "$SLAY_MODE" = "MR" ]; then
+        logowl "Current mode: MR (Magisk Replace)"
+        logowl "Create $MIRROR_DIR"
+        mkdir -p "$MIRROR_DIR"
         logowl "Set permissions"
         chmod 0755 "$MIRROR_DIR"
     fi
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
-        DESCRIPTION="[❌ No effect. Target list does NOT exist! 🏆 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+        DESCRIPTION="[❌ No effect. Target list does NOT exist! ⭐ Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
         update_module_description "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -232,8 +241,8 @@ bloatware_slayer() {
             logowl "Checking dir: $app_path"
             if [ -d "$app_path" ]; then
                 if [ "$SLAY_MODE" = "MB" ]; then
-                    logowl "Execute mount -o bind $EMPTY_DIR $app_path"
-                    mount -o bind "$EMPTY_DIR" "$app_path"
+                    logowl "Execute mount -ro bind $EMPTY_DIR $app_path"
+                    mount -ro bind "$EMPTY_DIR" "$app_path"
                     result_mount_bind=$?
                     if [ $result_mount_bind -eq 0 ]; then
                         logowl "Succeeded (code: $result_mount_bind)"
@@ -251,7 +260,6 @@ bloatware_slayer() {
                     mirror_app_path="${MODDIR}${app_path}"
                     logowl "Create parent path: $mirror_parent_dir"
                     mkdir -p "$mirror_parent_dir"
-                    DIRS_BEING_EFFECTED="$DIRS_BEING_EFFECTED $mirror_parent_dir"
                     logowl "Execute mknod $mirror_app_path c 0 0"
                     mknod "$mirror_app_path" c 0 0
                     result_make_node="$?"
@@ -264,6 +272,23 @@ bloatware_slayer() {
                         break
                     else
                         logowl "Failed to make node: $mirror_app_path (code: $result_make_node)" "ERROR"
+                    fi
+                elif [ "$SLAY_MODE" = "MR" ]; then
+                    mirror_app_path="${MODDIR}${app_path}"
+                    logowl "Create mirror path: $mirror_app_path"
+                    mkdir -p "$mirror_app_path"
+                    logowl "Execute touch $mirror_app_path/.replace"
+                    touch "$mirror_app_path/.replace"
+                    result_touch_replace="$?"
+                    if [ $result_touch_replace -eq 0 ]; then
+                        logowl "Succeeded (code: $result_touch_replace)"
+                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                        if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
+                            echo "$app_path" >> "$TARGET_LIST_BSA"
+                        fi
+                        break
+                    else
+                        logowl "Failed to touch .replace: $mirror_app_path (code: $result_touch_replace)" "ERROR"
                     fi
                 fi
             else
@@ -283,21 +308,6 @@ bloatware_slayer() {
         chmod 0644 "$TARGET_LIST_BSA"
         chmod 0644 "$TARGET_LIST"
     fi
-
-    if [ "$SLAY_MODE" = "MN" ]; then
-
-        if [ -n "$DIRS_BEING_EFFECTED" ]; then
-            DIRS_BEING_EFFECTED=$(echo "$DIRS_BEING_EFFECTED" | tr ' ' '\n' | sort -u | tr '\n' ' ')
-        fi
-
-        SYSTEM_TIMESTAMP=$(echo "$SYSTEM_TIMESTAMP" | awk '{print substr($0, 1, index($0, ".")-1)}')
-        DIRS_BEING_EFFECTED=$(echo "$DIRS_BEING_EFFECTED" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-
-        echo "system_timestamp=$SYSTEM_TIMESTAMP" > "$DIRS_BEING_EFFECTED_FILE"
-        echo "dirs_being_effected=$DIRS_BEING_EFFECTED" >> "$DIRS_BEING_EFFECTED_FILE"
-    
-    fi
-
 }
 
 module_status_update() {
@@ -314,25 +324,27 @@ module_status_update() {
     logowl "$APP_NOT_FOUND APP(s) not found"
 
     if [ "$SLAY_MODE" = "MB" ]; then
-        MODE_MOD="Stable (Mount Bind)"
+        MODE_MOD="Mount Bind (Stable)"
+    elif [ "$SLAY_MODE" = "MR" ]; then
+        MODE_MOD="Magisk Replace (Stable)"
     elif [ "$SLAY_MODE" = "MN" ]; then
-        MODE_MOD="Trial (Make Node)"
+        MODE_MOD="Make Node (Trial)"
     else
-        MODE_MOD="?"
+        MODE_MOD="Unknown"
     fi
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-            DESCRIPTION="[😋 Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡ Mode: $MODE_MOD, 🏆 Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+                DESCRIPTION="[😋 Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡ Mode: $MODE_MOD, ⭐ Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-            DESCRIPTION="[😋 Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! ⚡ Mode: $MODE_MOD, 🏆 Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+                DESCRIPTION="[😋 Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! ⚡ Mode: $MODE_MOD, ⭐ Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[😋 No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡ Mode: $MODE_MOD, 🏆 Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+                DESCRIPTION="[😋 No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡ Mode: $MODE_MOD, ⭐ Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌ No effect. Abnormal status! ⚡ Mode: $MODE_MOD, 🏆 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+                DESCRIPTION="[❌ No effect. Abnormal status! ⚡ Mode: $MODE_MOD, ⭐ Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
             fi
         fi
         update_module_description "$DESCRIPTION" "$MODULE_PROP"
@@ -355,11 +367,6 @@ brick_rescue
 preparation
 bloatware_slayer
 module_status_update
-
-if [ "$SLAY_MODE" = "MN" ]; then
-    restore_system_timestamp
-fi
-
 logowl "Variables before case closed"
 debug_print_values >> "$LOG_FILE"
 logowl "post-fs-data.sh case closed!"
