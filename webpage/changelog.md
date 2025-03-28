@@ -13,6 +13,7 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 - 现在Bloatware Slayer默认使用 mount bind方法，你可以通过在 `/data/adb/bloatwareslayer/settings.conf` 配置文件中添加以下条目以手工切换到mknod或者.replace模式: `slay_mode=MN` (MN, mknod; MB, mount bind; MR, Magisk replace)
 - Update module description display
 - 更新模块描述显示
+- SHA256: `325f4990575484fc0ab37ce313e57749474993160772203c0e695f963fdf3071`
 
 ### 1.2.8
 
