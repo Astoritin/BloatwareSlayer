@@ -1,10 +1,5 @@
-if ! command -v abort >/dev/null 2>&1; then
-    logowl "Detect abort does NOT available!" "WARN"
-    abort() {
-        echo "[!] $1"
-        exit 1
-    }
-fi
+#!/system/bin/sh
+MODDIR=${0%/*}
 
 is_kernelsu() {
     if [ -n "$KSU" ]; then
@@ -173,13 +168,9 @@ init_variables() {
     # init_variables: a function to initiate variables
     # key: the key name
     # config_file: the path and filename of the key it located
-    # just_trust_me (optional): skip safety check and just export the variables
-    # WARN: YOU SHOULD NOT ENABLE THIS OPTION CASUALLY!
-    # WARN: TAKE YOUR OWN RISK IF YOU INSIST ON ENABLING THIS OPTION!
     # value: the value of the key
     key="$1"
     config_file="$2"
-    just_trust_me="${3:-false}"
 
     if [ ! -f "$config_file" ]; then
         logowl "Configuration file $config_file does NOT exist" "ERROR" >&2
@@ -189,11 +180,7 @@ init_variables() {
     # Fetch the value from config file
     value=$(sed -n "s/^$key=\(.*\)/\1/p" "$config_file" | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
-    if [ "$just_trust_me" = "true" ]; then
-        logowl "Enabled Just Trust Me for variable: $key" "WARN"
-        echo "$value"
-        return 0
-    elif check_value_safety "$key" "$value"; then
+    if check_value_safety "$key" "$value"; then
         echo "$value"
         return 0
     else
@@ -376,7 +363,7 @@ abort_verify() {
     logowl "$1" "WARN"
     logowl "This zip may be corrupted or have been maliciously modified!" "WARN"
     logowl "Please try to download again or get it from official source!" "WARN"
-    abort "**************************************************"
+    abort "This zip may be corrupted or have been maliciously modified!"
 }
 
 extract() {
