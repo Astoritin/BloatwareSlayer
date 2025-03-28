@@ -58,7 +58,8 @@ for fm in $ROOT_FILE_MANAGERS; do
 
 done
 
-ui_print "No available Root Explorer detected, please open config folder manually if needed!"
+sleep 7
+
 logowl "No available Root Explorer detected, please open config folder manually if needed!" "ERROR"
 print_line
 logowl "action.sh case closed!"
