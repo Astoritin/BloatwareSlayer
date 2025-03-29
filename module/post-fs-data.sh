@@ -104,48 +104,54 @@ preparation() {
     fi
 
     if [ "$SLAY_MODE" = "MN" ]; then
-        if [ -n "$MAGISK_V_VER_CODE" ]; then
-            if [ $MAGISK_V_VER_CODE -lt 28102 ]; then
-                logowl "$MOD_NAME needs Magisk version 28102 or higher (current $MAGISK_V_VER_CODE)!" "ERROR"
-                SLAY_MODE="MB"
+        if [ -n "$KSU" ] || [ -n "$APATCH" ]; then
+            logowl "Detect $MOD_NAME running on KernelSU / APatch, which supports Make Node mode"
+        elif [ -n "$MAGISK_V_VER_CODE" ]; then
+            if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
+                logowl "Detect $MOD_NAME running on Magisk 28102+, which supports Make Node mode"
+            else
+                logowl "Make Node mode needs Magisk version 28102 or higher (current $MAGISK_V_VER_CODE)!" "ERROR"
+                logowl "$MOD_NAME will revert to Magisk Replace mode"
+                SLAY_MODE="MR"
             fi
-        elif [ -n "$KSU" ]; then
-            logowl "Detect $MOD_NAME running on KernelSU, which supports mknod mode"
-        elif [ -n "$APATCH" ]; then
-            logowl "Detect $MOD_NAME running on APatch, which supports mknod mode"
         else
-            logowl "$MOD_NAME needs Magisk 28102+, KernelSU, or APatch!" "ERROR"
+            logowl "Make Node mode needs Magisk 28102+, KernelSU or APatch!" "ERROR"
             SLAY_MODE="MB"
         fi
-    fi
-
-    if [ "$SLAY_MODE" = "MR" ]; then
+    elif [ "$SLAY_MODE" = "MR" ]; then
         if [ -n "$KSU" ] || [ -n "$APATCH" ]; then
-        logowl "MR (Magisk Replace) mode is NOT available as $MOD_NAME running on KernelSU / APatch!" "ERROR"
-        logowl "Please use Magisk if you try to use MR (Magisk Replace) mode!"
-        SLAY_MODE="MB"
+            logowl "Magisk Replace mode is NOT available as $MOD_NAME running on KernelSU / APatch!" "ERROR"
+            logowl "Please use Magisk if you try to use Magisk Replace mode!"
+            SLAY_MODE="MN"
         fi
     fi
 
-    if [ "$SLAY_MODE" = "MB" ]; then
-        logowl "Current mode: MB (Mount Bind)"
-        logowl "Create $EMPTY_DIR"
-        mkdir -p "$EMPTY_DIR"
-        logowl "Set permissions"
-        chmod 0755 "$EMPTY_DIR"
-    elif [ "$SLAY_MODE" = "MN" ]; then
-        logowl "Current mode: MN (Make Node)"
-        logowl "Create $MIRROR_DIR"
-        mkdir -p "$MIRROR_DIR"
-        logowl "Set permissions"
-        chmod 0755 "$MIRROR_DIR"
-    elif [ "$SLAY_MODE" = "MR" ]; then
-        logowl "Current mode: MR (Magisk Replace)"
-        logowl "Create $MIRROR_DIR"
-        mkdir -p "$MIRROR_DIR"
-        logowl "Set permissions"
-        chmod 0755 "$MIRROR_DIR"
-    fi
+    case "$SLAY_MODE" in
+        MB)
+            MODE_MOD="Mount Bind"
+            logowl "Create $EMPTY_DIR"
+            mkdir -p "$EMPTY_DIR"
+            logowl "Set permissions"
+            chmod 0755 "$EMPTY_DIR"
+            ;;
+        MN|MR)
+            if [ "$SLAY_MODE" = "MN" ]; then
+                MODE_MOD="Make Node"
+            elif [ "$SLAY_MODE" = "MR" ]; then
+                MODE_MOD="Magisk Replace"
+            fi
+            logowl "Create $MIRROR_DIR"
+            mkdir -p "$MIRROR_DIR"
+            logowl "Set permissions"
+            chmod 0755 "$MIRROR_DIR"
+            ;;
+        *)
+            MODE_MOD="Unknown"
+            logowl "Unknown mode: $SLAY_MODE" "ERROR"
+            ;;
+    esac
+    logowl "Current mode: $SLAY_MODE ($MODE_MOD)"
+
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
@@ -326,16 +332,6 @@ module_status_update() {
     logowl "$TOTAL_APPS_COUNT APP(s) in total"
     logowl "$BLOCKED_APPS_COUNT APP(s) slain"
     logowl "$APP_NOT_FOUND APP(s) not found"
-
-    if [ "$SLAY_MODE" = "MB" ]; then
-        MODE_MOD="Mount Bind"
-    elif [ "$SLAY_MODE" = "MR" ]; then
-        MODE_MOD="Magisk Replace"
-    elif [ "$SLAY_MODE" = "MN" ]; then
-        MODE_MOD="Make Node"
-    else
-        MODE_MOD="Unknown"
-    fi
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
