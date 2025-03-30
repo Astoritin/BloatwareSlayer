@@ -79,7 +79,7 @@
 <del> - 如果你希望在点击禁用或卸载按钮后见到提示，那么可以改成<code>true</code>启用此功能。</del>
  - **注意：该功能已于 1.2.8 起被移除**
 5. **<code>system_app_paths</code>**: 自定义扫描预装软件所在的系统目录，路径以<code>/</code>开头，用空格隔开，例如<code>system_app_paths=/system/app /system/priv-app</code>.
-6. **<code>slay_mode</code>: Bloatware Slayer 屏蔽预装软件的方式，MB=Mount Bind,是在绝大多数ROM内的各种Root方案通用的方法，MR=Magisk Replace,是用于Magisk的方法，MN=Make Mode,是Magisk 28102+、KernelSU和APatch可用的方法。
+6. **<code>slay_mode</code>**: Bloatware Slayer 屏蔽预装软件的方式，MB=Mount Bind,是在绝大多数ROM内的各种Root方案通用的方法，MR=Magisk Replace,是用于Magisk的方法，MN=Make Mode,是Magisk 28102+、KernelSU和APatch可用的方法。
 
 ## 日志
 
