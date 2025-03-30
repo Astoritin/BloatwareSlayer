@@ -29,34 +29,30 @@
 
 1. `target.conf` 支持"#"号注释整行，Bloatware Slayer 不会处理被注释掉的行和空行。
 2. 你也可以自定义路径，例如：`/system/app/MiVideo/`。此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。
-3. 由于现如今绝大多数设备都是 SAR (System-as-root)，你可能在 AppManager 中看到的资源目录名不是 `/system` 开头 (例如  `/product/app/Scanner`)，为了确保挂载生效，请手动在这类路径前面添加 `/system` ，否则 Bloatware Slayer 会直接忽略该路径。<br>
-4. 为了节省时间和减少资源消耗，现在`target.conf`会随着每次系统启动自动更新为预装APP对应的系统目录，你可以查阅“配置文件”部分进行了解<br>
-5. 若你看到的资源目录以 `/data` 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 `target.conf` 中，因为Bloatware Slayer的处理也不会对这类软件生效。<br>
+3. 由于现如今绝大多数设备都是 SAR (System-as-root)，你可能在 AppManager 中看到的资源目录名不是 `/system` 开头 (例如  `/product/app/Scanner`)，为了确保挂载生效，请手动在这类路径前面添加 `/system` ，否则 Bloatware Slayer 会直接忽略该路径。
+4. 为了节省时间和减少资源消耗，现在`target.conf`会随着每次系统启动自动更新为预装APP对应的系统目录，你可以查阅“配置文件”部分进行了解。
+5. 若你看到的资源目录以 `/data` 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 `target.conf` 中，因为Bloatware Slayer的处理也不会对这类软件生效。
 
-<details>
-<summary>Q: 为什么需要我手工复制，而不是模块根据我指定的应用名称或包名自行检测？</summary>
+### Q: 为什么需要我手工复制，而不是模块根据我指定的应用名称或包名自行检测？
+
+1. **应用名称和包名并不可靠，依靠这两点查找应用文件夹的效率太低了**。
+对于大多数规范的ROM而言，用除了英文以外的其他语言给系统目录/文件夹命名的概率极低，甚至有不少应用的应用名称跟其所在的系统目录/文件夹名没有任何关系（无论是ROM提供商的疏忽和学艺不精导致的命名细节不规范，还是为了隐藏自己收集用户信息安插的眼线APP的阴暗心思而故意不规范命名）。如果一定要这么匹配，且不说需要大量的数据统计，即使如此，误判率也还是很高。<br>
+~举个例子：有个APP名为系统服务，但是其目录/文件夹名为AdPushService，其包名为com.android.adpromote~
+2. **至于包名，请阅读 [【已确认不会添加的功能：检测包名 / Detecting packages name is permanently off the table】](https://github.com/Astoritin/Bloatware_Slayer/issues/6#issuecomment-2693035556)**。
+3. 虽然该模块是在 Systemless (不修改系统) 的情况下运行，但是**你始终需要知道并确定自己正在做的事情**，你必须知道自己需要屏蔽掉哪些系统 APP，**而不是照搬别人的列表，出问题了就把责任全部推给本 Magisk 模块**。
 <br>
-
-**其一，应用名称和包名并不可靠，依靠这两点查找应用文件夹的效率太低了**。<br>
-对于大多数规范的ROM而言，用除了英文以外的其他语言给系统目录/文件夹命名的概率极低，<br>
-甚至有不少应用的应用名称跟其所在的系统目录/文件夹名没有任何关系（无论是ROM提供商的疏忽和学艺不精导致的命名细节不规范，还是为了隐藏自己收集用户信息安插的眼线APP的阴暗心思而故意不规范命名）。如果一定要这么匹配，且不说需要大量的数据统计，即使如此，误判率也还是很高。<br><br>
-<em>举个例子：有个APP名为系统服务，但是其目录/文件夹名为AdPushService，其包名为com.android.adpromote</em><br><br>
-至于包名，请阅读 [【已确认不会添加的功能：检测包名 / Detecting packages name is permanently off the table】](https://github.com/Astoritin/Bloatware_Slayer/issues/6#issuecomment-2693035556)。
-<br>
-
-其二，虽然该模块是在 Systemless (不修改系统) 的情况下运行，但是**你始终需要知道并确定自己正在做的事情**，你必须知道自己需要屏蔽掉哪些系统 APP，**而不是照搬别人的列表，出问题了就把责任全部推给本 Magisk 模块**。
-</details><br>
 
 ## 配置文件
 
-自 v1.2.1 起， Bloatware Slayer 支持手动启用或禁用以下功能，如有需求请打开配置文件`/data/adb/bloatwareslayer/settings.conf`查看并修改。<br>
+自 v1.2.1 起， Bloatware Slayer 支持手动启用或禁用以下功能，如有需求请打开配置文件`/data/adb/bloatwareslayer/settings.conf`查看并修改。
+
 1. **`brick_timeout`**：设定判断设备变砖的时限(Timeout)，要求正整数，以秒为单位。
  - 如果不在`settings.conf`中指定，则默认值是`300`秒(5分钟)，`settings.conf`内的默认值为180秒(3分钟)。
-2. **`disable_module_as_brick`**：设定是否在触发设备变砖时自动禁用该模块。默认情况下为`true`(启用)，你也可以设置为`false`以禁用该功能。<br>
- - 若禁用，则模块在检测到设备变砖时就**只会跳过挂载而不会自我禁用**，在排除`target.conf`中的不稳定项目后即可自行重新启动，无需再进入Root管理器重新启用本模块。<br>
-3. **`auto_update_target_list`**：每次启动时是否更新 target.conf 中的项目为预装应用所在路径，默认情况下为`true`(启用)以加快下次系统的启动速度。<br>
+2. **`disable_module_as_brick`**：设定是否在触发设备变砖时自动禁用该模块。默认情况下为`true`(启用)，你也可以设置为`false`以禁用该功能。
+ - 若禁用，则模块在检测到设备变砖时就**只会跳过挂载而不会自我禁用**，在排除`target.conf`中的不稳定项目后即可自行重新启动，无需再进入Root管理器重新启用本模块。
+3. **`auto_update_target_list`**：每次启动时是否更新 target.conf 中的项目为预装应用所在路径，默认情况下为`true`(启用)以加快下次系统的启动速度。
  - 如果你不希望`target.conf`被模块自动更新掉，想保留自己添加的注解或者保留未找到的项目，则可以设定为`false`。
-4. ~**`update_desc_on_action`**：在模块被禁用/卸载时更新模块状态描述。是一个没有什么用且会增加消耗的功能，默认`false`(禁用)。~<br>
+4. ~**`update_desc_on_action`**：在模块被禁用/卸载时更新模块状态描述。是一个没有什么用且会增加消耗的功能，默认`false`(禁用)。~
  ~- 如果你希望在点击禁用或卸载按钮后见到提示，那么可以改成`true`启用此功能。~
  - **注意：该功能已于 1.2.8 起被移除**
 5. **`system_app_paths`**: 自定义扫描预装软件所在的系统目录，路径以`/`开头，用空格隔开，例如`system_app_paths=/system/app /system/priv-app`.
