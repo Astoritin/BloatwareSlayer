@@ -126,6 +126,14 @@ preparation() {
         fi
     fi
 
+    if [ "$ROOT_SOL" = "Multiple" ]; then
+        logowl "Detect multiple root solutions!" "WARN"
+        logowl "Using multiple root solutions is NOT a normal and healthy way"
+        logowl "Please keep using one root solution ONLY if no need!"
+        logowl "$MOD_NAME will use mount bind method ONLY for multiple root solutions" "WARN"
+        SLAY_MODE="MB"
+    fi
+
     case "$SLAY_MODE" in
         MB)
             MODE_MOD="Mount Bind"
