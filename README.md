@@ -1,7 +1,7 @@
 简体中文 丨 [English](README_EN.md) <br>
 
 # **干掉预装软件**
- / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
+ 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
 ![Bloatware Slayer](webpage/img/bs_work_allclear.jpg)
 
