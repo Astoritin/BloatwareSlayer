@@ -39,7 +39,6 @@
 ~举个例子：有个APP名为系统服务，但是其目录/文件夹名为AdPushService，其包名为com.android.adpromote~
 2. **至于包名，请阅读 [【已确认不会添加的功能：检测包名 / Detecting packages name is permanently off the table】](https://github.com/Astoritin/Bloatware_Slayer/issues/6#issuecomment-2693035556)**。
 3. 虽然该模块是在 Systemless (不修改系统) 的情况下运行，但是**你始终需要知道并确定自己正在做的事情**，你必须知道自己需要屏蔽掉哪些系统 APP，**而不是照搬别人的列表，出问题了就把责任全部推给本 Magisk 模块**。
-<br>
 
 ## 配置文件
 
@@ -63,16 +62,15 @@
 
 ## 日志
 
-日志被保存在 `/data/adb/bloatwareslayer/logs` ,
-你可以查看它并在反馈遇到的问题时提交该日志<br>
-<details><br>
-<summary>注意</summary>
+日志被保存在 `/data/adb/bloatwareslayer/logs`，你可以查看它并在反馈遇到的问题时提交该日志。
+
+#### 注意
+
 bs_log_core_(时间戳).log 是 Bloatware Slayer 的核心功能相关的日志。<br>
 由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意<br>
 bs_log_brickd_(时间戳).log 是 Bloatware Slayer 的救砖功能检测相关的日志。<br>
 bs_log_action_(时间戳).log 是 Bloatware Slayer 的操作按钮相关的日志。<br>
 反馈问题时，请直接打包整个logs文件夹后上传。
-</details>
 
 ## 救砖
 
