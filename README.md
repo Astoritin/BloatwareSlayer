@@ -1,6 +1,7 @@
 简体中文 丨 [English](README_EN.md) <br>
 
-# **干掉预装软件** / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
+# **干掉预装软件**
+ / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
 ![Bloatware Slayer](webpage/img/bs_work_allclear.jpg)
 
@@ -79,7 +80,7 @@ bs_log_core_(时间戳).log 是 Bloatware Slayer 的核心功能相关的日志�
 由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意<br>
 bs_log_brickd_(时间戳).log 是 Bloatware Slayer 的救砖功能检测相关的日志。<br>
 bs_log_action_(时间戳).log 是 Bloatware Slayer 的操作按钮相关的日志。<br>
-<b>反馈问题时，请直接打包整个logs文件夹后上传。</b>
+反馈问题时，请直接打包整个logs文件夹后上传。
 </details><br>
 
 ## 救砖
@@ -91,32 +92,20 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 
 <details>
 <summary>Q: Bloatware Slayer会破坏我的设备吗？为什么需要救砖手段？</summary>
-首先，Bloatware Slayer 只是使用了 Magisk 和 KernelSU/APatch 内置的办法，<br>
-让这些预装 APP 的文件夹设置为空或者被屏蔽掉，从而使系统不再安装和加载这些软件。<br>
-<b>模块本身并不会直接参与修改系统</b><br>
-<b>一旦禁止或卸载本模块，所有的更改均会被还原</b><br>
-你的系统也不会受到任何损害，正所谓`Systemless（不修改系统）`<br>
+<br>
 
-即使如此，有些 APP 不应该也不能被随意卸载或屏蔽。
-一来是考虑<b>系统稳定性</b>，部分 APP 是必须存在才能维护系统正常的运行秩序的程序，<br>
-比如说设置和系统界面是在正常生产环境的设备中必须存在的 APP。<br>
-不过，<b>这类 APP 数量其实很稀少</b>，可能整整100个系统 APP 中只有20~30个 APP 属于这一类，<br>
-大部分系统 APP 事实上并没有多重要，该动手就动手。<br><br>
-二来，某些品牌厂商（MIUI、Huawei、Google）为了持续收集用户信息<br>
-会在预装软件中安插一大批看起来 “十分合理” 但是细究起来就是广告毒瘤和信息收集的 APP<br>
-(Google Play 服务、Google Assistant、应用商店、SystemHelper、AnalysisCore、Joyose)<br>
-这些 APP 被放在系统内置的白名单内，大部分限制对它们而言无效，
-最关键的一点是，<br><b>一旦系统检测到它们被卸载或不存在，就直接拒绝开机</b><br>
-一直停在开机动画界面或者拒绝提供某些服务。<br><br>
-如果你将某些 APP 加入了 `target.conf` 但是卡在了开机动画甚至是开机第一屏，<br>
-要么这些 APP 是<b>维持系统正常运行秩序所必须的 APP</b>，<br>
-要么是<b>这些 APP 就是所谓的“一卸载就罢工”的 APP</b><br>
-这个时候无论是排除法还是需要进入系统，就需要<b>救砖手段</b>了，以下是一些救砖建议：<br>
+首先，Bloatware Slayer 只是使用了 Magisk 和 KernelSU/APatch 内置的办法，让这些预装 APP 的文件夹设置为空或者被屏蔽掉，从而使系统不再安装和加载这些软件。**模块本身并不会直接参与修改系统，一旦禁止或卸载本模块，所有的更改均会被还原**，你的系统也不会受到任何损害，正所谓`Systemless（不修改系统）`。
 
-1. 对于 <b>Magisk Alpha</b>，当设备<b>两次无法正常进入系统时</b>，<b>在第三次启动就会自动进入安全模式，并禁用所有模块</b>，此时你可以进入并修改 target.conf<br>
-2. 对于 <b>KernelSU / APatch</b>，在开机第一屏到开机动画期间可以<b>连续按下音量减键十次左右（连续按，不是长按）</b>,<br>
+即使如此，有些 APP 不应该也不能被随意卸载或屏蔽。一来是考虑系统稳定性，**部分APP是必须存在才能维护系统正常的运行秩序的APP**——比如说设置和系统界面是在正常生产环境的设备中必须存在的 APP。<br>
+不过，**这类 APP 数量其实很稀少**，可能整整100个系统 APP 中只有20~30个 APP 属于这一类，大部分系统 APP 事实上并没有多重要，该动手就动手。<br><br>
+二来，某些品牌厂商（MIUI、Huawei、Google）为了持续收集用户信息，会在预装软件中安插一大批看起来 “十分合理” 但是细究起来就是广告毒瘤和信息收集的 APP (Google Play 服务、Google Assistant、应用商店、SystemHelper、AnalysisCore、Joyose)，**这些 APP 被放在系统内置的白名单内，大部分限制对它们而言无效，甚至一旦系统检测到它们被卸载或不存在，就直接拒绝开机或者拒绝提供某些服务。**<br><br>
+如果你将某些 APP 加入了 `target.conf` 但是卡在了开机动画甚至是开机第一屏，**要么这些APP是维持系统正常运行秩序所必须的 APP，要么这些APP就是所谓的“一卸载就罢工”的 APP**。<br>
+这个时候无论是排除法还是需要进入系统，就需要救砖手段了，以下是一些救砖建议：<br>
+
+1. 对于 Magisk Alpha，当设备两次无法正常进入系统时，在第三次启动就会自动进入安全模式，并禁用所有模块，此时你可以进入并修改 target.conf<br>
+2. 对于 KernelSU / APatch，在开机第一屏到开机动画期间可以连续按下音量减键十次左右（连续按，不是长按）,<br>
   只要你的设备的 KernelSU 内核将救砖模式的代码编译在内，那么有大概率进入 KernelSU / APatch 的安全模式，所有模块会被禁用<br>
-3. 对于支持第三方 Recovery 的设备，当你使用 Magisk 时，你也可以<b>直接使用这类 Recovery 的模块管理界面，轻松禁用 Bloatware Slayer</b><br>
+3. 对于支持第三方 Recovery 的设备，当你使用 Magisk 时，你也可以直接使用这类 Recovery 的模块管理界面，轻松禁用 Bloatware Slayer<br>
 </details>
 
 ## 经过测试的ROM
@@ -134,6 +123,5 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 
 
 ## 帮助与支持
-
 如果遇到问题，请点击 [此处](https://github.com/Astoritin/BloatwareSlayer/issues) 提交反馈
 欢迎 [Pull Request](https://github.com/Astoritin/BloatwareSlayer/pulls)，让该模块变得更好
