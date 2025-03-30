@@ -28,12 +28,14 @@
 <details open>
 <summary>注意</summary>
 <ol>
-<li>`target.conf` 支持"#"号注释整行，Bloatware Slayer 不会处理被注释掉的行和空行。</li><br>
-<li>你也可以自定义路径，例如：`/system/app/MiVideo/`。</li><br>
-此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。<br><br>
-<li>由于现如今绝大多数设备都是 SAR (System-as-root)，你可能在 AppManager 中看到的资源目录名不是 `/system` 开头 (例如  `/product/app/Scanner`)，为了确保挂载生效，请手动在这类路径前面添加 `/system` ，否则 Bloatware Slayer 会直接忽略该路径</li><br>
-<li>为了节省时间和减少资源消耗，现在`target.conf`会随着每次系统启动自动更新为预装APP对应的系统目录，你可以查阅“配置文件”部分进行了解</li><br>
-<li>若你看到的资源目录以 `/data` 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 `target.conf` 中，因为Bloatware Slayer的处理也不会对这类软件生效</li>
+
+ <li>`target.conf` 支持"#"号注释整行，Bloatware Slayer 不会处理被注释掉的行和空行。</li><br>
+ <li>你也可以自定义路径，例如：`/system/app/MiVideo/`。</li><br>
+ 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。<br><br>
+ <li>由于现如今绝大多数设备都是 SAR (System-as-root)，你可能在 AppManager 中看到的资源目录名不是 `/system` 开头 (例如  `/product/app/Scanner`)，为了确保挂载生效，请手动在这类路径前面添加 `/system` ，否则 Bloatware Slayer 会直接忽略该路径</li><br>
+ <li>为了节省时间和减少资源消耗，现在`target.conf`会随着每次系统启动自动更新为预装APP对应的系统目录，你可以查阅“配置文件”部分进行了解</li><br>
+ <li>若你看到的资源目录以 `/data` 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 `target.conf` 中，因为Bloatware Slayer的处理也不会对这类软件生效</li>
+
 </ol>
 </details><br>
 
