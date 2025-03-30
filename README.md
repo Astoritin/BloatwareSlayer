@@ -1,7 +1,6 @@
 简体中文 丨 [English](README_EN.md) <br>
 
-# 干掉预装软件
-*一个无需修改 system 分区即可移除预装软件的 Magisk 模块*
+# **干掉预装软件** / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
 ![Bloatware Slayer](webpage/img/bs_work_allclear.jpg)
 
@@ -17,8 +16,7 @@
 2. 下载并安装本模块
 3. 为了获得预装软件所在的目录/文件夹，你需要提前做好功课：例如使用 [App Manager](https://github.com/MuntashirAkon/AppManager)，或使用Root Explorer、MiXplorer在 `/system` 处手动寻找并复制预装软件的文件夹名
 4. 打开 `/data/adb/bloatwareslayer/target.conf`，并将你通过步骤3获得的预装软件所在的文件夹名放在上面，**一行一个**
-5. 保存 target.conf 的更改，并重新启动后查看效果<br><br>
-
+5. 保存 target.conf 的更改，并重新启动后查看效果<br>
   你可以在模块描述里看到被该模块屏蔽的APP数 (slain)<br>
   未找到目录的APP数 (missing)<br>
   列表里配置的APP总数 (targeted in total)<br><br>
@@ -34,13 +32,13 @@
 此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。<br><br>
 <li>由于现如今绝大多数设备都是 SAR (System-as-root)，你可能在 AppManager 中看到的资源目录名不是 `/system` 开头 (例如  `/product/app/Scanner`)，为了确保挂载生效，请手动在这类路径前面添加 `/system` ，否则 Bloatware Slayer 会直接忽略该路径</li><br>
 <li>为了节省时间和减少资源消耗，现在`target.conf`会随着每次系统启动自动更新为预装APP对应的系统目录，你可以查阅“配置文件”部分进行了解</li><br>
-<li>若你看到的资源目录以 `/data` 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 `target.conf` 中，因为Bloatware Slayer的处理也不会对这类软件生效</li><br>
+<li>若你看到的资源目录以 `/data` 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 `target.conf` 中，因为Bloatware Slayer的处理也不会对这类软件生效</li>
 </ol>
 </details><br>
 
 <details>
 <summary>Q: 为什么需要我手工复制，而不是模块根据我指定的应用名称或包名自行检测？</summary>
-<br><br>
+<br>
 
 **其一，应用名称和包名并不可靠，依靠这两点查找应用文件夹的效率太低了**。<br>
 对于大多数规范的ROM而言，用除了英文以外的其他语言给系统目录/文件夹命名的概率极低，<br>
