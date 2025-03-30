@@ -116,21 +116,23 @@ preparation() {
             fi
         else
             logowl "Make Node mode needs Magisk 28102+, KernelSU or APatch!" "ERROR"
+            logowl "$MOD_NAME will revert to Mount Bind mode"
             SLAY_MODE="MB"
         fi
     elif [ "$SLAY_MODE" = "MR" ]; then
         if [ -n "$KSU" ] || [ -n "$APATCH" ]; then
             logowl "Magisk Replace mode is NOT available as $MOD_NAME running on KernelSU / APatch!" "ERROR"
             logowl "Please use Magisk if you try to use Magisk Replace mode!"
+            logowl "$MOD_NAME will revert to Make Node mode"
             SLAY_MODE="MN"
         fi
     fi
 
     if [ "$ROOT_SOL" = "Multiple" ]; then
         logowl "Detect multiple root solutions!" "WARN"
-        logowl "Using multiple root solutions is NOT a normal and healthy way"
+        logowl "Using multiple root solutions is NOT a healthy way"
         logowl "Please keep using one root solution ONLY if no need!"
-        logowl "$MOD_NAME will use mount bind method ONLY for multiple root solutions" "WARN"
+        logowl "$MOD_NAME will revert to mount bind mode for multiple root solutions" "WARN"
         SLAY_MODE="MB"
     fi
 
@@ -375,6 +377,6 @@ brick_rescue
 preparation
 bloatware_slayer
 module_status_update
-logowl "Variables before case closed"
-debug_print_values >> "$LOG_FILE"
+# logowl "Variables before case closed"
+# debug_print_values >> "$LOG_FILE"
 logowl "post-fs-data.sh case closed!"
