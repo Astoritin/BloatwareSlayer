@@ -3,15 +3,32 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ### Changelog / 变更日志
 
+### 1.3.0
+
+- Critical logic changes for users running on multiple root solutions
+- 针对使用多 Root 方案的用户的关键逻辑变更
+- Now Bloatware Slayer will use MB (Mount Bind) method FOREVER if detecting multiple root solutions existed
+  as it is too difficult to judge which modules system and root solutions are users using mainly
+- 鉴于在多 Root 方案中，判定用户主要使用的模块系统和 Root 方案过于困难，现在 Bloatware Slayer 在检测到多 Root 方案存在的情况下会永远使用 Mount Bind 方法
+- I think it is NOT the normal behavior to use multiple root solutions in one device at the same time
+  PLEASE use one solution ONLY if no need
+- 我个人认为在一台设备同时使用多个 Root 实现并不属于正常行为，
+  若没有需求，请仅使用一种 Root 实现
+- Optimize the judgement logic for detecting mode
+- 优化检测模式的判断逻辑
+- Remove unnecessary code for debugging
+- 移除不必要的调试代码
+
 ### 1.2.9
 
 - Introduce .replace method for Magisk back
 - 重新为 Magisk 引入 .replace 方法
-- Bloatware Slayer uses mount bind (`MB`) by default, you can switch it into mknod (`MN`) or .replace (`MR`) by adding this line in `/data/adb/bloatwareslayer/settings.conf`: `slay_mode=MN` (MN, make node; MB, mount bind; MR, Magisk replace)
-- 现在Bloatware Slayer默认使用 mount bind方法，你可以通过在 `/data/adb/bloatwareslayer/settings.conf` 配置文件中添加以下条目以手工切换到mknod或者.replace模式: `slay_mode=MN` (MN, mknod; MB, mount bind; MR, Magisk replace)
 - Update module description to support showing the mode of "removing" bloatwares
 - 在模块描述中显示当前“移除”预装软件所用的模式
-- SHA256: `325f4990575484fc0ab37ce313e57749474993160772203c0e695f963fdf3071`
+- Bloatware Slayer uses mount bind (`MB`) by default, you can switch it into mknod (`MN`) or .replace (`MR`) by adding this line in `/data/adb/bloatwareslayer/settings.conf`: `slay_mode=MN` (MN, make node; MB, mount bind; MR, Magisk replace)
+- 现在Bloatware Slayer默认使用 mount bind方法，你可以通过在 `/data/adb/bloatwareslayer/settings.conf` 配置文件中添加以下条目以手工切换到mknod或者.replace模式: `slay_mode=MN` (MN, mknod; MB, mount bind; MR, Magisk replace)
+- Update module description display
+- 更新模块描述显示
 
 ### 1.2.8
 
@@ -29,50 +46,13 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 - 修复一些逻辑漏洞问题
 - SHA256: `006fa5a9875e62b1343ef7cd8f80cc25d2ada94c19d91fc795f78d91c4690ddb`
 
-### 关于 WebUI 支持的说明：暂不考虑。
-
-原因如下：
-其一，我自己用不到，付出与回报不成正比。
-Bloatware Slayer 是我写来自用的模块，而我的主要设备用的都是 Magisk Alpha。
-也就是说，除非使用 KsuWebUI APP，我没有什么机会用到 WebUI。
-为了这么个我用不到的功能添加 WebUI 恕我真的不能接受；
-
-其二，模块会变得过于臃肿，我自己也觉得 WebUI 目前也只是一种炫技，而 Bloatware Slayer 自身变成 Bloatware 一样的东西真的很地狱笑话。
-原本 Magisk 模块大小还算适中 (15KB)，加入 WebUI 后，为了在离线状态下也能无间断加载页面，必须把部分资源也一同导入到模块内。
-而加了那些离线资源，模块的 zip 文件大小变成 116KB。可想而知，在解压过后只会更得更大；
-
-其三，WebUI 的引入带来了更多的问题。
-为了防止被各类软件轻易检测到 Bloatware Slayer 的存在，Bloatware Slayer 的配置文件一直都放在 `/data/adb/bloatwareslayer/`
-这个目录在安卓系统没有相关漏洞的前提下，无 Root 权限+ SELinux 强制执行的普通 APP 是无法访问的。
-前端的特性注定前端的原生 API 无法访问即使是安卓世界中都要以 root 的身份才能访问的目录，
-也就是说要想这么做必须用 KernelSU 提供的 API (具体来说就是 ksu.exec )。这既带来了便利，也带来了一定的安全问题和维护难度。
-目前 Bloatware Slayer 尚不稳定，我实在是不想再开放一个潜在的需要维护的入口。
-
-### Note on WebUI Support: Not considered for now.
-
-The reasons are as follows:
-
-1. I don't need it personally, while the effort-to-reward ratio isn't right.<br>
-Bloatware Slayer is a self-use module, as my main devices use Magisk Alpha.<br>
-I have little chance to use WebUI unless I use the KsuWebUI APP, and I can't accept maintaining a feature I won't use.<br><br>
-2. The module would become too bloated. WebUI is currently just a showy feature.<br>
-It would be ironic if Bloatware Slayer became like bloatware.<br>
-The original Magisk module size was moderate (15KB).<br>
-Adding WebUI requires importing resources for offline use, making the zip file 116KB.<br>
-It would be even larger when unzipped.<br><br>
-3. WebUI brings more issues.<br>
-Bloatware Slayer's config files are in `/data/adb/bloatwareslayer/` to avoid easy detection.<br>
-Normal apps can't access this directory without Root and SELinux permissive mode, even the front-end native APIs.<br>
-Using KernelSU's API (ksu.exec) brings convenience, but also security risks and maintenance challenges.<br>
-Bloatware Slayer is unstable still, I don't want to open another potential maintenance entry and I feel so sorry for any inconvenience.<br>
-
 ### 1.2.7
 
 - Add action.sh as shortcut to open the config directory with root file managers
 - 新增 `action.sh` 以便于快捷用 `Root` 文件相关的管理器打开配置文件目录
 - Add old version migration feature in flashing / installing process to clean the remnant files by old versions
 - 在安装过程中增加旧版本迁移功能以对部分旧版本残留文件进行清理
-- SHA256: `698ab12d45d18ff4ea1cb1b4cddedf5b7c6b209fe465adeecf01b562ff143fbf`
+- SHA256: `4f5ddf7f473df4f4acc44eb9b1e141ce5f867de6008e6d39c73e17acad19b9af`
 
 ### 1.2.6
 
@@ -235,3 +215,38 @@ Bloatware Slayer is unstable still, I don't want to open another potential maint
 ### 1.0.0
 - Initial build / the first page
   第一页
+
+### WebUI 功能说明
+
+关于 WebUI 支持的说明：暂不考虑。原因如下：
+
+其一，我自己用不到，付出与回报不成正比。
+Bloatware Slayer 是我写来自用的模块，而我的主要设备用的都是 Magisk Alpha。
+也就是说，除非使用 KsuWebUI APP，我没有什么机会用到 WebUI。
+为了这么个我用不到的功能添加 WebUI 恕我真的不能接受；
+
+其二，模块会变得过于臃肿，我自己也觉得 WebUI 目前也只是一种炫技，而 Bloatware Slayer 自身变成 Bloatware 一样的东西真的很地狱笑话。
+原本 Magisk 模块大小还算适中 (15KB)，加入 WebUI 后，为了在离线状态下也能无间断加载页面，必须把部分资源也一同导入到模块内。
+而加了那些离线资源，模块的 zip 文件大小变成 116KB。可想而知，在解压过后只会更得更大；
+
+其三，WebUI 的引入带来了更多的问题。
+为了防止被各类软件轻易检测到 Bloatware Slayer 的存在，Bloatware Slayer 的配置文件一直都放在 `/data/adb/bloatwareslayer/`
+在安卓没有相关漏洞的前提下，这个目录在无 Root 权限+ SELinux 强制执行的情况下，普通 APP 是无法访问的。
+前端的特性注定前端的原生 API 无法访问即使是安卓世界中都要以 root 的身份才能访问的目录，
+也就是说要想这么做必须用 KernelSU 提供的 API (具体来说就是 ksu.exec )。这既带来了便利，也带来了一定的安全问题和维护难度。
+目前 Bloatware Slayer 尚不稳定，我实在是不想再开放一个潜在的需要维护的入口。
+
+Note on WebUI Support: Not considered for now. The reasons are as follows:
+1. I don't need it personally, while the effort-to-reward ratio isn't right.<br>
+Bloatware Slayer is a self-use module, as my main devices use Magisk Alpha.<br>
+I have little chance to use WebUI unless I use the KsuWebUI APP, and I can't accept maintaining a feature I won't use.<br><br>
+2. The module would become too bloated. WebUI is currently just a showy feature.<br>
+It would be ironic if Bloatware Slayer became like bloatware.<br>
+The original Magisk module size was moderate (15KB).<br>
+Adding WebUI requires importing resources for offline use, making the zip file 116KB.<br>
+It would be even larger when unzipped.<br><br>
+3. WebUI brings more issues.<br>
+Bloatware Slayer's config files are in `/data/adb/bloatwareslayer/` to avoid easy detection.<br>
+Normal apps can't access this directory without Root and SELinux permissive mode, even the front-end native APIs.<br>
+Using KernelSU's API (ksu.exec) brings convenience, but also security risks and maintenance challenges.<br>
+Bloatware Slayer is unstable still, I don't want to open another potential maintenance entry and I feel so sorry for any inconvenience.<br>
