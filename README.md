@@ -47,20 +47,20 @@
 自 v1.2.1 起， Bloatware Slayer 支持手动启用或禁用以下功能，如有需求请打开配置文件`/data/adb/bloatwareslayer/settings.conf`查看并修改。
 
 1. **`brick_timeout`**：设定判断设备变砖的时限(Timeout)，要求正整数，以秒为单位。
- - 如果不在`settings.conf`中指定，则默认值是`300`秒(5分钟)，`settings.conf`内的默认值为180秒(3分钟)。
+ 如果不在`settings.conf`中指定，则默认值是`300`秒(5分钟)，`settings.conf`内的默认值为180秒(3分钟)。
 2. **`disable_module_as_brick`**：设定是否在触发设备变砖时自动禁用该模块。默认情况下为`true`(启用)，你也可以设置为`false`以禁用该功能。
- - 若禁用，则模块在检测到设备变砖时就**只会跳过挂载而不会自我禁用**，在排除`target.conf`中的不稳定项目后即可自行重新启动，无需再进入Root管理器重新启用本模块。
+ 若禁用，则模块在检测到设备变砖时就**只会跳过挂载而不会自我禁用**，在排除`target.conf`中的不稳定项目后即可自行重新启动，无需再进入Root管理器重新启用本模块。
 3. **`auto_update_target_list`**：每次启动时是否更新 target.conf 中的项目为预装应用所在路径，默认情况下为`true`(启用)以加快下次系统的启动速度。
- - 如果你不希望`target.conf`被模块自动更新掉，想保留自己添加的注解或者保留未找到的项目，则可以设定为`false`。
+ 如果你不希望`target.conf`被模块自动更新掉，想保留自己添加的注解或者保留未找到的项目，则可以设定为`false`。
 4. ~**`update_desc_on_action`**：在模块被禁用/卸载时更新模块状态描述。是一个没有什么用且会增加消耗的功能，默认`false`(禁用)。~
- ~- 如果你希望在点击禁用或卸载按钮后见到提示，那么可以改成`true`启用此功能。~
- - **注意：该功能已于 1.2.8 起被移除**
+ ~ 如果你希望在点击禁用或卸载按钮后见到提示，那么可以改成`true`启用此功能。~
+ **注意：该功能已于 1.2.8 起被移除**
 5. **`system_app_paths`**: 自定义扫描预装软件所在的系统目录，路径以`/`开头，用空格隔开，例如`system_app_paths=/system/app /system/priv-app`.
 6. **`slay_mode`**: Bloatware Slayer 屏蔽预装软件的方式。
  `MB (Mount Bind)`, 是在绝大多数ROM内的各种Root方案通用的方法。
  `MR (Magisk Replace)`, 是 Magisk 专用的方法。
  `MN (Make Mode)`, 是 Magisk 28102+、KernelSU 和 APatch 可用的方法。
-- 在`settings.conf`中，默认值为 `MB` (Mount Bind)，因为该方案兼容性最高——只不过不利于 Root 隐藏。如有需求，可手工切换到对 Root 隐藏更友好的 MR 模式或者 MN 模式。
+ 在`settings.conf`中，默认值为 `MB` (Mount Bind)，因为该方案兼容性最高——只不过不利于 Root 隐藏。如有需求，可手工切换到对 Root 隐藏更友好的 MR 模式或者 MN 模式。
 
 ## 日志
 
@@ -102,16 +102,16 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 
 ## 经过测试的ROM
 1. 小米澎湃系统2.0.105.0，安卓15，设备：红米 Note 9 Pro 5G 8+256GB (设备代号gauguin，移植系统)
-- Root：Magisk Alpha 28102
+ Root：Magisk Alpha 28102
 2. 小米MIUI12.5.4，安卓10，设备：红米 Note 7 Pro 6+128GB (设备代号violet，原厂系统)
-- Root：Magisk Alpha 28102
+ Root：Magisk Alpha 28102
 3. DroidUI-X，安卓14，设备：红米 Note 7 Pro 6+128GB (设备代号violet，类原生系统)
-- Root: KernelSU with Magic Mount 1.0.3
-- Root: KernelSU with OverlayFS 0.9.5
+ Root: KernelSU with Magic Mount 1.0.3
+ Root: KernelSU with OverlayFS 0.9.5
 4. Flyme 8.0.5.0A, 安卓7.1.2, 设备: 魅蓝 Note 6 4+64GB (设备代号m1721, 原厂系统)
-- Root: Magisk Lite 25205
+ Root: Magisk Lite 25205
 5. Derpfest 15.1 Stable，安卓15，设备：红米 Note 7 Pro 6+128GB (设备代号violet，类原生系统)
-- Root: Magisk Alpha 28103
+ Root: Magisk Alpha 28103
 
 
 ## 帮助与支持
