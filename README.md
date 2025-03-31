@@ -10,7 +10,7 @@
 
 ## 详细信息
 
-该 Magisk 模块通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以 Systemless 的方式删除预装软件，以下是大概的使用步骤：
+该 Magisk 模块通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以 Systemless 的方式删除预装软件，以下是大致的使用步骤：
 
 1. 安装 Magisk / KernelSU / APatch
 2. 下载并安装本模块
