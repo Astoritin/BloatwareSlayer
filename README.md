@@ -56,7 +56,7 @@
 6. **`slay_mode`**: Bloatware Slayer 屏蔽预装软件的方式。<br>
 `MB (Mount Bind)`, 是在绝大多数ROM内的各种Root方案通用的方法。<br>
 `MR (Magisk Replace)`, 是 Magisk 专用的方法。<br>
-`MN (Make Mode)`, 是 Magisk 28102+、KernelSU 和 APatch 可用的方法。<br>
+`MN (Make Node)`, 是 Magisk 28102+、KernelSU 和 APatch 可用的方法。<br><br>
 在`settings.conf`中，默认值为 `MB` (Mount Bind)，因为该方案兼容性最高——只不过不利于 Root 隐藏。如有需求，可手工切换到对 Root 隐藏更友好的 MR 模式或者 MN 模式。
 
 ## 日志
