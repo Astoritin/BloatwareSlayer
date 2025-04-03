@@ -1,6 +1,6 @@
 English | [简体中文](README_ZH-SC.md)
 
-# **干掉预装软件**
+# **Bloatware Slayer**
 
 A Magisk module to remove bloatware in systemlessly way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
@@ -10,7 +10,7 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 [Magisk](https://github.com/topjohnwu/Magisk) (Recommended!) 丨 [KernelSU](https://github.com/tiann/KernelSU) (Recommended!) 丨 [APatch](https://github.com/bmax121/APatch) (Not test yet)
 
-## 详细信息
+## Details
 
 Bloatware Slayer removes bloatwares in systemless way, using specific mount methods from Magisk, KernelSU and APatch. Below are the steps:
 
@@ -26,7 +26,7 @@ You can see the information of blocked APPs (slain), APPs not found (missing) an
 
 For example, I need to uninstall XiaoAi Voice Assistant, so I will get the folder XiaoAi Voice Assistant located in by AppManager and soon get its name `VoiceAssistAndroidT`, then copy `VoiceAssistAndroidT` and add it into `target.conf` , save the changes and reboot my device.
 
-## 注意
+## NOTICE
 
 1. `target.conf` supports commenting out entire lines with the "#" symbol. Bloatware Slayer will ignore commented lines and empty lines.
 2. Bloatware Slayer supports custom paths, for example: `/system/app/MiVideo`. In this case, Bloatware Slayer will directly process the custom path without scanning other system folders.
@@ -34,54 +34,82 @@ For example, I need to uninstall XiaoAi Voice Assistant, so I will get the folde
 4. To save the time and reduce the cost of resources, now Bloatware Slayer will update the items of `target.conf` into the system path bloatwares located in automatically in each time booting. You can read the chapter `Config File` to know.
 5. If the resource directory starts with `/data`, it means the app was installed as first booting after the initial of ROM setup. You can uninstall it manually and should NOT add it to `target.conf`, as Bloatware Slayer's processing will not affect such apps.
 
-#### Q: 为什么需要我手工复制，而不是模块根据我指定的应用名称或包名自行检测？
+### Q: Why do I need to manually copy the folder names instead of letting the module detect the system directories based on the app names or package names?
 
-1. **应用名称和包名并不可靠，依靠这两点查找应用文件夹的效率太低了**。
-对于大多数规范的ROM而言，用除了英文以外的其他语言给系统目录/文件夹命名的概率极低，甚至有不少应用的应用名称跟其所在的系统目录/文件夹名没有任何关系（无论是ROM提供商的疏忽和学艺不精导致的命名细节不规范，还是为了隐藏自己收集用户信息安插的眼线APP的阴暗心思而故意不规范命名）。如果一定要这么匹配，且不说需要大量的数据统计，即使如此，误判率也还是很高。
-*举个例子：有个APP名为系统服务，但是其目录/文件夹名为AdPushService，其包名为com.android.adpromote*
-2. **至于包名，请阅读 [【已确认不会添加的功能：检测包名 / Detecting packages name is permanently off the table】](https://github.com/Astoritin/Bloatware_Slayer/issues/6#issuecomment-2693035556)**。
-3. 虽然该模块是在 Systemless (不修改系统) 的情况下运行，但是**你始终需要知道并确定自己正在做的事情**，你必须知道自己需要屏蔽掉哪些系统 APP，**而不是照搬别人的列表，出问题了就把责任全部推给本 Magisk 模块**。
+1. **Firstly, the APP name and package name are not reliable, and relying on these two factors to locate the APP folder is extremely inefficient.**
+For most standardized ROMs, the probability of using languages other than English to name system directories/folders is extremely low.  
+Moreover, there are quite a few APPs whose APP names have no relation to their system directory/folder names (whether due to the ROM provider's carelessness and lack of proficiency leading to non-standard naming details, or the sinister intentions of some apps that deliberately use non-standard naming to hide their user data collection activities). If one insists on matching them in this way, not only would a large amount of data analysis be required, but the error rate would still be quite high.  
 
-## 配置文件
+*For example, there is an app named "System Service," but its directory/folder name is "AdPushService," and its package name is "com.android.adpromote."*  
 
-自 v1.2.1 起， Bloatware Slayer 支持手动启用或禁用以下功能，如有需求请打开配置文件`/data/adb/bloatwareslayer/settings.conf`查看并修改。
+2. Regarding package names, please refer to [**"Confirmed feature that will not be added: Detecting package names is permanently off the table"**](https://github.com/Astoritin/Bloatware_Slayer/issues/6#issuecomment-2693035556).  
 
-1. **`brick_timeout`**：设定判断设备变砖的时限(Timeout)，要求正整数，以秒为单位。
-如果不在`settings.conf`中指定，则默认值是`300`秒(5分钟)，`settings.conf`内的默认值为180秒(3分钟)。
-2. **`disable_module_as_brick`**：设定是否在触发设备变砖时自动禁用该模块。默认情况下为`true`(启用)，你也可以设置为`false`以禁用该功能。
-若禁用，则模块在检测到设备变砖时就**只会跳过挂载而不会自我禁用**，在排除`target.conf`中的不稳定项目后即可自行重新启动，无需再进入Root管理器重新启用本模块。
-3. **`auto_update_target_list`**：每次启动时是否更新 target.conf 中的项目为预装应用所在路径，默认情况下为`true`(启用)以加快下次系统的启动速度。
-如果你不希望`target.conf`被模块自动更新掉，想保留自己添加的注解或者保留未找到的项目，则可以设定为`false`。
-4. ~**`update_desc_on_action`**：在模块被禁用/卸载时更新模块状态描述。是一个没有什么用且会增加消耗的功能，默认`false`(禁用)。~
-~如果你希望在点击禁用或卸载按钮后见到提示，那么可以改成`true`启用此功能。~
-**注意：该功能已于 1.2.8 起被移除**
-5. **`system_app_paths`**: 自定义扫描预装软件所在的系统目录，路径以`/`开头，用空格隔开，例如`system_app_paths=/system/app /system/priv-app`。
-6. **`slay_mode`**: Bloatware Slayer 屏蔽预装软件的方式。
-`MB (Mount Bind)`, 是在绝大多数ROM内的各种Root方案通用的方法。
-`MR (Magisk Replace)`, 是 Magisk 专用的方法。
-`MN (Make Node)`, 是 Magisk 28102+、KernelSU 和 APatch 可用的方法。
+3. **Besides, although this module operates in a Systemless (non-system-modifying) manner, you must always know and be certain of what you are doing.** You need to know which system apps you should disable, **instead of blindly copying someone else's list and then shifting all the blame to this Magisk module when problems arise.**
 
 
-在`settings.conf`中，默认值为 `MB` (Mount Bind)，因为该方案兼容性最高——只不过不利于 Root 隐藏。如有需求，可手工切换到对 Root 隐藏更友好的 MR 模式或者 MN 模式。
+## Configuration File
 
-## 日志
+Starting from version v1.2.1, Bloatware Slayer supports manually enabling or disabling the following features. Please open the configuration file `/data/adb/bloatwareslayer/settings.conf` to view and modify the settings if needed. If not specified in the `settings.conf` file, the default value is `300` seconds (5 minutes). However, the default value within the `settings.conf` file is `180` seconds (3 minutes).
 
-日志被保存在 `/data/adb/bloatwareslayer/logs`，你可以查看它并在反馈遇到的问题时提交该日志。
+1. **`brick_timeout`**: Sets the timeout for determining if the device has bricked. It requires a positive integer, measured in seconds. The default value is `300` seconds (5 minutes).
+If it is not set in `settings.conf`, the default value is `300 seconds (5 minutes)`, the default value in `settings.conf` is `180 seconds (3 minutes)`.
 
-#### 注意
+2. **`disable_module_as_brick`**: Determines whether the module should automatically disable itself when the device is detected as bricked. By default, it is set to `true` (enabled), but you can set it to `false` to disable this feature.  
+When enabled, the module will disable itself to prevent further issues. If you set it to `false`, the module will only skip mounting without disabling itself. This allows you to troubleshoot and reboot the system after removing unstable items from `target.conf`, without needing to re-enable the module via Root manager manually.
 
-bs_log_core_(时间戳).log 是 Bloatware Slayer 的核心功能相关的日志。
-由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意
-bs_log_brickd_(时间戳).log 是 Bloatware Slayer 的救砖功能检测相关的日志。
-bs_log_action_(时间戳).log 是 Bloatware Slayer 的操作按钮相关的日志。
-反馈问题时，请直接打包整个logs文件夹后上传。
+3. **`auto_update_target_list`**: Control the behavior whether to update the items in `target.conf` to the paths of bloatwares apps during each startup. By default, it is set to `true` (enabled) to speed up system startup.
+If you prefer to keep your custom comments or retain items in `target.conf` that were not found by the module, you can set this to `false`.
 
-## 救砖
+4. ~~**`update_desc_on_action`**: Updates the module status description when the module is disabled or uninstalled. This is a mostly useless feature that increases resource consumption and is disabled(`false`) by default.~~
+~~If you want to see a prompt when you click the disable or uninstall button, you can set this to `true` to enable the feature.~~
+**NOTICE: This feature has been removed since 1.2.8**
 
-Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会自动禁用模块的挂载功能并自动重启
-重启后，你会在模块状态上看见相应信息，请自行调整 `target.conf` ，删除不该被禁用的项目后重新启动
-默认的等待时长是300秒（5分钟），也就是说 Bloatware Slayer 会在等待5分钟后自我禁用并重新启动。
-若你的系统正在更新，请临时禁用或卸载该模块，之后再安装。
+5. **`system_app_paths`**: Support customizing the scan of system directories the bloatware located in. Paths starts with `/` and separated by spaces, for example: `system_app_paths=/system/app /system/priv-app`.
+
+6. **`slay_mode`**: the method of Bloatware Slayer blocking bloatwares.
+`MB (Mount Bind)`, a method that is generally applicable to various Root solutions in most ROMs.  
+`MR (Magisk Replace)`, a method specific to Magisk.  
+`MN (Make Node)`, a method available for Magisk 28102+、KernelSU, and APatch.
+
+In `settings.conf`, the default value of Bloatware Slayer is `MB` (Mount Bind), since the method has the highest compatibility——even though it is not so good in Root hiding. You may switch into MR mode or MN mode manually if needed, which is more friendly for Root hiding.
+
+## Logs
+
+Logs are saved in `/data/adb/bloatwareslayer/logs`, you can review them and submit them when reporting issues. 
+
+### Notice
+
+`bs_log_core_(timestamp).log` is the logs about core features of Bloatware Slayer. 
+Since the system is not fully initialized at this stage, the date you see might appear very strange. Please do not be concerned.
+`bs_log_bricked_(timestamp).log` is the logs about unbrick detection feature of Bloatware Slayer.
+`bs_log_action_(timestamp).log` is the logs about action button of Bloatware Slayer.
+**When reporting issues, please simply zip the entire logs folder and upload it.**
+
+## Unbrick
+
+Bloatware Slayer has a built-in brick recovery method. If the device takes too long to boot, it will automatically disable the module's mounting functionality and reboot.
+After rebooting, you will see a message in the module status.
+Please adjust `target.conf` by removing entries that should not be disabled and reboot again.
+The default wait time is 300 seconds (5 minutes), meaning Bloatware Slayer will disable itself and reboot after waiting for 5 minutes.If your system is updating, temporarily disable or uninstall this module and reinstall it later is recommended.
+
+### Q: Will Bloatware Slayer damage my device? Why need to learn unbrick skills?
+
+, Bloatware Slayer only uses the built-in methods of Magisk and KernelSU/APatch to make the folders of pre-installed apps empty or invisible, preventing the system from installing and loading these apps. **The module itself does not directly modify the system**. Once you disable or uninstall this module, all changes will be reverted, and your system will not be damaged. This is the essence of being "systemless (no system modification)"
+However, some apps should not be uninstalled or blocked casually.
+
+Firstly, **considering system stability, Some apps are essential for maintaining normal system operations**, such as Settings and System UI.
+
+Fortunately, **only a small number of system apps fall into this category**. Perhaps only 20~30 out of 100 system apps.
+
+Secondly, some manufacturers (e.g.MIUI, Huawei, Google) include a large number of apps that appear "reasonable" but are essentially adware and data collection tools.
+These apps are placed on a system whitelist, and most restrictions do not apply to them. The critical issue is that **the system may refuse to boot if these apps are uninstalled or missing**.It may get stuck on the boot animation or fail to provide certain services.
+If you add certain apps to `target.conf` and the device gets stuck on the boot animation or the first boot screen, it means either these apps are essential for maintaining normal system operations or they are the "uninstall-and-break" type of apps.In such cases, you need to use the brick recovery method. Here are some suggestions:
+
+1. For **Magisk Alpha**, if the device fails to boot normally twice, it will enter safe mode and disable all modules on the third boot. You can then modify `target.conf`.
+2. For **KernelSU/APatch**, during the boot process from the first screen to the boot animation, you can press the volume-down button about ten times consecutively (not long-press). If your device's KernelSU kernel includes the brick recovery code, it will likely enter safe mode and disable all modules.
+3. For devices that support third-party Recovery, you can use the Recovery's module management interface to easily disable Bloatware Slayer when using Magisk.
+</details>
+
 
 #### Q: Bloatware Slayer会破坏我的设备吗？为什么需要救砖手段？
 
