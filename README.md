@@ -34,7 +34,7 @@ For example, I need to uninstall XiaoAi Voice Assistant, so I will get the folde
 4. To save the time and reduce the cost of resources, now Bloatware Slayer will update the items of `target.conf` into the system path bloatwares located in automatically in each time booting. You can read the chapter `Config File` to know.
 5. If the resource directory starts with `/data`, it means the app was installed as first booting after the initial of ROM setup. You can uninstall it manually and should NOT add it to `target.conf`, as Bloatware Slayer's processing will not affect such apps.
 
-#### Q: Why do I need to manually copy the folder names instead of letting the module detect the system directories based on the app names or package names?
+### Q: Why do I need to manually copy the folder names instead of letting the module detect the system directories based on the app names or package names?
 
 1. **Firstly, the APP name and package name are not reliable, and relying on these two factors to locate the APP folder is extremely inefficient.**
 For most standardized ROMs, the probability of using languages other than English to name system directories/folders is extremely low.  
@@ -77,7 +77,7 @@ In `settings.conf`, the default value of Bloatware Slayer is `MB` (Mount Bind), 
 
 Logs are saved in `/data/adb/bloatwareslayer/logs`, you can review them and submit them when reporting issues. 
 
-#### Notice
+### Notice
 
 `bs_log_core_(timestamp).log` is the logs about core features of Bloatware Slayer. 
 Since the system is not fully initialized at this stage, the date you see might appear very strange. Please do not be concerned.
@@ -92,7 +92,7 @@ After rebooting, you will see a message in the module status.
 Please adjust `target.conf` by removing entries that should not be disabled and reboot again.
 The default wait time is 300 seconds (5 minutes), meaning Bloatware Slayer will disable itself and reboot after waiting for 5 minutes.If your system is updating, temporarily disable or uninstall this module and reinstall it later is recommended.
 
-#### Q: Will Bloatware Slayer damage my device? Why need to learn unbrick skills?
+### Q: Will Bloatware Slayer damage my device? Why need to learn unbrick skills?
 
 Primarily, Bloatware Slayer only uses the built-in methods of Magisk and KernelSU/APatch to make the folders of pre-installed apps empty or invisible, preventing the system from installing and loading these apps. **The module itself does not directly modify the system. Once you disable or uninstall this module, all changes will be reverted**, and your system will not be damaged. This is the essence of being "systemless (no system modification)".
 
