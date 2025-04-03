@@ -71,13 +71,14 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 
 日志被保存在 `/data/adb/bloatwareslayer/logs`，你可以查看它并在反馈遇到的问题时提交该日志。
 
-#### 注意
+### 注意
 
-bs_log_core_(时间戳).log 是 Bloatware Slayer 的核心功能相关的日志。
+`bs_log_core_(时间戳).log` 是 Bloatware Slayer 的核心功能相关的日志。
 由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意
-bs_log_brickd_(时间戳).log 是 Bloatware Slayer 的救砖功能检测相关的日志。
-bs_log_action_(时间戳).log 是 Bloatware Slayer 的操作按钮相关的日志。
-反馈问题时，请直接打包整个logs文件夹后上传。
+`bs_log_brickd_(时间戳).log` 是 Bloatware Slayer 的救砖功能检测相关的日志。
+`bs_log_action_(时间戳).log` 是 Bloatware Slayer 的操作按钮相关的日志。
+
+**反馈问题时，请直接打包整个logs文件夹后上传。**
 
 ## 救砖
 
@@ -86,7 +87,7 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 默认的等待时长是300秒（5分钟），也就是说 Bloatware Slayer 会在等待5分钟后自我禁用并重新启动。
 若你的系统正在更新，请临时禁用或卸载该模块，之后再安装。
 
-#### Q: Bloatware Slayer会破坏我的设备吗？为什么需要救砖手段？
+### Q: Bloatware Slayer 会破坏我的设备吗？为什么需要救砖手段？
 
 首先，Bloatware Slayer 只是使用了 Magisk 和 KernelSU/APatch 内置的办法，让这些预装 APP 的文件夹设置为空或者被屏蔽掉，从而使系统不再安装和加载这些软件。**模块本身并不会直接修改系统，一旦禁止或卸载本模块，所有的更改均会被还原**，你的系统也不会受到任何损害，正所谓`Systemless（不修改系统）`。
 
@@ -105,6 +106,7 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 3. 对于支持第三方 Recovery 的设备，当你使用 Magisk 时，你也可以直接使用这类 Recovery 的模块管理界面，轻松禁用 Bloatware Slayer。
 
 ## 经过测试的ROM
+
 1. 小米澎湃系统2.0.105.0，安卓15，设备：红米 Note 9 Pro 5G 8+256GB (设备代号gauguin，移植系统)
 - Root：Magisk Alpha 28102
 2. 小米MIUI12.5.4，安卓10，设备：红米 Note 7 Pro 6+128GB (设备代号violet，原厂系统)
@@ -118,5 +120,6 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 - Root: Magisk Alpha 28103
 
 ## 帮助与支持
+
 如果遇到问题，请点击 [此处](https://github.com/Astoritin/BloatwareSlayer/issues) 提交反馈
 欢迎 [提交代码](https://github.com/Astoritin/BloatwareSlayer/pulls)，让该模块变得更好
