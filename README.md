@@ -1,6 +1,6 @@
 English | [简体中文](README_ZH-SC.md)
 
-# **Bloatware Slayer**
+# **Bloatware Slayer / 干掉预装软件**
 
 A Magisk module to remove bloatware in systemlessly way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
@@ -94,21 +94,20 @@ The default wait time is 300 seconds (5 minutes), meaning Bloatware Slayer will 
 
 ### Q: Will Bloatware Slayer damage my device? Why need to learn unbrick skills?
 
-, Bloatware Slayer only uses the built-in methods of Magisk and KernelSU/APatch to make the folders of pre-installed apps empty or invisible, preventing the system from installing and loading these apps. **The module itself does not directly modify the system**. Once you disable or uninstall this module, all changes will be reverted, and your system will not be damaged. This is the essence of being "systemless (no system modification)"
-However, some apps should not be uninstalled or blocked casually.
+Primarily, Bloatware Slayer only uses the built-in methods of Magisk and KernelSU/APatch to make the folders of pre-installed apps empty or invisible, preventing the system from installing and loading these apps. **The module itself does not directly modify the system. Once you disable or uninstall this module, all changes will be reverted**, and your system will not be damaged. This is the essence of being "systemless (no system modification)".
 
-Firstly, **considering system stability, Some apps are essential for maintaining normal system operations**, such as Settings and System UI.
+However, some apps should not be uninstalled or blocked casually. In the first place, **considering system stability, Some apps are essential for maintaining normal system operations**, such as Settings and System UI.
 
 Fortunately, **only a small number of system apps fall into this category**. Perhaps only 20~30 out of 100 system apps.
 
 Secondly, some manufacturers (e.g.MIUI, Huawei, Google) include a large number of apps that appear "reasonable" but are essentially adware and data collection tools.
-These apps are placed on a system whitelist, and most restrictions do not apply to them. The critical issue is that **the system may refuse to boot if these apps are uninstalled or missing**.It may get stuck on the boot animation or fail to provide certain services.
+These apps are placed on a system whitelist, and most restrictions do not apply to them. The critical issue is that **the system may refuse to boot if these apps are uninstalled or missing**.It may get stuck on the boot animation or refuse providing certain services.
+
 If you add certain apps to `target.conf` and the device gets stuck on the boot animation or the first boot screen, it means either these apps are essential for maintaining normal system operations or they are the "uninstall-and-break" type of apps.In such cases, you need to use the brick recovery method. Here are some suggestions:
 
 1. For **Magisk Alpha**, if the device fails to boot normally twice, it will enter safe mode and disable all modules on the third boot. You can then modify `target.conf`.
 2. For **KernelSU/APatch**, during the boot process from the first screen to the boot animation, you can press the volume-down button about ten times consecutively (not long-press). If your device's KernelSU kernel includes the brick recovery code, it will likely enter safe mode and disable all modules.
 3. For devices that support third-party Recovery, you can use the Recovery's module management interface to easily disable Bloatware Slayer when using Magisk.
-</details>
 
 
 #### Q: Bloatware Slayer会破坏我的设备吗？为什么需要救砖手段？
