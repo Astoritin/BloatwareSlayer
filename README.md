@@ -51,27 +51,27 @@ Moreover, there are quite a few APPs whose APP names have no relation to their s
 
 Starting from version v1.2.1, Bloatware Slayer supports manually enabling or disabling the following features. Please open the configuration file `/data/adb/bloatwareslayer/settings.conf` to view and modify the settings if needed. If not specified in the `settings.conf` file, the default value is `300` seconds (5 minutes). However, the default value within the `settings.conf` file is `180` seconds (3 minutes).
 
-1. **`brick_timeout`**: Sets the timeout for determining if the device has bricked. It requires a positive integer, measured in seconds. The default value is `300` seconds (5 minutes).
-If it is not set in `settings.conf`, the default value is `300 seconds (5 minutes)`, the default value in `settings.conf` is `180 seconds (3 minutes)`.
-
-2. **`disable_module_as_brick`**: Determines whether the module should automatically disable itself when the device is detected as bricked. By default, it is set to `true` (enabled), but you can set it to `false` to disable this feature.  
-When enabled, the module will disable itself to prevent further issues. If you set it to `false`, the module will only skip mounting without disabling itself. This allows you to troubleshoot and reboot the system after removing unstable items from `target.conf`, without needing to re-enable the module via Root manager manually.
-
-3. **`auto_update_target_list`**: Control the behavior whether to update the items in `target.conf` to the paths of bloatwares apps during each startup. By default, it is set to `true` (enabled) to speed up system startup.
-If you prefer to keep your custom comments or retain items in `target.conf` that were not found by the module, you can set this to `false`.
-
-4. ~~**`update_desc_on_action`**: Updates the module status description when the module is disabled or uninstalled. This is a mostly useless feature that increases resource consumption and is disabled(`false`) by default.~~
-~~If you want to see a prompt when you click the disable or uninstall button, you can set this to `true` to enable the feature.~~
-**NOTICE: This feature has been removed since 1.2.8**
-
-5. **`system_app_paths`**: Support customizing the scan of system directories the bloatware located in. Paths starts with `/` and separated by spaces, for example: `system_app_paths=/system/app /system/priv-app`.
-
-6. **`slay_mode`**: the method of Bloatware Slayer blocking bloatwares.
+1. **`slay_mode`**: the method of Bloatware Slayer blocking bloatwares.
 `MB (Mount Bind)`, a method that is generally applicable to various Root solutions in most ROMs.  
 `MR (Magisk Replace)`, a method specific to Magisk.  
 `MN (Make Node)`, a method available for Magisk 28102+、KernelSU, and APatch.
-
 In `settings.conf`, the default value of Bloatware Slayer is `MB` (Mount Bind), since the method has the highest compatibility——even though it is not so good in Root hiding. You may switch into MR mode or MN mode manually if needed, which is more friendly for Root hiding.
+
+2. **`brick_timeout`**: Sets the timeout for determining if the device has bricked. It requires a positive integer, measured in seconds. The default value is `300` seconds (5 minutes).
+If it is not set in `settings.conf`, the default value is `300 seconds (5 minutes)`, the default value in `settings.conf` is `180 seconds (3 minutes)`.
+
+3. **`disable_module_as_brick`**: Determines whether the module should automatically disable itself when the device is detected as bricked. By default, it is set to `true` (enabled), but you can set it to `false` to disable this feature.  
+When enabled, the module will disable itself to prevent further issues. If you set it to `false`, the module will only skip mounting without disabling itself. This allows you to troubleshoot and reboot the system after removing unstable items from `target.conf`, without needing to re-enable the module via Root manager manually.
+
+4. **`auto_update_target_list`**: Control the behavior whether to update the items in `target.conf` to the paths of bloatwares apps during each startup. By default, it is set to `true` (enabled) to speed up system startup.
+If you prefer to keep your custom comments or retain items in `target.conf` that were not found by the module, you can set this to `false`.
+
+5. ~~**`update_desc_on_action`**: Updates the module status description when the module is disabled or uninstalled. This is a mostly useless feature that increases resource consumption and is disabled(`false`) by default.~~
+~~If you want to see a prompt when you click the disable or uninstall button, you can set this to `true` to enable the feature.~~
+**NOTICE: This feature has been removed since 1.2.8**
+
+6. **`system_app_paths`**: Support customizing the scan of system directories the bloatware located in. Paths starts with `/` and separated by spaces, for example: `system_app_paths=/system/app /system/priv-app`.
+
 
 ## Logs
 
