@@ -34,7 +34,7 @@ For example, I need to uninstall XiaoAi Voice Assistant, so I will get the folde
 4. To save the time and reduce the cost of resources, now Bloatware Slayer will update the items of `target.conf` into the system path bloatwares located in automatically in each time booting. You can read the chapter `Config File` to know.
 5. If the resource directory starts with `/data`, it means the app was installed as first booting after the initial of ROM setup. You can uninstall it manually and should NOT add it to `target.conf`, as Bloatware Slayer's processing will not affect such apps.
 
-### Q: Why do I need to manually copy the folder names instead of letting the module detect the system directories based on the app names or package names?
+#### Q: Why do I need to manually copy the folder names instead of letting the module detect the system directories based on the app names or package names?
 
 1. **Firstly, the APP name and package name are not reliable, and relying on these two factors to locate the APP folder is extremely inefficient.**
 For most standardized ROMs, the probability of using languages other than English to name system directories/folders is extremely low.  
@@ -77,7 +77,7 @@ In `settings.conf`, the default value of Bloatware Slayer is `MB` (Mount Bind), 
 
 Logs are saved in `/data/adb/bloatwareslayer/logs`, you can review them and submit them when reporting issues. 
 
-### Notice
+#### Notice
 
 `bs_log_core_(timestamp).log` is the logs about core features of Bloatware Slayer. 
 Since the system is not fully initialized at this stage, the date you see might appear very strange. Please do not be concerned.
@@ -92,7 +92,7 @@ After rebooting, you will see a message in the module status.
 Please adjust `target.conf` by removing entries that should not be disabled and reboot again.
 The default wait time is 300 seconds (5 minutes), meaning Bloatware Slayer will disable itself and reboot after waiting for 5 minutes.If your system is updating, temporarily disable or uninstall this module and reinstall it later is recommended.
 
-### Q: Will Bloatware Slayer damage my device? Why need to learn unbrick skills?
+#### Q: Will Bloatware Slayer damage my device? Why need to learn unbrick skills?
 
 Primarily, Bloatware Slayer only uses the built-in methods of Magisk and KernelSU/APatch to make the folders of pre-installed apps empty or invisible, preventing the system from installing and loading these apps. **The module itself does not directly modify the system. Once you disable or uninstall this module, all changes will be reverted**, and your system will not be damaged. This is the essence of being "systemless (no system modification)".
 
@@ -109,32 +109,22 @@ If you add certain apps to `target.conf` and the device gets stuck on the boot a
 2. For **KernelSU/APatch**, during the boot process from the first screen to the boot animation, you can press the volume-down button about ten times consecutively (not long-press). If your device's KernelSU kernel includes the brick recovery code, it will likely enter safe mode and disable all modules.
 3. For devices that support third-party Recovery, you can use the Recovery's module management interface to easily disable Bloatware Slayer when using Magisk.
 
+## Tested ROMs
 
-#### Q: Bloatware Slayer会破坏我的设备吗？为什么需要救砖手段？
-
-首先，Bloatware Slayer 只是使用了 Magisk 和 KernelSU/APatch 内置的办法，让这些预装 APP 的文件夹设置为空或者被屏蔽掉，从而使系统不再安装和加载这些软件。**模块本身并不会直接修改系统，一旦禁止或卸载本模块，所有的更改均会被还原**，你的系统也不会受到任何损害，正所谓`Systemless（不修改系统）`。
-即使如此，有些 APP 不应该也不能被随意卸载或屏蔽。一来是考虑系统稳定性，**部分APP是必须存在才能维护系统正常的运行秩序的APP**——比如说设置和系统界面是在正常生产环境的设备中必须存在的 APP。
-不过，**这类 APP 数量其实很稀少**，可能整整100个系统 APP 中只有20~30个 APP 属于这一类，大部分系统 APP 事实上并没有多重要，该动手就动手。
-二来，某些品牌厂商（MIUI、Huawei、Google）为了持续收集用户信息，会在预装软件中安插一大批看起来 “十分合理” 但是细究起来就是广告毒瘤和信息收集的 APP (Google Play 服务、Google Assistant、应用商店、SystemHelper、AnalysisCore、Joyose)，**这些 APP 被放在系统内置的白名单内，大部分限制对它们而言无效，甚至一旦系统检测到它们被卸载或不存在，就直接拒绝开机或者拒绝提供某些服务。**
-如果你将某些 APP 加入了 `target.conf` 但是卡在了开机动画甚至是开机第一屏，**要么这些APP是维持系统正常运行秩序所必须的 APP，要么这些APP就是所谓的“一卸载就罢工”的 APP**。
-这个时候无论是排除法还是需要进入系统，就需要救砖手段了，以下是一些救砖建议：
-1. 对于 Magisk Alpha，当设备两次无法正常进入系统时，在第三次启动就会自动进入安全模式，并禁用所有模块，此时你可以进入并修改 target.conf
-2. 对于 KernelSU / APatch，在开机第一屏到开机动画期间可以连续按下音量减键十次左右（连续按，不是长按）,只要你的设备的 KernelSU 内核将救砖模式的代码编译在内，那么有大概率进入 KernelSU / APatch 的安全模式，所有模块会被禁用
-3. 对于支持第三方 Recovery 的设备，当你使用 Magisk 时，你也可以直接使用这类 Recovery 的模块管理界面，轻松禁用 Bloatware Slayer。
-
-## 经过测试的ROM
-1. 小米澎湃系统2.0.105.0，安卓15，设备：红米 Note 9 Pro 5G 8+256GB (设备代号gauguin，移植系统)
-- Root：Magisk Alpha 28102
-2. 小米MIUI12.5.4，安卓10，设备：红米 Note 7 Pro 6+128GB (设备代号violet，原厂系统)
-- Root：Magisk Alpha 28102
-3. DroidUI-X，安卓14，设备：红米 Note 7 Pro 6+128GB (设备代号violet，类原生系统)
+1. Xiaomi HyperOS 2.0.105.0, Android 15, Device: Redmi Note 9 Pro 5G 8+256GB (gauguin, ported ROM)
+- Root: Magisk Alpha 28102,28103
+2. Xiaomi MIUI 12.5.4, Android 10, Device: Redmi Note 7 Pro 6+128GB (violet, stock ROM)
+- Root: Magisk Alpha 28102,28103
+3. DroidUI-X，Android 14，Device：Redmi Note 7 Pro 6+128GB (violet，AOSP based ROM)
 - Root: KernelSU with Magic Mount 1.0.3
 - Root: KernelSU with OverlayFS 0.9.5
-4. Flyme 8.0.5.0A, 安卓7.1.2, 设备: 魅蓝 Note 6 4+64GB (设备代号m1721, 原厂系统)
+4. Flyme 8.0.5.0A, Android 7.1.2, Device: Meizu M6 Note 4+64GB (m1721, stock ROM)
 - Root: Magisk Lite 25205
-5. Derpfest 15.1 Stable，安卓15，设备：红米 Note 7 Pro 6+128GB (设备代号violet，类原生系统)
+5. Derpfest 15.1 Stable, Android 15, Device: Redmi Note 7 Pro 6+128GB (violet, AOSP based ROM)
 - Root: Magisk Alpha 28103
 
-## 帮助与支持
-如果遇到问题，请点击 [此处](https://github.com/Astoritin/BloatwareSlayer/issues) 提交反馈
-欢迎 [提交代码](https://github.com/Astoritin/BloatwareSlayer/pulls)，让该模块变得更好
+## Help and Support
+
+If you encounter any problems, please [click here](https://github.com/Astoritin/BloatwareSlayer/issues) to submit feedback.<br>
+[Pull Request](https://github.com/Astoritin/BloatwareSlayer/pulls) is always welcome to improve this module.
+
