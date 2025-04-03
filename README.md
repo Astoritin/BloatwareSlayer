@@ -14,21 +14,22 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 Bloatware Slayer removes bloatwares in systemless way, using specific mount methods from Magisk, KernelSU and APatch. Below are the steps:
 
-1. 安装 Magisk / KernelSU / APatch
-2. 下载并安装本模块
-3. 为了获得预装软件所在的目录/文件夹，你需要提前做好功课：例如使用 [App Manager](https://github.com/MuntashirAkon/AppManager)，或使用Root Explorer、MiXplorer在 `/system` 处手动寻找并复制预装软件的文件夹名
-4. 打开 `/data/adb/bloatwareslayer/target.conf`，并将你通过步骤3获得的预装软件所在的文件夹名放在上面，**一行一个**
-5. 保存 target.conf 的更改，并重新启动后查看效果
+1. Install Magisk / KernelSU / APatch
+2. Download and install Bloatware Slayer
+3. To obtain the directories of bloatwares, you need to do some research beforehand: For example, use [App Manager](https://github.com/MuntashirAkon/AppManager), Root Explorer, or MiXplorer to manually locate and copy the folder names of pre-installed apps under `/system`.
+4. Open the file `/data/adb/bloatwareslayer/target.conf` and add the directories of the bloatwares obtained in step 3, **one per line**.
+5. Save the changes to `target.conf` and reboot your device to observe the results.
 
-你可以在模块描述中看到被该模块屏蔽的APP数 (slain)、未找到目录的APP数 (missing)和列表里配置的APP总数 (targeted in total)
+You can see the information of blocked APPs (slain), APPs not found (missing) and APPs in total (targeted in total) in the module description.
+
 ![Bloatware Slayer](webpage/img/bs_work_normal.png)
 
-例如：我需要卸载小爱同学，那么我会通过 AppManager 查看小爱同学所在的文件夹，得知其名字是 `VoiceAssistAndroidT`，然后将 `VoiceAssistAndroidT` 复制到 `target.conf` ，回车并保存更改后重启设备。
+For example, I need to uninstall XiaoAi Voice Assistant, so I will get the folder XiaoAi Voice Assistant located in by AppManager and soon get its name `VoiceAssistAndroidT`, then copy `VoiceAssistAndroidT` and add it into `target.conf` , save the changes and reboot my device.
 
 ## 注意
 
-1. `target.conf` 支持"#"号注释整行和项目旁存在注释，Bloatware Slayer 不会处理被注释掉的行和空行。
-2. Bloatware Slayer 支持自定义路径，例如：`/system/app/MiVideo/`。此时 Bloatware Slayer 会直接处理该自定义路径而不会再扫描其他系统文件夹。
+1. `target.conf` supports commenting out entire lines with the "#" symbol. Bloatware Slayer will ignore commented lines and empty lines.
+2. Bloatware Slayer supports custom paths, for example: `/system/app/MiVideo`. In this case, Bloatware Slayer will directly process the custom path without scanning other system folders.
 3. 由于现如今绝大多数设备都是 SAR (System-as-root)，你可能在 AppManager 中看到的资源目录名不是 `/system` 开头 (例如  `/product/app/Scanner`)，为了确保挂载生效，请手动在这类路径前面添加 `/system` ，否则 Bloatware Slayer 会直接忽略该路径。
 4. 为了节省时间和减少资源消耗，现在`target.conf`会随着每次系统启动自动更新为预装APP对应的系统目录，你可以查阅“配置文件”部分进行了解。
 5. 若你看到的资源目录以 `/data` 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 `target.conf` 中，因为Bloatware Slayer的处理也不会对这类软件生效。
