@@ -33,7 +33,7 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 4. 为了节省时间和减少资源消耗，现在`target.conf`会随着每次系统启动自动更新为预装APP对应的系统目录，你可以查阅“配置文件”部分进行了解。
 5. 若你看到的资源目录以 `/data` 开头，则说明该APP是安装完ROM后的第一次初始化安装上的，实质上属于用户应用，只是内置于ROM的刷机包的特定目录，不属于目前 Root 方案能直接干涉的范畴。这类应用可以自行卸载，并且只有恢复出厂设置时才可能重新被自动安装，请不要加入到 `target.conf` 中，因为Bloatware Slayer的处理也不会对这类软件生效。
 
-### Q: 为什么需要我手工复制，而不是模块根据我指定的应用名称或包名自行检测？
+#### Q: 为什么需要我手工复制，而不是模块根据我指定的应用名称或包名自行检测？
 
 1. **应用名称和包名并不可靠，依靠这两点查找应用文件夹的效率太低了**。
 对于大多数规范的ROM而言，用除了英文以外的其他语言给系统目录/文件夹命名的概率极低，甚至有不少应用的应用名称跟其所在的系统目录/文件夹名没有任何关系（无论是ROM提供商的疏忽和学艺不精导致的命名细节不规范，还是为了隐藏自己收集用户信息安插的眼线APP的阴暗心思而故意不规范命名）。如果一定要这么匹配，且不说需要大量的数据统计，即使如此，误判率也还是很高。
@@ -60,9 +60,9 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 
 5. **`system_app_paths`**: 自定义扫描预装软件所在的系统目录，路径以`/`开头，用空格隔开，例如`system_app_paths=/system/app /system/priv-app`。
 
-6. **`slay_mode`**: Bloatware Slayer 屏蔽预装软件的方式。
-`MB (Mount Bind)`, 是在绝大多数ROM内的各种Root方案通用的方法。
-`MR (Magisk Replace)`, 是 Magisk 专用的方法。
+6. **`slay_mode`**: Bloatware Slayer 屏蔽预装软件的方式。<br>
+`MB (Mount Bind)`, 是在绝大多数ROM内的各种Root方案通用的方法。<br>
+`MR (Magisk Replace)`, 是 Magisk 专用的方法。<br>
 `MN (Make Node)`, 是 Magisk 28102+、KernelSU 和 APatch 可用的方法。
 
 在`settings.conf`中，默认值为 `MB` (Mount Bind)，因为该方案兼容性最高——只不过不利于 Root 隐藏。如有需求，可手工切换到对 Root 隐藏更友好的 MR 模式或者 MN 模式。
@@ -71,12 +71,12 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 
 日志被保存在 `/data/adb/bloatwareslayer/logs`，你可以查看它并在反馈遇到的问题时提交该日志。
 
-### 注意
+#### 注意
 
-`bs_log_core_(时间戳).log` 是 Bloatware Slayer 的核心功能相关的日志。
-由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意
-`bs_log_brickd_(时间戳).log` 是 Bloatware Slayer 的救砖功能检测相关的日志。
-`bs_log_action_(时间戳).log` 是 Bloatware Slayer 的操作按钮相关的日志。
+`bs_log_core_(时间戳).log` 是 Bloatware Slayer 的核心功能相关的日志。<br>
+由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。<br>
+`bs_log_brickd_(时间戳).log` 是 Bloatware Slayer 的救砖功能检测相关的日志。<br>
+`bs_log_action_(时间戳).log` 是 Bloatware Slayer 的操作按钮相关的日志。<br>
 
 **反馈问题时，请直接打包整个logs文件夹后上传。**
 
@@ -87,7 +87,7 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 默认的等待时长是300秒（5分钟），也就是说 Bloatware Slayer 会在等待5分钟后自我禁用并重新启动。
 若你的系统正在更新，请临时禁用或卸载该模块，之后再安装。
 
-### Q: Bloatware Slayer 会破坏我的设备吗？为什么需要救砖手段？
+#### Q: Bloatware Slayer 会破坏我的设备吗？为什么需要救砖手段？
 
 首先，Bloatware Slayer 只是使用了 Magisk 和 KernelSU/APatch 内置的办法，让这些预装 APP 的文件夹设置为空或者被屏蔽掉，从而使系统不再安装和加载这些软件。**模块本身并不会直接修改系统，一旦禁止或卸载本模块，所有的更改均会被还原**，你的系统也不会受到任何损害，正所谓`Systemless（不修改系统）`。
 
@@ -108,9 +108,9 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 ## 经过测试的ROM
 
 1. 小米澎湃系统2.0.105.0，安卓15，设备：红米 Note 9 Pro 5G 8+256GB (设备代号gauguin，移植系统)
-- Root：Magisk Alpha 28102
+- Root：Magisk Alpha 28102,28103
 2. 小米MIUI12.5.4，安卓10，设备：红米 Note 7 Pro 6+128GB (设备代号violet，原厂系统)
-- Root：Magisk Alpha 28102
+- Root：Magisk Alpha 28102,28103
 3. DroidUI-X，安卓14，设备：红米 Note 7 Pro 6+128GB (设备代号violet，类原生系统)
 - Root: KernelSU with Magic Mount 1.0.3
 - Root: KernelSU with OverlayFS 0.9.5
