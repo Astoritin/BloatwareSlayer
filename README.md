@@ -55,6 +55,7 @@ Starting from version v1.2.1, Bloatware Slayer supports manually enabling or dis
 `MB (Mount Bind)`, a method that is generally applicable to various Root solutions in most ROMs.  
 `MR (Magisk Replace)`, a method specific to Magisk.  
 `MN (Make Node)`, a method available for Magisk 28102+、KernelSU, and APatch.
+
 In `settings.conf`, the default value of Bloatware Slayer is `MB` (Mount Bind), since the method has the highest compatibility——even though it is not so good in Root hiding. You may switch into MR mode or MN mode manually if needed, which is more friendly for Root hiding.
 
 2. **`brick_timeout`**: Sets the timeout for determining if the device has bricked. It requires a positive integer, measured in seconds. The default value is `300` seconds (5 minutes).
