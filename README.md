@@ -52,9 +52,9 @@ Moreover, there are quite a few APPs whose APP names have no relation to their s
 Starting from version v1.2.1, Bloatware Slayer supports manually enabling or disabling the following features. Please open the configuration file `/data/adb/bloatwareslayer/settings.conf` to view and modify the settings if needed. If not specified in the `settings.conf` file, the default value is `300` seconds (5 minutes). However, the default value within the `settings.conf` file is `180` seconds (3 minutes).
 
 1. **`slay_mode`**: the method of Bloatware Slayer blocking bloatwares.
-`MB (Mount Bind)`, a method that is generally applicable to various Root solutions in most ROMs.  
-`MR (Magisk Replace)`, a method specific to Magisk.  
-`MN (Make Node)`, a method available for Magisk 28102+、KernelSU, and APatch.
+- `MB (Mount Bind)`, a method that is generally applicable to various Root solutions in most ROMs.  
+- `MR (Magisk Replace)`, a method specific to Magisk.  
+- `MN (Make Node)`, a method available for Magisk 28102+、KernelSU, and APatch.
 
 In `settings.conf`, the default value of Bloatware Slayer is `MB` (Mount Bind), since the method has the highest compatibility——even though it is not so good in Root hiding. You may switch into MR mode or MN mode manually if needed, which is more friendly for Root hiding.
 
@@ -80,10 +80,11 @@ Logs are saved in `/data/adb/bloatwareslayer/logs`, you can review them and subm
 
 ### Notice
 
-`bs_log_core_(timestamp).log` is the logs about core features of Bloatware Slayer. 
+- `bs_log_core_(timestamp).log` is the logs about core features of Bloatware Slayer. 
 Since the system is not fully initialized at this stage, the date you see might appear very strange. Please do not be concerned.
-`bs_log_bricked_(timestamp).log` is the logs about unbrick detection feature of Bloatware Slayer.
-`bs_log_action_(timestamp).log` is the logs about action button of Bloatware Slayer.
+- `bs_log_bricked_(timestamp).log` is the logs about unbrick detection feature of Bloatware Slayer.
+- `bs_log_action_(timestamp).log` is the logs about action button of Bloatware Slayer.
+
 **When reporting issues, please simply zip the entire logs folder and upload it.**
 
 ## Unbrick
@@ -126,6 +127,6 @@ If you add certain apps to `target.conf` and the device gets stuck on the boot a
 
 ## Help and Support
 
-If you encounter any problems, please [click here](https://github.com/Astoritin/BloatwareSlayer/issues) to submit feedback.<br>
-[Pull Request](https://github.com/Astoritin/BloatwareSlayer/pulls) is always welcome to improve this module.
+- If you encounter any problems, please [click here](https://github.com/Astoritin/BloatwareSlayer/issues) to submit feedback.
+- [Pull Request](https://github.com/Astoritin/BloatwareSlayer/pulls) is always welcome to improve this module.
 
