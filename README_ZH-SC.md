@@ -45,10 +45,10 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 
 自 v1.2.1 起， Bloatware Slayer 支持手动启用或禁用以下功能，如有需求请打开配置文件`/data/adb/bloatwareslayer/settings.conf`查看并修改。
 
-1. **`slay_mode`**: Bloatware Slayer 屏蔽预装软件的方式。<br>
-`MB (Mount Bind)`, 是在绝大多数ROM内的各种Root方案通用的方法。<br>
-`MR (Magisk Replace)`, 是 Magisk 专用的方法。<br>
-`MN (Make Node)`, 是 Magisk 28102+、KernelSU 和 APatch 可用的方法。
+1. **`slay_mode`**: Bloatware Slayer 屏蔽预装软件的方式。
+- `MB (Mount Bind)`, 是在绝大多数ROM内的各种Root方案通用的方法。
+- `MR (Magisk Replace)`, 是 Magisk 专用的方法。
+- `MN (Make Node)`, 是 Magisk 28102+、KernelSU 和 APatch 可用的方法。
 
 在`settings.conf`中，默认值为 `MB` (Mount Bind)，因为该方案兼容性最高——只不过不利于 Root 隐藏。如有需求，可手工切换到对 Root 隐藏更友好的 MR 模式或者 MN 模式。
 
@@ -73,10 +73,9 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 
 ### 注意
 
-`bs_log_core_(时间戳).log` 是 Bloatware Slayer 的核心功能相关的日志。<br>
-由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。<br>
-`bs_log_brickd_(时间戳).log` 是 Bloatware Slayer 的救砖功能检测相关的日志。<br>
-`bs_log_action_(时间戳).log` 是 Bloatware Slayer 的操作按钮相关的日志。<br>
+- `bs_log_core_(时间戳).log` 是 Bloatware Slayer 的核心功能相关的日志。由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。
+- `bs_log_brickd_(时间戳).log` 是 Bloatware Slayer 的救砖功能检测相关的日志。
+- `bs_log_action_(时间戳).log` 是 Bloatware Slayer 的操作按钮相关的日志。
 
 **反馈问题时，请直接打包整个logs文件夹后上传。**
 
@@ -121,5 +120,5 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 
 ## 帮助与支持
 
-如果遇到问题，请点击 [此处](https://github.com/Astoritin/BloatwareSlayer/issues) 提交反馈<br>
-欢迎 [提交代码](https://github.com/Astoritin/BloatwareSlayer/pulls)，让该模块变得更好
+- 如果遇到问题，请点击 [此处](https://github.com/Astoritin/BloatwareSlayer/issues) 提交反馈
+- 欢迎 [提交代码](https://github.com/Astoritin/BloatwareSlayer/pulls)，让该模块变得更好
