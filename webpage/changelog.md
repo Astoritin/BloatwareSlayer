@@ -3,6 +3,12 @@ A Magisk module to remove bloatware in systemlessly way / 一个无需修改 sys
 
 ### Changelog / 变更日志
 
+### 1.3.1
+
+- Optimize and cleanup minor code
+- 优化和清理部分代码
+- SHA256: `b5e439a086e6631c45f06412e7229b777b430f108702d72ab2755b87717ad410`
+
 ### 1.3.0
 
 - Critical logic changes for users running on multiple root solutions
