@@ -20,9 +20,6 @@ BRICK_TIMEOUT=180
 DISABLE_MODULE_AS_BRICK=true
 
 config_loader() {
-    # config_loader: a function to load the config file saved in $CONFIG_FILE
-    # the format of $CONFIG_FILE: value=key, one key-value pair per line
-    # for system_app_paths, please keep in a line and separate the paths by a space
 
     logowl "Loading config"
 
@@ -45,13 +42,6 @@ config_loader
 print_line
 
 {    
-
-    # the code block to wait for system boot complete and judge whether system is being bricked or not
-    # this task will run in background mode, it will NOT block the system booting at all so please take it easy
-    # $BRICK_TIMEOUT: a key in settings.conf to control the behavior of waiting for system boot complete and the timeout to infer device being bricked
-    # DISABLE_MODULE_AS_BRICK: a key in settings.conf to control the behavior when approaching bricked
-    # if true, will disable itself and skip mounting
-    # if false, will skip mounting ONLY, module itself is still enable
 
     logowl "Current booting timeout: $BRICK_TIMEOUT"
     while [ "$(getprop sys.boot_completed)" != "1" ]; do
