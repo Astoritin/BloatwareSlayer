@@ -26,13 +26,6 @@ SLAY_MODE="MB"
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
 brick_rescue() {
-    # brick_rescue: a function to execute brick rescue method to save the device from being "bricked" by Bloatware Slayer itself
-    # WARN: It won't conflict with other brick rescue method
-    # but this in-built method is for correcting the bricked by Bloatware Slayer itself  
-    # if the bricked is caused by other modules / behaviors, Bloatware Slayer has nothing to do with it
-    #
-    # BRICKED_STATUS: a empty file with a filename "bricked" located in /data/adb/bloatwareslayer
-    # if detecting /data/adb/bloatwareslayer/bricked, module will skip mounting to prevent from being bricked by Bloatware Slayer itself
 
     logowl "Checking brick status"
 
@@ -50,7 +43,7 @@ brick_rescue() {
             logowl "Starting brick rescue"
             logowl "Skip post-fs-data.sh process"
             DESCRIPTION="[❌Disabled. Auto disable from brick! ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
-            update_module_description "$DESCRIPTION" "$MODULE_PROP"
+            update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip mounting"
             exit 1
         fi
@@ -61,9 +54,6 @@ brick_rescue() {
 }
 
 config_loader() {
-    # config_loader: a function to load the config file saved in $CONFIG_FILE
-    # the format of $CONFIG_FILE: value=key, one key-value pair per line
-    # for system_app_paths, please keep in a line and separate the paths by a space
 
     logowl "Loading config"
 
@@ -80,25 +70,14 @@ config_loader() {
 }
 
 preparation() {
-    # preparation: a function to initiate the directories and some other preparation steps
-    #
-    # $TARGET_LIST: the path of config file target.conf located in (/data/adb/bloatwareslayer/target.conf)
-    # $TARGET_LIST_BSA: the path of config file target_bsa.conf located in (/tmp/target_bsa.conf)
-    # $TARGET_LIST_BSA is generated and arranged by Bloatware Slayer itself, you shouldn't edit it and save the critical information here
-    #
-    # $AUTO_UPDATE_TARGET_LIST: a key in settings.conf to control the behavior whether updating target.conf to available paths only on each time booting.
-    # true by default because it will change the target.conf into directories path to reduce the time of next time booting
-    # If false, Bloatware Slayer will NOT update target.conf automatically
-    #
-    # $UPDATE_TARGET_LIST: different from $AUTO_UPDATE_TARGET_LIST, this boolean variable is for Bloatware Slayer itself (inner behavior) to judge whether need to update or not by checking the hashcode of $TARGET_LIST and $TARGET_LIST_BSA
 
     logowl "Some preparations"
 
-    if [ -n "$MODDIR" ] && [ -d "$MIRROR_DIR" ]; then
+    if [ -n "$MODDIR" ] && [ -d "$MODDIR" ] && [ "$MODDIR" != "/" ] && [ -d "$MIRROR_DIR" ]; then
         logowl "Remove old mirror folder"
         rm -rf "$MIRROR_DIR"
     fi
-    if [ -n "$MODDIR" ] && [ -d "$EMPTY_DIR" ]; then
+    if [ -n "$MODDIR" ] && [ -d "$MODDIR" ] && [ "$MODDIR" != "/" ] && [ -d "$EMPTY_DIR" ]; then
         logowl "Remove old empty folder"
         rm -rf "$EMPTY_DIR"
     fi
@@ -166,7 +145,7 @@ preparation() {
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
         DESCRIPTION="[❌No effect. Target list does NOT exist! ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
-        update_module_description "$DESCRIPTION" "$MODULE_PROP"
+        update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
 
@@ -195,7 +174,6 @@ preparation() {
 }
 
 bloatware_slayer() {
-    # bloatware_slayer: the core function for bloatware slayer
 
     logowl "Slaying bloatwares"
 
@@ -331,10 +309,6 @@ bloatware_slayer() {
 }
 
 module_status_update() {
-    # module_status_update: a function to update module status according to the result in function bloatware_slayer
-    # TOTAL_APPS_COUNT: the count of all the APPs in target.conf
-    # BLOCKED_APPS_COUNT: the count of the APPs being blocked by Bloatware Slayer successfully
-    # APP_NOT_FOUND: the count of the APPs not found or failed to block
 
     logowl "Updating module status"
 
@@ -357,7 +331,7 @@ module_status_update() {
                 DESCRIPTION="[❌No effect. Abnormal status! ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
             fi
         fi
-        update_module_description "$DESCRIPTION" "$MODULE_PROP"
+        update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
     else
         logowl "module.prop not found, skip updating" "WARN"
     fi
@@ -377,6 +351,4 @@ brick_rescue
 preparation
 bloatware_slayer
 module_status_update
-# logowl "Variables before case closed"
-# debug_print_values >> "$LOG_FILE"
 logowl "post-fs-data.sh case closed!"
