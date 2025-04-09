@@ -1,20 +1,23 @@
 ## Bloatware Slayer / 干掉预装软件
-A Magisk module to remove bloatware in systemlessly way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
+A Magisk module to remove bloatware in systemless way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
 ### Changelog / 变更日志
 
 ### 1.3.2
 
-- Support separating system app paths with `\n` symbol like `system_app_paths="path1\npath2\npath3"` in `target.conf`
+- Support separating system app paths with newline symbol like `system_app_paths="path1\npath2\npath3"` in `target.conf`
 - 现在支持在 `target.conf` 中使用换行符作为分隔路径 (例如`system_app_paths="路径1\n路径2\n路径3\n"`)
 - You can use `system_app_paths=/path1 /path2 /path3` still, since this version support the following format too: 
   <code>system_app_paths="/path1
   /path2
   /path3"</code>
-- 你仍可使用 `system_app_paths=/path1 /path2 /path3` , 从该版本起支持以下格式: 
+- 你仍可使用 `system_app_paths=/path1 /path2 /path3` , 只是从该版本起支持以下格式: 
   <code>system_app_paths="路径1
   路径2
   路径3"</code>
+- Update module description
+- 更新模块描述
+- SHA256: `f43ab4d41b2d4afa6468e9ef2e0528adb4641f7a9ff0d6147fba22e7842afa44`
 
 ### 1.3.1
 
