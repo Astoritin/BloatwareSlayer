@@ -68,8 +68,7 @@ When enabled, the module will disable itself to prevent further issues. If you s
 If you prefer to keep your custom comments or retain items in `target.conf` that were not found by the module, you can set this to `false`.
 
 5. ~~**`update_desc_on_action`**: Updates the module status description when the module is disabled or uninstalled. This is a mostly useless feature that increases resource consumption and is disabled(`false`) by default.~~
-~~If you want to see a prompt when you click the disable or uninstall button, you can set this to `true` to enable the feature.~~
-**NOTICE: This feature has been removed since 1.2.8**
+~~If you want to see a prompt when you click the disable or uninstall button, you can set this to `true` to enable the feature.~~ ***NOTICE: This feature has been removed since 1.2.8***
 
 6. **`system_app_paths`**: Support customizing the scan of system directories the bloatware located in. Paths starts with `/` and separated by spaces, for example: `system_app_paths=/system/app /system/priv-app`.
 
