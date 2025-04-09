@@ -42,7 +42,7 @@ brick_rescue() {
         else
             logowl "Starting brick rescue"
             logowl "Skip post-fs-data.sh process"
-            DESCRIPTION="[❌Disabled. Auto disable from brick! ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+            DESCRIPTION="[❌Disabled. Auto disable from brick! ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip mounting"
             exit 1
@@ -89,7 +89,7 @@ preparation() {
             if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
                 logowl "Detect $MOD_NAME running on Magisk 28102+, which supports Make Node mode"
             else
-                logowl "Make Node mode needs Magisk version 28102 or higher (current $MAGISK_V_VER_CODE)!" "ERROR"
+                logowl "Make Node mode needs Magisk version 28102 and higher (current $MAGISK_V_VER_CODE)!" "ERROR"
                 logowl "$MOD_NAME will revert to Magisk Replace mode"
                 SLAY_MODE="MR"
             fi
@@ -144,7 +144,7 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
-        DESCRIPTION="[❌No effect. Target list does NOT exist! ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+        DESCRIPTION="[❌No effect. Target list does NOT exist! ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -319,16 +319,16 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[😋Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+                DESCRIPTION="[😋Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[😋Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+                DESCRIPTION="[😋Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[😋No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] 勝った、勝った、また勝ったぁーっと！！🎉✨"
+                DESCRIPTION="[😋No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌No effect. Abnormal status! ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemlessly way✨"
+                DESCRIPTION="[❌No effect. Abnormal status! ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
             fi
         fi
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
