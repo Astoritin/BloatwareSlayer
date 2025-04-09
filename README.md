@@ -52,9 +52,9 @@ Moreover, there are quite a few APPs whose APP names have no relation to their s
 Starting from version v1.2.1, Bloatware Slayer supports manually enabling or disabling the following features. Please open the configuration file `/data/adb/bloatwareslayer/settings.conf` to view and modify the settings if needed. If not specified in the `settings.conf` file, the default value is `300` seconds (5 minutes). However, the default value within the `settings.conf` file is `180` seconds (3 minutes).
 
 1. **`slay_mode`**: the method of Bloatware Slayer blocking bloatwares.
-- `MB (Mount Bind)`, a method that is generally applicable to various Root solutions in most ROMs.  
-- `MR (Magisk Replace)`, a method specific to Magisk.  
-- `MN (Make Node)`, a method available for Magisk 28102+、KernelSU, and APatch.
+- `MB` (Mount Bind), a method that is generally applicable to various Root solutions in most ROMs.  
+- `MR` (Magisk Replace), a method specific to Magisk.  
+- `MN` (Make Node), a method available for Magisk 28102+、KernelSU, and APatch.
 
 In `settings.conf`, the default value of Bloatware Slayer is `MB` (Mount Bind), since the method has the highest compatibility——even though it is not so good in Root hiding. You may switch into MR mode or MN mode manually if needed, which is more friendly for Root hiding.
 
