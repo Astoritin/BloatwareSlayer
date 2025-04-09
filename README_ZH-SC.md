@@ -46,9 +46,9 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 自 v1.2.1 起， Bloatware Slayer 支持手动启用或禁用以下功能，如有需求请打开配置文件`/data/adb/bloatwareslayer/settings.conf`查看并修改。
 
 1. **`slay_mode`**: Bloatware Slayer 屏蔽预装软件的方式。
-- `MB (Mount Bind)`, 是在绝大多数ROM内的各种Root方案通用的方法。
-- `MR (Magisk Replace)`, 是 Magisk 专用的方法。
-- `MN (Make Node)`, 是 Magisk 28102+、KernelSU 和 APatch 可用的方法。
+- `MB` (Mount Bind), 是在绝大多数ROM内的各种Root方案通用的方法。
+- `MR` (Magisk Replace), 是 Magisk 专用的方法。
+- `MN` (Make Node), 是 Magisk 28102+、KernelSU 和 APatch 可用的方法。
 
 在`settings.conf`中，默认值为 `MB` (Mount Bind)，因为该方案兼容性最高——只不过不利于 Root 隐藏。如有需求，可手工切换到对 Root 隐藏更友好的 MR 模式或者 MN 模式。
 
