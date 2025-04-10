@@ -64,9 +64,9 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 5. ~**`update_desc_on_action`**：在模块被禁用/卸载时更新模块状态描述。是一个没有什么用且会增加消耗的功能，默认`false`(禁用)。~
 ~如果你希望在点击禁用或卸载按钮后见到提示，那么可以改成`true`启用此功能。~
 
-***注意：该功能已于 1.2.8 起被移除***
+*注意：该功能已于 1.2.8 起被移除*
 
-7. **`system_app_paths`**: 自定义扫描预装软件所在的系统目录，路径以`/`开头，用空格隔开，例如`system_app_paths=/system/app /system/priv-app`。
+6. **`system_app_paths`**: 自定义扫描预装软件所在的系统目录，路径以`/`开头，用空格隔开，例如`system_app_paths=/system/app /system/priv-app`。
 
 ## 日志
 
