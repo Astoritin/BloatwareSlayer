@@ -17,7 +17,7 @@ A Magisk module to remove bloatware in systemless way / 一个无需修改 syste
   路径3"</code>
 - Update module description
 - 更新模块描述
-- SHA256: `f43ab4d41b2d4afa6468e9ef2e0528adb4641f7a9ff0d6147fba22e7842afa44`
+- SHA256: `0f49370d5424211c8cf34e87ab6ced33f6c7168a354f6b637b9c45cf4e44db8d`
 
 ### 1.3.1
 
