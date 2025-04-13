@@ -75,7 +75,7 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 ### 注意
 
 - `bs_log_core_(时间戳).log` 是 Bloatware Slayer 的核心功能相关的日志。由于此阶段系统尚未初始化完毕，你看到的日期可能会非常离谱，请不要介意。
-- `bs_log_brickd_(时间戳).log` 是 Bloatware Slayer 的救砖功能检测相关的日志。
+- `bs_log_addon_(时间戳).log` 是 Bloatware Slayer 的救砖功能+日志状态更新检测相关的日志。
 - `bs_log_action_(时间戳).log` 是 Bloatware Slayer 的操作按钮相关的日志。
 
 **反馈问题时，请直接打包整个logs文件夹后上传。**
