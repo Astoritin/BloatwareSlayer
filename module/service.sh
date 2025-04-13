@@ -9,15 +9,17 @@ EMPTY_DIR="$CONFIG_DIR/empty"
 TARGET_LIST="$CONFIG_DIR/target.conf"
 TARGET_LIST_BSA="$CONFIG_DIR/logs/target_bsa.conf"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/bs_log_brickd_$(date +"%Y-%m-%d_%H-%M-%S").log"
+LOG_FILE="$LOG_DIR/bs_log_addon_$(date +"%Y-%m-%d_%H-%M-%S").log"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
+MOD_DESC_OLD="$(sed -n 's/^description=\(.*\)/\1/p' "$MODULE_PROP")"
 
 BRICK_TIMEOUT=180
 DISABLE_MODULE_AS_BRICK=true
+UPDATE_DESC_ON_ACTION=false
 
 config_loader() {
 
@@ -25,9 +27,36 @@ config_loader() {
 
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
+    update_desc_on_action=$(init_variables "update_desc_on_action" "$CONFIG_FILE")
 
     verify_variables "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
+    verify_variables "update_desc_on_action" "$update_desc_on_action" "^(true|false)$"
+
+}
+
+denylist_enforcing_status_update() {
+
+    MOD_DESC_DE_OLD="$1"
+
+    magisk_enforce_denylist_status
+    zygisksu_enforce_denylist_status
+    enforce_denylist_desc
+
+    if [ -n "$ROOT_SOL_DE" ]; then
+
+        [ -z "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_OLD"
+        [ -n "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_DE_OLD"
+
+        if echo "$MOD_DESC_TMP" | grep -q "⛔DenyList Enforcing: "; then
+            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E "s/(⛔DenyList Enforcing: )[^]]*/\1${ROOT_SOL_DE}/")
+        else
+            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E 's/\]/, ⛔DenyList Enforcing: '"${ROOT_SOL_DE}"'\]/')
+        fi
+
+        update_config_value "description" "$MOD_DESC_NEW" "$MODULE_PROP"
+
+    fi
 
 }
 
@@ -40,6 +69,7 @@ print_line
 logowl "Starting service.sh"
 config_loader
 print_line
+denylist_enforcing_status_update
 
 {    
 
@@ -78,6 +108,33 @@ print_line
         logowl "Failed to reset bricked status" "FATAL"
     fi
     print_line
+    # debug_print_values >> "$LOG_FILE"
     logowl "service.sh case closed!"
+
+    MOD_REAL_TIME_DESC=""
+    while true; do
+        if [ "$UPDATE_DESC_ON_ACTION" = "false" ]; then
+            logowl "Detect flag UPDATE_DESC_ON_ACTION=false"
+            logowl "Exiting background task"
+            exit 0
+        fi
+        if [ -f "$MODDIR/remove" ]; then
+            MOD_CURRENT_STATUS="remove"
+        elif [ -f "$MODDIR/disable" ]; then
+            MOD_CURRENT_STATUS="disable"
+        else
+            MOD_CURRENT_STATUS="enable"
+        fi
+    
+        if [ "$MOD_CURRENT_STATUS" = "remove" ]; then
+            MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), ✨Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+        elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
+            MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), ✨Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+        elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
+            MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
+        fi
+        denylist_enforcing_status_update "$MOD_REAL_TIME_DESC"
+        sleep 5
+    done
 
 } &
