@@ -1,36 +1,8 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
-is_kernelsu() {
-    if [ -n "$KSU" ]; then
-        logowl "Install from KernelSU"
-        logowl "KernelSU version: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
-        ROOT_SOL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
-        if { type magisk; } || [ -n "$APATCH" ]; then
-            logowl "Detect multiple Root solutions!" "WARN"
-            ROOT_SOL="Multiple"
-        fi
-        return 0
-    fi
-    return 1
-}
-
-is_apatch() {
-    if [ -n "$APATCH" ]; then
-        logowl "Install from APatch"
-        logowl "APatch version: $APATCH_VER_CODE"
-        ROOT_SOL="APatch ($APATCH_VER_CODE)"
-        if { type magisk; } || [ -n "$KSU" ]; then
-            logowl "Detect multiple Root solutions!" "WARN"
-            ROOT_SOL="Multiple"
-        fi
-        return 0
-    fi
-    return 1
-}
-
 is_magisk() {
-    if [ -n "$MAGISK_VER_CODE" ] || [ -n "$(magisk -v || magisk -V)" ]; then
+    if [ -n "$(magisk -v || magisk -V)" ]; then
         MAGISK_V_VER_NAME="$(magisk -v)"
         MAGISK_V_VER_CODE="$(magisk -V)"
         case "$MAGISK_VER $MAGISK_V_VER_NAME" in
@@ -40,34 +12,134 @@ is_magisk() {
             *"-delta"*) MAGISK_BRANCH_NAME="Magisk Delta" ;;
             *) MAGISK_BRANCH_NAME="Magisk" ;;
         esac
-        ROOT_SOL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
-        logowl "Install from $ROOT_SOL"
-        if [ -n "$KSU" ] || [ -n "$APATCH" ]; then
-            logowl "Detect multiple Root solutions!" "WARN"
-            ROOT_SOL="Multiple"
-        fi
+        DETECT_MAGISK="true"
+        DETECT_MAGISK_DETAIL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
+        return 0
+    fi
+    return 1
+}
+
+is_kernelsu() {
+    if [ -n "$KSU" ]; then
+        logowl "Install from KernelSU"
+        logowl "KernelSU version: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
+        DETECT_KSU="true"
+        DETECT_KSU_DETAIL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
+        return 0
+    fi
+    return 1
+}
+
+is_apatch() {
+    if [ -n "$APATCH" ]; then
+        logowl "Install from APatch"
+        logowl "APatch version: $APATCH_VER_CODE"
+        DETECT_APATCH="true"
+        DETECT_APATCH_DETAIL="APatch ($APATCH_VER_CODE)"
         return 0
     fi
     return 1
 }
 
 is_recovery() {
-    ROOT_SOL="Recovery"
-    logowl "Install module in Recovery mode is not supported, especially for KernelSU / APatch!" "FATAL"
+    if [ "$BOOTMODE" = "false" ]; then
+        ROOT_SOL="Recovery"
+    else
+        ROOT_SOL="Unknown"
+    fi
+    logowl "Install module in Recovery/Unknown is not supported, especially for KernelSU / APatch!" "FATAL"
     logowl "Please install this module in Magisk / KernelSU / APatch APP!" "FATAL"
     abort
+}
+
+magisk_enforce_denylist_status() {
+
+    if is_magisk; then
+        MAGISK_DE_STATUS=$(magisk --sqlite "SELECT value FROM settings WHERE key='denylist';" | sed 's/^.*=\([01]\)$/\1/')
+        if [ -n "$MAGISK_DE_STATUS" ]; then
+            if [ "$MAGISK_DE_STATUS" = "1" ]; then
+                MAGISK_DE_DESC="Enabled (Magisk)"
+            elif [ "$MAGISK_DE_STATUS" = "0" ]; then
+                MAGISK_DE_DESC="Disabled (Magisk)"
+            fi
+        fi
+    else
+        logowl "Magisk does NOT exist!" "WARN"
+        return 1
+    fi
+
+}
+
+zygisksu_enforce_denylist_status() {
+
+    MOD_ROOT_DIR=$(dirname "$MODDIR")
+    MOD_ZYGISKSU_PATH="${MOD_ROOT_DIR}/zygisksu"
+
+    if [ -d "$MOD_ZYGISKSU_PATH" ]; then
+        ZYGISKSU_DE_STATUS=$(znctl status | grep "enforce_denylist" | sed 's/^.*:\([01]\)$/\1/')
+        if [ -n "$ZYGISKSU_DE_STATUS" ]; then
+            if [ "$ZYGISKSU_DE_STATUS" = "1" ]; then
+                ZYGISKSU_DE_DESC="Enabled (ZN)"
+            elif [ "$ZYGISKSU_DE_STATUS" = "0" ]; then
+                ZYGISKSU_DE_DESC="Disabled (ZN)"
+            fi
+        fi
+    else
+        logowl "Zygisk Next does NOT exist!" "WARN"
+        return 1
+    fi
+
+}
+
+enforce_denylist_desc() {
+
+    if [ -n "$ZYGISKSU_DE_DESC" ] && [ -n "$MAGISK_DE_DESC" ]; then
+        ROOT_SOL_DE="${MAGISK_DE_DESC}, ${ZYGISKSU_DE_DESC}"
+    elif [ -n "$ZYGISKSU_DE_DESC" ]; then
+        ROOT_SOL_DE="${ZYGISKSU_DE_DESC}"
+    elif [ -n "$MAGISK_DE_DESC" ]; then
+        ROOT_SOL_DE="${MAGISK_DE_DESC}"
+    else
+        ROOT_SOL_DE=""
+    fi
+
 }
 
 install_env_check() {
 
     MAGISK_BRANCH_NAME="Official"
     ROOT_SOL="Magisk"
+    ROOT_SOL_COUNT=0
 
-    if ! is_kernelsu && ! is_apatch && ! is_magisk; then
+    is_kernelsu && ROOT_SOL_COUNT=$((ROOT_SOL_COUNT + 1))
+    is_apatch && ROOT_SOL_COUNT=$((ROOT_SOL_COUNT + 1))
+    is_magisk && ROOT_SOL_COUNT=$((ROOT_SOL_COUNT + 1))
+
+    if [ "$DETECT_KSU" = "true" ]; then
+        ROOT_SOL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
+        if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
+            if [ "$DETECT_APATCH" = "true" ] && [ "$DETECT_MAGISK" = "true" ]; then
+                ROOT_SOL="Multiple (${DETECT_MAGISK_DETAIL};${DETECT_KSU_DETAIL};${DETECT_APATCH_DETAIL})"
+            elif [ "$DETECT_APATCH" = "true" ]; then
+                ROOT_SOL="Multiple (${DETECT_KSU_DETAIL};${DETECT_APATCH_DETAIL})"
+            elif [ "$DETECT_MAGISK" = "true" ]; then
+                ROOT_SOL="Multiple (${DETECT_MAGISK_DETAIL};${DETECT_KSU_DETAIL})"
+            fi
+        fi
+    elif [ "$DETECT_APATCH" = "true" ]; then
+        ROOT_SOL="APatch ($APATCH_VER_CODE)"
+        if [ "$ROOT_SOL_COUNT" -gt 1 ] && [ "$DETECT_MAGISK" = "true" ]; then
+            ROOT_SOL="Multiple (${DETECT_MAGISK_DETAIL};${DETECT_APATCH_DETAIL})"
+        fi
+    elif [ "$DETECT_MAGISK" = "true" ]; then
+        ROOT_SOL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
+    fi
+
+    if [ "$ROOT_SOL_COUNT" -lt 1 ]; then
         is_recovery
     fi
-}
 
+}
 
 module_intro() {
 
@@ -328,14 +400,16 @@ update_config_value() {
         logowl "$file_path is NOT a valid file!" "ERROR"
         return 2
     fi
-    logowl "Update $key_name: $key_value"
+    # logowl "Update $key_name: $key_value"
     sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
 
     result_update_value=$?
     if [ $result_update_value -eq 0 ]; then
-        logowl "Succeeded (code: $result_update_value)"
+        # logowl "Succeeded (code: $result_update_value)"
+        return 0
     else
-        logowl "Failed to update $key_name=$key_value into $file_path (code: $result_update_value)" "WARN"
+        # logowl "Failed to update $key_name=$key_value into $file_path (code: $result_update_value)" "WARN"
+        return 1
     fi
 
 }
