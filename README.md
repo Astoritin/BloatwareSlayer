@@ -67,8 +67,9 @@ When enabled, the module will disable itself to prevent further issues. If you s
 4. **`auto_update_target_list`**: Control the behavior whether to update the items in `target.conf` to the paths of bloatwares apps during each startup. By default, it is set to `true` (enabled) to speed up system startup.
 If you prefer to keep your custom comments or retain items in `target.conf` that were not found by the module, you can set this to `false`.
 
-5. ~~**`update_desc_on_action`**: Updates the module status description when the module is disabled or uninstalled. This is a mostly useless feature that increases resource consumption and is disabled(`false`) by default.~~
-~~If you want to see a prompt when you click the disable or uninstall button, you can set this to `true` to enable the feature.~~ ***NOTICE: This feature has been removed since 1.2.8***
+5. **`update_desc_on_action`**: Updates the module status description when the module is disabled or uninstalled. This is a mostly useless feature that increases resource consumption and is disabled(`false`) by default.
+If you want to see a prompt when you click the disable or uninstall button, you can set this to `true` to enable the feature.
+*NOTICE: This feature has been removed since 1.2.8, and back since 1.3.3*
 
 6. **`system_app_paths`**: Support customizing the scan of system directories the bloatware located in. Paths starts with `/` and separated by spaces, for example: `system_app_paths=/system/app /system/priv-app`.
 
