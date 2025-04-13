@@ -3,6 +3,16 @@ A Magisk module to remove bloatware in systemless way / 一个无需修改 syste
 
 ### Changelog / 变更日志
 
+### 1.3.3
+
+- Introduce update module description realtime back
+- 重新引入实时更新模块状态
+- Add new features: showing DenyList Enforcing status for Magisk and Zygisk Next
+- 新功能：为 Magisk 和 Zygisk Next 展示对应的“遵守排除列表”状态
+- Fix the issue of detetcting root solutions and multiple root solutions
+- 修复检测 Root 方案和多重 Root 方案的问题
+- SHA256: `732e23203fee29e337a1d2209eb081f637aca65da49d8c731aaf7bd102c7175d`
+
 ### 1.3.2
 
 - Support separating system app paths with newline symbol like `system_app_paths="path1\npath2\npath3"` in `target.conf`
