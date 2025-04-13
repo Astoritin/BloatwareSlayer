@@ -42,7 +42,7 @@ brick_rescue() {
         else
             logowl "Starting brick rescue"
             logowl "Skip post-fs-data.sh process"
-            DESCRIPTION="[❌Disabled. Auto disable from brick! ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
+            DESCRIPTION="[❌Disabled. Auto disable from brick! ✨Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip mounting"
             exit 1
@@ -83,9 +83,9 @@ preparation() {
     fi
 
     if [ "$SLAY_MODE" = "MN" ]; then
-        if [ -n "$KSU" ] || [ -n "$APATCH" ]; then
+        if is_kernelsu || is_apatch; then
             logowl "Detect $MOD_NAME running on KernelSU / APatch, which supports Make Node mode"
-        elif [ -n "$MAGISK_V_VER_CODE" ]; then
+        elif is_magisk; then
             if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
                 logowl "Detect $MOD_NAME running on Magisk 28102+, which supports Make Node mode"
             else
@@ -99,7 +99,7 @@ preparation() {
             SLAY_MODE="MB"
         fi
     elif [ "$SLAY_MODE" = "MR" ]; then
-        if [ -n "$KSU" ] || [ -n "$APATCH" ]; then
+        if is_kernelsu || is_apatch; then
             logowl "Magisk Replace mode is NOT available as $MOD_NAME running on KernelSU / APatch!" "ERROR"
             logowl "Please use Magisk if you try to use Magisk Replace mode!"
             logowl "$MOD_NAME will revert to Make Node mode"
@@ -107,7 +107,7 @@ preparation() {
         fi
     fi
 
-    if [ "$ROOT_SOL" = "Multiple" ]; then
+    if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
         logowl "Detect multiple root solutions!" "WARN"
         logowl "Using multiple root solutions is NOT a healthy way"
         logowl "Please keep using one root solution ONLY if no need!"
@@ -144,7 +144,7 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
-        DESCRIPTION="[❌No effect. Target list does NOT exist! ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
+        DESCRIPTION="[❌No effect. Target list does NOT exist! ✨Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -319,16 +319,16 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[😋Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
+                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, ✨Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[😋Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
+                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! ⚡Mode: $MODE_MOD, ✨Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[😋No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
+                DESCRIPTION="[✅No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, ✨Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌No effect. Abnormal status! ⚡Mode: $MODE_MOD, ⭐Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way✨"
+                DESCRIPTION="[❌No effect. Abnormal status! ⚡Mode: $MODE_MOD, ✨Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
             fi
         fi
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
@@ -351,4 +351,5 @@ brick_rescue
 preparation
 bloatware_slayer
 module_status_update
+# debug_print_values >> "$LOG_FILE"
 logowl "post-fs-data.sh case closed!"
