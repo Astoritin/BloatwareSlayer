@@ -82,7 +82,7 @@ Logs are saved in `/data/adb/bloatwareslayer/logs`, you can review them and subm
 
 - `bs_log_core_(timestamp).log` is the logs about core features of Bloatware Slayer. 
 Since the system is not fully initialized at this stage, the date you see might appear very strange. Please do not be concerned.
-- `bs_log_bricked_(timestamp).log` is the logs about unbrick detection feature of Bloatware Slayer.
+- `bs_log_addon_(timestamp).log` is the logs about unbrick detection feature and module description update feature of Bloatware Slayer.
 - `bs_log_action_(timestamp).log` is the logs about action button of Bloatware Slayer.
 
 **When reporting issues, please simply zip the entire logs folder and upload it.**
