@@ -21,8 +21,6 @@ is_magisk() {
 
 is_kernelsu() {
     if [ -n "$KSU" ]; then
-        logowl "Install from KernelSU"
-        logowl "KernelSU version: $KSU_KERNEL_VER_CODE (kernel) + $KSU_VER_CODE (ksud)"
         DETECT_KSU="true"
         DETECT_KSU_DETAIL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
         return 0
@@ -32,8 +30,6 @@ is_kernelsu() {
 
 is_apatch() {
     if [ -n "$APATCH" ]; then
-        logowl "Install from APatch"
-        logowl "APatch version: $APATCH_VER_CODE"
         DETECT_APATCH="true"
         DETECT_APATCH_DETAIL="APatch ($APATCH_VER_CODE)"
         return 0
@@ -64,16 +60,13 @@ magisk_enforce_denylist_status() {
             fi
         fi
     else
-        logowl "Magisk does NOT exist!" "WARN"
+        # logowl "Magisk does NOT exist!" "WARN"
         return 1
     fi
 
 }
 
 zygisksu_enforce_denylist_status() {
-
-    MOD_ROOT_DIR=$(dirname "$MODDIR")
-    MOD_ZYGISKSU_PATH="${MOD_ROOT_DIR}/zygisksu"
 
     if [ -d "$MOD_ZYGISKSU_PATH" ]; then
         ZYGISKSU_DE_STATUS=$(znctl status | grep "enforce_denylist" | sed 's/^.*:\([01]\)$/\1/')
@@ -85,7 +78,7 @@ zygisksu_enforce_denylist_status() {
             fi
         fi
     else
-        logowl "Zygisk Next does NOT exist!" "WARN"
+        # logowl "Zygisk Next does NOT exist!" "WARN"
         return 1
     fi
 
@@ -387,6 +380,7 @@ verify_variables() {
     fi
 }
 
+
 update_config_value() {
 
     key_name="$1"
@@ -400,19 +394,18 @@ update_config_value() {
         logowl "$file_path is NOT a valid file!" "ERROR"
         return 2
     fi
-    # logowl "Update $key_name: $key_value"
+    logowl "Update $key_name: $key_value"
     sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
 
     result_update_value=$?
     if [ $result_update_value -eq 0 ]; then
-        # logowl "Succeeded (code: $result_update_value)"
-        return 0
+        logowl "Succeeded (code: $result_update_value)"
     else
-        # logowl "Failed to update $key_name=$key_value into $file_path (code: $result_update_value)" "WARN"
-        return 1
+        logowl "Failed to update $key_name=$key_value into $file_path (code: $result_update_value)" "WARN"
     fi
 
 }
+
 
 debug_print_values() {
 
