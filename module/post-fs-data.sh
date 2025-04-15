@@ -14,6 +14,7 @@ MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
+MOD_ROOT_DIR=$(dirname "$MODDIR")
 
 EMPTY_DIR="$CONFIG_DIR/empty"
 MIRROR_DIR="$MODDIR/system"
@@ -42,7 +43,7 @@ brick_rescue() {
         else
             logowl "Starting brick rescue"
             logowl "Skip post-fs-data.sh process"
-            DESCRIPTION="[❌Disabled. Auto disable from brick! ✨Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+            DESCRIPTION="[❌Disabled. Auto disable from brick! 🤖Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip mounting"
             exit 1
@@ -144,7 +145,7 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
-        DESCRIPTION="[❌No effect. Target list does NOT exist! ✨Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+        DESCRIPTION="[❌No effect. Target list does NOT exist! 🤖Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -319,16 +320,16 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, ✨Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, 🤖Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! ⚡Mode: $MODE_MOD, ✨Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! ⚡Mode: $MODE_MOD, 🤖Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, ✨Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, ⚡Mode: $MODE_MOD, 🤖Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌No effect. Abnormal status! ⚡Mode: $MODE_MOD, ✨Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+                DESCRIPTION="[❌No effect. Abnormal status! ⚡Mode: $MODE_MOD, 🤖Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
             fi
         fi
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
@@ -351,5 +352,4 @@ brick_rescue
 preparation
 bloatware_slayer
 module_status_update
-# debug_print_values >> "$LOG_FILE"
 logowl "post-fs-data.sh case closed!"
