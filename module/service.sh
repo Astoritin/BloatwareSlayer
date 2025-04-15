@@ -16,6 +16,8 @@ MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
 MOD_DESC_OLD="$(sed -n 's/^description=\(.*\)/\1/p' "$MODULE_PROP")"
+MOD_ROOT_DIR=$(dirname "$MODDIR")
+MOD_ZYGISKSU_PATH="${MOD_ROOT_DIR}/zygisksu"
 
 BRICK_TIMEOUT=180
 DISABLE_MODULE_AS_BRICK=true
@@ -61,6 +63,30 @@ denylist_enforcing_status_update() {
 }
 
 . "$MODDIR/aautilities.sh"
+
+update_config_value() {
+
+    key_name="$1"
+    key_value="$2"
+    file_path="$3"
+
+    if [ -z "$key_name" ] || [ -z "$key_value" ] || [ -z "$file_path" ]; then
+        logowl "Key name/value/file path is NOT provided yet!" "ERROR"
+        return 1
+    elif [ ! -f "$file_path" ]; then
+        logowl "$file_path is NOT a valid file!" "ERROR"
+        return 2
+    fi
+    sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
+
+    result_update_value=$?
+    if [ $result_update_value -eq 0 ]; then
+        return 0
+    else
+        return 1
+    fi
+
+}
 
 init_logowl "$LOG_DIR"
 module_intro >> "$LOG_FILE"
@@ -108,14 +134,13 @@ denylist_enforcing_status_update
         logowl "Failed to reset bricked status" "FATAL"
     fi
     print_line
-    # debug_print_values >> "$LOG_FILE"
     logowl "service.sh case closed!"
 
     MOD_REAL_TIME_DESC=""
     while true; do
         if [ "$UPDATE_DESC_ON_ACTION" = "false" ]; then
             logowl "Detect flag UPDATE_DESC_ON_ACTION=false"
-            logowl "Exiting background task"
+            logowl "Exit background task"
             exit 0
         fi
         if [ -f "$MODDIR/remove" ]; then
@@ -127,9 +152,9 @@ denylist_enforcing_status_update
         fi
     
         if [ "$MOD_CURRENT_STATUS" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), ✨Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
-        elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
-            MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), ✨Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+            MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), 🤖Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+        elif [ "$MOD_CURRENT_STATUS" = "disable" ]; theni
+            MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), 🤖Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
         elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
             MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
         fi
