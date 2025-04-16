@@ -292,11 +292,14 @@ bloatware_slayer() {
 
                 elif [ "$SLAY_MODE" = "MR" ]; then
 
-                    mirror_app_path="${MODDIR}${app_path}"
+                    mirror_app_path="$MODDIR$app_path"
+
                     logowl "Create mirror path: $mirror_app_path"
                     [ ! -d "$mirror_app_path" ] && mkdir -p "$mirror_app_path"
+
                     logowl "Execute touch $mirror_app_path/.replace"
                     touch "$mirror_app_path/.replace"
+
                     result_touch_replace="$?"
                     if [ $result_touch_replace -eq 0 ]; then
                         logowl "Succeeded (code: $result_touch_replace)"
@@ -308,17 +311,25 @@ bloatware_slayer() {
                     else
                         logowl "Failed to touch .replace: $mirror_app_path (code: $result_touch_replace)"
                     fi
+
                 fi
+
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
+
                 logowl "Detect file: $app_path"
+
                 if [ "$SLAY_MODE" = "MN" ]; then
+
                     app_path_parent_dir=$(dirname "$app_path")
                     mirror_parent_dir="$MODDIR$app_path_parent_dir"
                     mirror_app_path="$MODDIR$app_path"
+
                     logowl "Create parent path: $mirror_parent_dir"
                     [ ! -d "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
+
                     logowl "Execute mknod $mirror_app_path c 0 0"
                     mknod "$mirror_app_path" c 0 0
+
                     result_make_node="$?"
                     if [ $result_make_node -eq 0 ]; then
                         logowl "Succeeded (code: $result_make_node)"
@@ -330,8 +341,11 @@ bloatware_slayer() {
                     else
                         logowl "Failed to make node: $mirror_app_path (code: $result_make_node)"
                     fi
+
                 fi
+
             else
+
                 if [ "$first_char" = "/" ]; then
                     logowl "Custom dir not found: $app_path" "WARN"
                     break
@@ -339,6 +353,7 @@ bloatware_slayer() {
                     logowl "Dir not found: $app_path" "WARN"
                 fi
             fi
+
         done
     done < "$TARGET_LIST"
 
