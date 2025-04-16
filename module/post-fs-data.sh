@@ -121,8 +121,6 @@ preparation() {
             MODE_MOD="Mount Bind"
             logowl "Create $EMPTY_DIR"
             mkdir -p "$EMPTY_DIR"
-            logowl "Set permissions"
-            chmod 0755 "$EMPTY_DIR"
             ;;
         MN|MR)
             if [ "$SLAY_MODE" = "MN" ]; then
@@ -132,8 +130,6 @@ preparation() {
             fi
             logowl "Create $MIRROR_DIR"
             mkdir -p "$MIRROR_DIR"
-            logowl "Set permissions"
-            chmod 0755 "$MIRROR_DIR"
             ;;
         *)
             MODE_MOD="Unknown"
@@ -280,6 +276,7 @@ bloatware_slayer() {
                         if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
                         fi
+                        chmod 0644 "$mirror_app_path"
                         break
                     else
                         logowl "Failed to make node: $mirror_app_path (code: $result_make_node)" "ERROR"
@@ -297,6 +294,7 @@ bloatware_slayer() {
                         if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
                         fi
+                        chmod 0644 "$mirror_app_path/.replace"
                         break
                     else
                         logowl "Failed to touch .replace: $mirror_app_path (code: $result_touch_replace)" "ERROR"
@@ -319,6 +317,7 @@ bloatware_slayer() {
                         if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
                         fi
+                        chmod 0644 "$mirror_app_path"
                         break
                     else
                         logowl "Failed to make node: $mirror_app_path (code: $result_make_node)" "ERROR"
@@ -386,7 +385,4 @@ brick_rescue
 preparation
 bloatware_slayer
 module_status_update
-logowl "Set permissions"
-set_perm_recursive "$MIRROR_DIR" 0 0 0755 0644
-set_perm_recursive "$EMPTY_DIR" 0 0 0755 0644
 logowl "post-fs-data.sh case closed!"
