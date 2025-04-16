@@ -303,6 +303,7 @@ bloatware_slayer() {
                     fi
                 fi
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
+                logowl "Detect file: $app_path"
                 if [ "$SLAY_MODE" = "MN" ]; then
                     app_path_parent_dir=$(dirname "$app_path")
                     mirror_parent_dir="${MODDIR}${app_path_parent_dir}"
