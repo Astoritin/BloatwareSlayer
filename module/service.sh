@@ -77,9 +77,10 @@ update_config_value() {
         logowl "$file_path is NOT a valid file!" "ERROR"
         return 2
     fi
-    sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
 
+    sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
     result_update_value=$?
+
     if [ $result_update_value -eq 0 ]; then
         return 0
     else
@@ -152,9 +153,9 @@ denylist_enforcing_status_update
         fi
     
         if [ "$MOD_CURRENT_STATUS" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), 🤖Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
-        elif [ "$MOD_CURRENT_STATUS" = "disable" ]; theni
-            MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), 🤖Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+            MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), 🧭Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+        elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
+            MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), 🧭Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
         elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
             MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
         fi
