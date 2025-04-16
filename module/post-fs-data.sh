@@ -270,7 +270,7 @@ bloatware_slayer() {
                     mirror_parent_dir="${MODDIR}${app_path_parent_dir}"
                     mirror_app_path="${MODDIR}${app_path}"
                     logowl "Create parent path: $mirror_parent_dir"
-                    [ ! -e "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
+                    [ ! -d "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
                     logowl "Execute mknod $mirror_app_path c 0 0"
                     mknod "$mirror_app_path" c 0 0
                     result_make_node="$?"
@@ -287,7 +287,7 @@ bloatware_slayer() {
                 elif [ "$SLAY_MODE" = "MR" ]; then
                     mirror_app_path="${MODDIR}${app_path}"
                     logowl "Create mirror path: $mirror_app_path"
-                    mkdir -p "$mirror_app_path"
+                    [ ! -d "$mirror_app_path" ] && mkdir -p "$mirror_app_path"
                     logowl "Execute touch $mirror_app_path/.replace"
                     touch "$mirror_app_path/.replace"
                     result_touch_replace="$?"
@@ -308,7 +308,7 @@ bloatware_slayer() {
                     mirror_parent_dir="${MODDIR}${app_path_parent_dir}"
                     mirror_app_path="${MODDIR}${app_path}"
                     logowl "Create parent path: $mirror_parent_dir"
-                    mkdir -p "$mirror_parent_dir"
+                    [ ! -d "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
                     logowl "Execute mknod $mirror_app_path c 0 0"
                     mknod "$mirror_app_path" c 0 0
                     result_make_node="$?"
@@ -322,9 +322,8 @@ bloatware_slayer() {
                     else
                         logowl "Failed to make node: $mirror_app_path (code: $result_make_node)" "ERROR"
                     fi
-
                 elif [ "$SLAY_MODE" = "MB" ] || [ "$SLAY_MODE" = "MR" ] ; then
-
+                    continue
                 fi
             else
                 if [ "$first_char" = "/" ]; then
