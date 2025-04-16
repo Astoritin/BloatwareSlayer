@@ -246,10 +246,14 @@ bloatware_slayer() {
             fi
 
             logowl "Checking dir: $app_path"
+
             if [ -d "$app_path" ]; then
+
                 if [ "$SLAY_MODE" = "MB" ]; then
+
                     logowl "Execute mount -o bind $EMPTY_DIR $app_path"
                     mount -o bind "$EMPTY_DIR" "$app_path"
+
                     result_mount_bind=$?
                     if [ $result_mount_bind -eq 0 ]; then
                         logowl "Succeeded (code: $result_mount_bind)"
@@ -261,14 +265,19 @@ bloatware_slayer() {
                     else
                         logowl "Failed to mount: $app_path (code: $result_mount_bind)"
                     fi
+
                 elif [ "$SLAY_MODE" = "MN" ]; then
+
                     app_path_parent_dir=$(dirname "$app_path")
-                    mirror_parent_dir="${MODDIR}${app_path_parent_dir}"
-                    mirror_app_path="${MODDIR}${app_path}"
+                    mirror_parent_dir="$MODDIR$app_path_parent_dir"
+                    mirror_app_path="$MODDIR$app_path"
+
                     logowl "Create parent path: $mirror_parent_dir"
                     [ ! -d "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
+
                     logowl "Execute mknod $mirror_app_path c 0 0"
                     mknod "$mirror_app_path" c 0 0
+
                     result_make_node="$?"
                     if [ $result_make_node -eq 0 ]; then
                         logowl "Succeeded (code: $result_make_node)"
@@ -280,7 +289,9 @@ bloatware_slayer() {
                     else
                         logowl "Failed to make node: $mirror_app_path (code: $result_make_node)"
                     fi
+
                 elif [ "$SLAY_MODE" = "MR" ]; then
+
                     mirror_app_path="${MODDIR}${app_path}"
                     logowl "Create mirror path: $mirror_app_path"
                     [ ! -d "$mirror_app_path" ] && mkdir -p "$mirror_app_path"
@@ -302,8 +313,8 @@ bloatware_slayer() {
                 logowl "Detect file: $app_path"
                 if [ "$SLAY_MODE" = "MN" ]; then
                     app_path_parent_dir=$(dirname "$app_path")
-                    mirror_parent_dir="${MODDIR}${app_path_parent_dir}"
-                    mirror_app_path="${MODDIR}${app_path}"
+                    mirror_parent_dir="$MODDIR$app_path_parent_dir"
+                    mirror_app_path="$MODDIR$app_path"
                     logowl "Create parent path: $mirror_parent_dir"
                     [ ! -d "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
                     logowl "Execute mknod $mirror_app_path c 0 0"
