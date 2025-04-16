@@ -227,8 +227,16 @@ bloatware_slayer() {
                 logowl "Detect custom dir: $app_path"
                 case "$app_path" in
                     /system/apex*)
-                        logowl "Detect apex dir"
-                        app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\(.*\)/.*|\1|p')
+                        app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\)/.*|/system/apex/\1|p')
+                        if [ -f "${app_path}.apex" ]; then
+                            app_path="${app_path}.apex"
+                        elif [ -f "${app_path}.capex" ]; then
+                            app_path="${app_path}.capex"
+                        else
+                            logowl "custom apex dir does NOT exist: $app_path"
+                            continue
+                        fi
+                        logowl "Detect apex path: $app_path"
                         ;;
                     /system*)
                         ;;
