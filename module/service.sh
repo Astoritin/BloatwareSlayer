@@ -50,10 +50,10 @@ denylist_enforcing_status_update() {
         [ -z "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_OLD"
         [ -n "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_DE_OLD"
 
-        if echo "$MOD_DESC_TMP" | grep -q "⛔DenyList Enforcing: "; then
-            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E "s/(⛔DenyList Enforcing: )[^]]*/\1${ROOT_SOL_DE}/")
+        if echo "$MOD_DESC_TMP" | grep -q "⛔ DenyList Enforcing: "; then
+            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E "s/(⛔ DenyList Enforcing: )[^]]*/\1${ROOT_SOL_DE}/")
         else
-            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E 's/\]/, ⛔DenyList Enforcing: '"${ROOT_SOL_DE}"'\]/')
+            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E 's/\]/, ⛔ DenyList Enforcing: '"${ROOT_SOL_DE}"'\]/')
         fi
 
         update_config_value "description" "$MOD_DESC_NEW" "$MODULE_PROP"
@@ -153,9 +153,9 @@ denylist_enforcing_status_update
         fi
     
         if [ "$MOD_CURRENT_STATUS" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), 🧭Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+            MOD_REAL_TIME_DESC="[🗑️ Remove (Reboot to take effect), 🧭 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
         elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
-            MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), 🧭Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+            MOD_REAL_TIME_DESC="[❌ Disable (Reboot to take effect), 🧭 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
         elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
             MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
         fi
