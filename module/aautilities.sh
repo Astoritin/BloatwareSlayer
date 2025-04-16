@@ -78,7 +78,6 @@ zygisksu_enforce_denylist_status() {
             fi
         fi
     else
-        # logowl "Zygisk Next does NOT exist!" "WARN"
         return 1
     fi
 
@@ -527,4 +526,29 @@ clean_old_logs() {
     else
         logowl "Detect $files_count files in $log_dir"
     fi
+}
+
+set_permission() {
+
+    chown $2:$3 $1 || return 1
+    
+    chmod $4 $1 || return 1
+    
+    selinux_content=$5
+    [ -z "$selinux_content" ] && selinux_content=u:object_r:system_file:s0
+
+    chcon $selinux_content $1 || return 1
+
+}
+
+set_permission_recursive() {
+
+    logowl "Set permissions"
+    find $1 -type d 2>/dev/null | while read dir; do
+        set_permission $dir $2 $3 $4 $6
+    done
+    find $1 -type f -o -type l 2>/dev/null | while read file; do
+        set_permission $file $2 $3 $5 $6
+    done
+
 }
