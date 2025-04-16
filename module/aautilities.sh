@@ -336,7 +336,7 @@ check_value_safety(){
 
     value=$(echo "$value" | cut -d'#' -f1 | xargs)
 
-    regex='^[a-zA-Z0-9/_\. -]*$'
+    regex='^[a-zA-Z0-9/_\. @-]*$'
     dangerous_chars='[`$();|<>]'
 
     if echo "$value" | grep -Eq "$dangerous_chars"; then
