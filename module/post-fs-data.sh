@@ -385,4 +385,7 @@ brick_rescue
 preparation
 bloatware_slayer
 module_status_update
+logowl "Set permissions"
+set_perm_recursive "$MIRROR_DIR" 0 0 0755 0644
+set_perm_recursive "$EMPTY_DIR" 0 0 0755 0644
 logowl "post-fs-data.sh case closed!"
