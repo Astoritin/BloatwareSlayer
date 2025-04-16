@@ -170,6 +170,34 @@ preparation() {
 
 }
 
+mirror_make_node() {
+
+    node_path=$1
+
+    [ -z "$node_path" ] && return 1
+    [ ! -e "$node_path" ] && return 2
+
+    node_path_parent_dir=$(dirname "$node_path")
+    mirror_parent_dir="$MODDIR$node_path_parent_dir"
+    mirror_node_path="$MODDIR$node_path"
+
+    logowl "Create parent path: $mirror_parent_dir"
+    [ ! -d "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
+
+    logowl "Execute mknod $mirror_node_path c 0 0"
+    mknod "$mirror_node_path" c 0 0
+
+    result_make_node="$?"
+    if [ $result_make_node -eq 0 ]; then
+        logowl "Succeeded (code: $result_make_node)"
+        return 0
+    else
+        logowl "Failed (code: $result_make_node)"
+        return 3
+    fi
+
+}
+
 bloatware_slayer() {
 
     logowl "Slaying bloatwares"
@@ -268,26 +296,18 @@ bloatware_slayer() {
 
                 elif [ "$SLAY_MODE" = "MN" ]; then
 
-                    app_path_parent_dir=$(dirname "$app_path")
-                    mirror_parent_dir="$MODDIR$app_path_parent_dir"
-                    mirror_app_path="$MODDIR$app_path"
-
-                    logowl "Create parent path: $mirror_parent_dir"
-                    [ ! -d "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
-
-                    logowl "Execute mknod $mirror_app_path c 0 0"
-                    mknod "$mirror_app_path" c 0 0
-
-                    result_make_node="$?"
-                    if [ $result_make_node -eq 0 ]; then
-                        logowl "Succeeded (code: $result_make_node)"
+                    if mirror_make_node "$app_path"; then
                         BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                         if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
                         fi
                         break
-                    else
-                        logowl "Failed to make node: $mirror_app_path (code: $result_make_node)"
+                    elif [ "$?" = 1 ]; then
+                        logowl "node_path is NOT ordered!" "ERROR"
+                    elif [ "$?" = 2 ]; then
+                        logowl "$node_path does NOT exist!" "WARN"
+                    elif [ "$?" = 3 ]; then
+                        logowl "Failed to create node: $node_path" "WARN"
                     fi
 
                 elif [ "$SLAY_MODE" = "MR" ]; then
@@ -320,28 +340,19 @@ bloatware_slayer() {
 
                 if [ "$SLAY_MODE" = "MN" ]; then
 
-                    app_path_parent_dir=$(dirname "$app_path")
-                    mirror_parent_dir="$MODDIR$app_path_parent_dir"
-                    mirror_app_path="$MODDIR$app_path"
-
-                    logowl "Create parent path: $mirror_parent_dir"
-                    [ ! -d "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
-
-                    logowl "Execute mknod $mirror_app_path c 0 0"
-                    mknod "$mirror_app_path" c 0 0
-
-                    result_make_node="$?"
-                    if [ $result_make_node -eq 0 ]; then
-                        logowl "Succeeded (code: $result_make_node)"
+                    if mirror_make_node "$app_path"; then
                         BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                         if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
                         fi
                         break
-                    else
-                        logowl "Failed to make node: $mirror_app_path (code: $result_make_node)"
+                    elif [ "$?" = 1 ]; then
+                        logowl "node_path is NOT ordered!" "ERROR"
+                    elif [ "$?" = 2 ]; then
+                        logowl "$node_path does NOT exist!" "WARN"
+                    elif [ "$?" = 3 ]; then
+                        logowl "Failed to create node: $node_path" "WARN"
                     fi
-
                 fi
 
             else
