@@ -322,8 +322,6 @@ bloatware_slayer() {
                     else
                         logowl "Failed to make node: $mirror_app_path (code: $result_make_node)" "ERROR"
                     fi
-                elif [ "$SLAY_MODE" = "MB" ] || [ "$SLAY_MODE" = "MR" ] ; then
-                    continue
                 fi
             else
                 if [ "$first_char" = "/" ]; then
