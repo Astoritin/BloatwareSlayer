@@ -26,6 +26,36 @@ SLAY_MODE="MB"
 
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
+set_permission() {
+
+    logowl "Execute: chown $2:$3 $1"
+    chown $2:$3 $1 || return 1
+    
+    logowl "Execute: chmod $4 $1"
+    chmod $4 $1 || return 1
+    
+    selinux_content=$5
+    [ -z "$selinux_content" ] && selinux_content=u:object_r:system_file:s0
+
+    logowl "Execute: chcon $selinux_content $1"
+    chcon $selinux_content $1 || return 1
+
+}
+
+set_permission_recursive() {
+
+    logowl "Setting permissions"
+    find $1 -type d 2>/dev/null | while read dir; do
+        logowl "Set: $dir $2 $3 $4 $6"
+        set_permission $dir $2 $3 $4 $6
+    done
+    find $1 -type f -o -type l 2>/dev/null | while read file; do
+        logowl "Set: $dir $2 $3 $5 $6"
+        set_permission $file $2 $3 $5 $6
+    done
+
+}
+
 brick_rescue() {
 
     logowl "Checking brick status"
@@ -386,3 +416,4 @@ preparation
 bloatware_slayer
 module_status_update
 logowl "post-fs-data.sh case closed!"
+set_permission_recursive "$MODDIR" 0 0 0755 0644
