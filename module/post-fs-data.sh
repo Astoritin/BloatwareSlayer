@@ -46,11 +46,9 @@ set_permission_recursive() {
 
     logowl "Setting permissions"
     find $1 -type d 2>/dev/null | while read dir; do
-        logowl "Set: $dir $2 $3 $4 $6"
         set_permission $dir $2 $3 $4 $6
     done
     find $1 -type f -o -type l 2>/dev/null | while read file; do
-        logowl "Set: $dir $2 $3 $5 $6"
         set_permission $file $2 $3 $5 $6
     done
 
