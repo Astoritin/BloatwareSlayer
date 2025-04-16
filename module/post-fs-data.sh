@@ -26,36 +26,6 @@ SLAY_MODE="MB"
 
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
-set_permission() {
-
-    logowl "chown $2:$3 $1"
-    chown $2:$3 $1 || return 1
-    
-    logowl "chmod $4 $1"
-    chmod $4 $1 || return 1
-    
-    selinux_content=$5
-    [ -z "$selinux_content" ] && selinux_content=u:object_r:system_file:s0
-
-    logowl "chcon $selinux_content $1"
-    chcon $selinux_content $1 || return 1
-
-}
-
-set_permission_recursive() {
-
-    logowl "Setting permissions"
-    find $1 -type d 2>/dev/null | while read dir; do
-        logowl "Set: $dir $2 $3 $4 $6"
-        set_permission $dir $2 $3 $4 $6
-    done
-    find $1 -type f -o -type l 2>/dev/null | while read file; do
-        logowl "Set: $file $2 $3 $5 $6"
-        set_permission $file $2 $3 $5 $6
-    done
-
-}
-
 brick_rescue() {
 
     logowl "Checking brick status"
@@ -289,7 +259,7 @@ bloatware_slayer() {
                         fi
                         break
                     else
-                        logowl "Failed to mount: $app_path (code: $result_mount_bind)" "ERROR"
+                        logowl "Failed to mount: $app_path (code: $result_mount_bind)"
                     fi
                 elif [ "$SLAY_MODE" = "MN" ]; then
                     app_path_parent_dir=$(dirname "$app_path")
@@ -306,10 +276,9 @@ bloatware_slayer() {
                         if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
                         fi
-                        chmod 0644 "$mirror_app_path"
                         break
                     else
-                        logowl "Failed to make node: $mirror_app_path (code: $result_make_node)" "ERROR"
+                        logowl "Failed to make node: $mirror_app_path (code: $result_make_node)"
                     fi
                 elif [ "$SLAY_MODE" = "MR" ]; then
                     mirror_app_path="${MODDIR}${app_path}"
@@ -324,10 +293,9 @@ bloatware_slayer() {
                         if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
                         fi
-                        chmod 0644 "$mirror_app_path/.replace"
                         break
                     else
-                        logowl "Failed to touch .replace: $mirror_app_path (code: $result_touch_replace)" "ERROR"
+                        logowl "Failed to touch .replace: $mirror_app_path (code: $result_touch_replace)"
                     fi
                 fi
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
@@ -347,10 +315,9 @@ bloatware_slayer() {
                         if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
                         fi
-                        chmod 0644 "$mirror_app_path"
                         break
                     else
-                        logowl "Failed to make node: $mirror_app_path (code: $result_make_node)" "ERROR"
+                        logowl "Failed to make node: $mirror_app_path (code: $result_make_node)"
                     fi
                 fi
             else
@@ -367,8 +334,6 @@ bloatware_slayer() {
     if [ "$UPDATE_TARGET_LIST" = "true" ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
         logowl "Updating target list"
         cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
-        chmod 0644 "$TARGET_LIST_BSA"
-        chmod 0644 "$TARGET_LIST"
     fi
 }
 
@@ -416,4 +381,5 @@ preparation
 bloatware_slayer
 module_status_update
 set_permission_recursive "$MODDIR" 0 0 0755 0644
+set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
 logowl "post-fs-data.sh case closed!"
