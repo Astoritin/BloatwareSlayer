@@ -270,7 +270,7 @@ bloatware_slayer() {
                     mirror_parent_dir="${MODDIR}${app_path_parent_dir}"
                     mirror_app_path="${MODDIR}${app_path}"
                     logowl "Create parent path: $mirror_parent_dir"
-                    mkdir -p "$mirror_parent_dir"
+                    [ ! -e "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
                     logowl "Execute mknod $mirror_app_path c 0 0"
                     mknod "$mirror_app_path" c 0 0
                     result_make_node="$?"
@@ -301,6 +301,30 @@ bloatware_slayer() {
                     else
                         logowl "Failed to touch .replace: $mirror_app_path (code: $result_touch_replace)" "ERROR"
                     fi
+                fi
+            elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
+                if [ "$SLAY_MODE" = "MN" ]; then
+                    app_path_parent_dir=$(dirname "$app_path")
+                    mirror_parent_dir="${MODDIR}${app_path_parent_dir}"
+                    mirror_app_path="${MODDIR}${app_path}"
+                    logowl "Create parent path: $mirror_parent_dir"
+                    mkdir -p "$mirror_parent_dir"
+                    logowl "Execute mknod $mirror_app_path c 0 0"
+                    mknod "$mirror_app_path" c 0 0
+                    result_make_node="$?"
+                    if [ $result_make_node -eq 0 ]; then
+                        logowl "Succeeded (code: $result_make_node)"
+                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                        if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
+                            echo "$app_path" >> "$TARGET_LIST_BSA"
+                        fi
+                        break
+                    else
+                        logowl "Failed to make node: $mirror_app_path (code: $result_make_node)" "ERROR"
+                    fi
+
+                elif [ "$SLAY_MODE" = "MB" ] || [ "$SLAY_MODE" = "MR" ] ; then
+
                 fi
             else
                 if [ "$first_char" = "/" ]; then
