@@ -114,7 +114,7 @@ denylist_enforcing_status_update
             logowl "Please make sure no improper APP(s) being blocked!" "FATAL"
             logowl "Marking status as bricked"
             touch "$BRICKED_STATUS"
-            if [ "$DISABLE_MODULE_AS_BRICK" = "true" ]; then
+            if [ "$DISABLE_MODULE_AS_BRICK" = true ]; then
                 logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
                 logowl "Disable $MOD_NAME"
                 touch "$MODDIR/disable"
@@ -142,8 +142,9 @@ denylist_enforcing_status_update
     fi
     print_line
 
-    if [ "$SLAY_MODE" = "MB" ]; then
+    if [ "$SLAY_MODE" = "MB" ] && [ "$MB_UMOUNT_BIND" = true ]; then
         logowl "$MOD_NAME is running on MB (Mount Bind) mode"
+        logowl "Detect flag MB_UMOUNT_BIND=true"
         logowl "Umounting"
         if [ ! -e "$TARGET_LIST_BSA" ]; then
             logowl "Target List ($MOD_NAME arranged) file does NOT exist!" "ERROR"
@@ -167,14 +168,14 @@ denylist_enforcing_status_update
                     logowl "Detect empty line, skip processing" "TIPS"
                     continue
                 elif [ "$first_char" = "#" ]; then
-                    logowl 'Detect comment symbol "#", skip processing' "TIPS"
+                    logowl "Detect comment line, skip processing" "TIPS"
                     continue
                 fi
 
                 package=$(echo "$line" | cut -d '#' -f1)
                 package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
                 if [ -z "$package" ]; then
-                    logowl "Detect only comment contains in this line only, skip processing" "TIPS"
+                    logowl "Detect only comment left in this line, skip processing" "TIPS"
                     continue
                 fi
                 case "$package" in
@@ -183,7 +184,7 @@ denylist_enforcing_status_update
                         package=$(echo "$package" | sed -e 's/\\/\//g')
                         ;;
                 esac
-                logowl "After processed: $package"
+                logowl "After processing: $package"
 
                 logowl "Execute umount -f $package"
                 umount -f $package
@@ -202,7 +203,7 @@ denylist_enforcing_status_update
     
     MOD_REAL_TIME_DESC=""
     while true; do
-        if [ "$UPDATE_DESC_ON_ACTION" = "false" ]; then
+        if [ "$UPDATE_DESC_ON_ACTION" = false ]; then
             logowl "Detect flag UPDATE_DESC_ON_ACTION=false"
             logowl "Exit background task"
             exit 0
