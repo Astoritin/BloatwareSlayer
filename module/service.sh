@@ -6,10 +6,9 @@ CONFIG_DIR="/data/adb/bloatwareslayer"
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 EMPTY_DIR="$CONFIG_DIR/empty"
-TARGET_LIST="$CONFIG_DIR/target.conf"
-TARGET_LIST_BSA="$CONFIG_DIR/logs/target_bsa.conf"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_log_addon_$(date +"%Y-%m-%d_%H-%M-%S").log"
+LINK_MB_FILE="$LOG_DIR/target_link_mb.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
@@ -89,6 +88,10 @@ update_config_value() {
 
 }
 
+link_bind_umount() {
+    
+}
+
 init_logowl "$LOG_DIR"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
@@ -135,13 +138,13 @@ denylist_enforcing_status_update
         logowl "Failed to reset bricked status" "FATAL"
     fi
     print_line
-    logowl "service.sh case closed!"
 
     MOD_REAL_TIME_DESC=""
     while true; do
         if [ "$UPDATE_DESC_ON_ACTION" = "false" ]; then
             logowl "Detect flag UPDATE_DESC_ON_ACTION=false"
             logowl "Exit background task"
+            logowl "service.sh case closed!"
             exit 0
         fi
         if [ -f "$MODDIR/remove" ]; then
