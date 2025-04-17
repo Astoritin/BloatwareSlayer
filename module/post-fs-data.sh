@@ -62,11 +62,13 @@ config_loader() {
     system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
+    mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
 
     verify_variables "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
     verify_variables "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
     verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
+    verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
 
 }
 
