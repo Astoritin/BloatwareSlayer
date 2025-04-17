@@ -18,14 +18,14 @@ MOD_ROOT_DIR=$(dirname "$MODDIR")
 
 EMPTY_DIR="$CONFIG_DIR/empty"
 MIRROR_DIR="$MODDIR/system"
-MAKE_NODE_SUPPORT=false
-MAGISK_REPLACE_SUPPORT=false
 
 UPDATE_TARGET_LIST=true
 AUTO_UPDATE_TARGET_LIST=true
 DISABLE_MODULE_AS_BRICK=true
 
 SLAY_MODE=MB
+MN_SUPPORT=false
+MR_SUPPORT=false
 MB_UMOUNT_BIND=true
 
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
