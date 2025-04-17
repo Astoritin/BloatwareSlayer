@@ -7,8 +7,8 @@ CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 EMPTY_DIR="$CONFIG_DIR/empty"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/bs__$(date +"%Y-%m-%d_%H-%M-%S").log"
-LINK_MB_FILE="$LOG_DIR/target_link_mb.conf"
+LOG_FILE="$LOG_DIR/bs_brickd_$(date +"%Y-%m-%d_%H-%M-%S").log"
+TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
@@ -140,17 +140,50 @@ denylist_enforcing_status_update
     print_line
 
     if [ "$SLAY_MODE" = "MB" ]; then
-        logowl "Detect $MOD_NAME running on Mount Bind mode"
-        logowl "Start umounting"
-        if [ ! -e "$LINK_MB_FILE" ]; then
-            logowl "Link mount bind file does NOT exist!" "ERROR"
-        elif [ -d "$LINK_MB_FILE" ]; then
-            logowl "$LINK_MB_FILE is a directory!" "WARN"
+        logowl "$MOD_NAME is running on MB (Mount Bind) mode"
+        logowl "Umounting"
+        if [ ! -e "$TARGET_LIST_BSA" ]; then
+            logowl "Target List ($MOD_NAME arranged) file does NOT exist!" "ERROR"
+        elif [ -d "$TARGET_LIST_BSA" ]; then
+            logowl "$TARGET_LIST_BSA is a directory!" "WARN"
         else
-            while IFS= read -r line; do
+            lines_count=0
 
-                logowl "Execute umount -f $line"
-                umount -f $line
+            while IFS= read -r line; do
+                lines_count=$((lines_count + 1))
+
+                if check_value_safety "line $lines_count" "$line"; then
+                    logowl "Current line: $line"
+                else
+                    continue
+                fi
+
+                line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+                first_char=$(printf '%s' "$line" | cut -c1)
+                if [ -z "$line" ]; then
+                    logowl "Detect empty line, skip processing" "TIPS"
+                    continue
+                elif [ "$first_char" = "#" ]; then
+                    logowl 'Detect comment symbol "#", skip processing' "TIPS"
+                    continue
+                fi
+
+                package=$(echo "$line" | cut -d '#' -f1)
+                package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+                if [ -z "$package" ]; then
+                    logowl "Detect only comment contains in this line only, skip processing" "TIPS"
+                    continue
+                fi
+                case "$package" in
+                    *\\*)
+                        logowl "Replace '\\' with '/' in path: $package" "WARN"
+                        package=$(echo "$package" | sed -e 's/\\/\//g')
+                        ;;
+                esac
+                logowl "After processed: $package"
+
+                logowl "Execute umount -f $package"
+                umount -f $package
 
                 result_umount=$?
                 if [ $result_umount -eq 0 ]; then
@@ -159,16 +192,16 @@ denylist_enforcing_status_update
                     logowl "Failed (code: $result_umount)"
                 fi
 
-            done < "$LINK_MB_FILE"
+            done < "$TARGET_LIST_BSA"
         fi
     fi
-
+    logowl "service.sh case closed!"
+    
     MOD_REAL_TIME_DESC=""
     while true; do
         if [ "$UPDATE_DESC_ON_ACTION" = "false" ]; then
             logowl "Detect flag UPDATE_DESC_ON_ACTION=false"
             logowl "Exit background task"
-            logowl "service.sh case closed!"
             exit 0
         fi
         if [ -f "$MODDIR/remove" ]; then
