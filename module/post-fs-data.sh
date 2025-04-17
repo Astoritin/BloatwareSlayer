@@ -74,26 +74,39 @@ config_loader() {
 
 preparation() {
 
-    logowl "Some preparations"
+    logowl "Some preparatory work"
 
     if [ -n "$MODDIR" ] && [ -d "$MODDIR" ] && [ "$MODDIR" != "/" ] && [ -d "$MIRROR_DIR" ]; then
         logowl "Remove old mirror folder"
         rm -rf "$MIRROR_DIR"
     fi
     if [ -n "$MODDIR" ] && [ -d "$MODDIR" ] && [ "$MODDIR" != "/" ] && [ -d "$EMPTY_DIR" ]; then
-        logowl "Remove old empty folder"
+        logowl "Remove old bind folder"
         rm -rf "$EMPTY_DIR"
     fi
 
+    if [ "$DETECT_KSU" = "true" ] || [ "$DETECT_APATCH" = "true" ]; then
+        logowl "$MOD_NAME is running on KernelSU / APatch, which supports Make Node mode"
+        MN_SUPPORT=true
+    elif [ "$DETECT_MAGISK" = "true" ]; then
+        MR_SUPPORT=true
+        if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
+            logowl "$MOD_NAME is running on Magisk 28102+, which supports Make Node mode"
+            MN_SUPPORT=true
+        else
+            logowl "Make Node mode requires Magisk version 28102 and higher (current $MAGISK_V_VER_CODE)!" "ERROR"
+            logowl "$MOD_NAME will revert to Magisk Replace mode"
+        
+    
+
     if [ "$SLAY_MODE" = "MN" ]; then
         if is_kernelsu || is_apatch; then
-            logowl "Detect $MOD_NAME running on KernelSU / APatch, which supports Make Node mode"
+            
         elif is_magisk; then
-            if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
-                logowl "Detect $MOD_NAME running on Magisk 28102+, which supports Make Node mode"
+            if ; then
+                
             else
-                logowl "Make Node mode needs Magisk version 28102 and higher (current $MAGISK_V_VER_CODE)!" "ERROR"
-                logowl "$MOD_NAME will revert to Magisk Replace mode"
+                
                 SLAY_MODE="MR"
             fi
         else
