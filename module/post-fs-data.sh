@@ -9,7 +9,6 @@ TARGET_LIST="$CONFIG_DIR/target.conf"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_core_$(date +"%Y-%m-%d_%H-%M-%S").log"
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
-LINK_MB_FILE="$LOG_DIR/target_link_mb.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
@@ -82,10 +81,6 @@ preparation() {
     if [ -n "$MODDIR" ] && [ -d "$MODDIR" ] && [ "$MODDIR" != "/" ] && [ -d "$EMPTY_DIR" ]; then
         logowl "Remove old empty folder"
         rm -rf "$EMPTY_DIR"
-    fi
-    if [ -e "$LINK_MB_FILE" ]; then
-        logowl "Remove old link mount bind log file"
-        rm -f "$LINK_MB_FILE"
     fi
 
     if [ "$SLAY_MODE" = "MN" ]; then
@@ -292,7 +287,7 @@ bloatware_slayer() {
         package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
         if [ -z "$package" ]; then
-            logowl "Detect only comment contains in this line only, skip processing" "TIPS"
+            logowl "Detect only comment in this line, skip processing" "TIPS"
             continue
         fi
 
@@ -354,34 +349,33 @@ bloatware_slayer() {
                     if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
                         echo "$app_path" >> "$TARGET_LIST_BSA"
                     fi
-
-                    if [ "$SLAY_MODE" = "MB" ]; then
-                        echo "$app_path" >> "$LINK_MB_FILE"
-                    fi
-
                     break
                 else
                     logowl "Failed to mount: $app_path (code: $bloatware_slay_result)"
                 fi
 
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
-
                 logowl "Detect file: $app_path"
 
                 if [ "$SLAY_MODE" = "MN" ]; then
-                    mirror_make_node "$app_path"
-                fi
 
-                bloatware_slay_result=$?
-                if [ $bloatware_slay_result -eq 0 ]; then
-                    logowl "Succeeded (code: $bloatware_slay_result)"
-                    BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-                    if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
-                        echo "$app_path" >> "$TARGET_LIST_BSA"
+                    mirror_make_node "$app_path"
+
+                    bloatware_slay_result=$?
+                    if [ $bloatware_slay_result -eq 0 ]; then
+                        logowl "Succeeded (code: $bloatware_slay_result)"
+                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                        if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
+                            echo "$app_path" >> "$TARGET_LIST_BSA"
+                        fi
+                        break
+                    else
+                        logowl "Failed to mount: $app_path (code: $bloatware_slay_result)"
                     fi
-                    break
+
                 else
-                    logowl "Failed to mount: $app_path (code: $bloatware_slay_result)"
+                    logowl "Make Node mode is required when bloatwares locating in apex files!" "WARN"
+                    logowl "Since Magisk Replace or Mount Bind mode does NOT support deleting file systemlessly!" "WARN"
                 fi
 
             else
