@@ -318,7 +318,7 @@ bloatware_slayer() {
                             app_path="${app_path}.capex"
                         else
                             logowl "apex dir does NOT exist: $app_path"
-                            continue
+                            break
                         fi
                         logowl "Detect apex path: $app_path"
                         ;;
@@ -333,7 +333,7 @@ bloatware_slayer() {
                 app_path="$path/$package"
             fi
 
-            logowl "Check dir: $app_path"
+            logowl "Check dir: $app_path" "TIPS"
             if [ -d "$app_path" ]; then
                 if [ "$SLAY_MODE" = "MB" ]; then
                     link_mount_bind "$app_path"
