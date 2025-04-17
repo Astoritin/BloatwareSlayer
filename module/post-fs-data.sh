@@ -7,7 +7,7 @@ CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 TARGET_LIST="$CONFIG_DIR/target.conf"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/bs_log_core_$(date +"%Y-%m-%d_%H-%M-%S").log"
+LOG_FILE="$LOG_DIR/bs_core_$(date +"%Y-%m-%d_%H-%M-%S").log"
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 LINK_MB_FILE="$LOG_DIR/target_link_mb.conf"
 
