@@ -6,9 +6,10 @@ CONFIG_DIR="/data/adb/bloatwareslayer"
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 TARGET_LIST="$CONFIG_DIR/target.conf"
-TARGET_LIST_BSA="$CONFIG_DIR/logs/target_bsa.conf"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_log_core_$(date +"%Y-%m-%d_%H-%M-%S").log"
+TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
+LINK_MB_FILE="$LOG_DIR/target_link_mb.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
@@ -25,39 +26,6 @@ DISABLE_MODULE_AS_BRICK=true
 SLAY_MODE="MB"
 
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
-
-mirror_make_node() {
-
-    node_path=$1
-
-    if [ -z "$node_path" ]; then
-        logowl "node_path is NOT ordered!" "ERROR"
-        return 1
-    elif [ ! -e "$node_path" ]; then
-        logowl "$node_path does NOT exist!" "WARN"
-        return 2
-    fi
-
-    node_path_parent_dir=$(dirname "$node_path")
-    mirror_parent_dir="$MODDIR$node_path_parent_dir"
-    mirror_node_path="$MODDIR$node_path"
-
-    logowl "Create parent path: $mirror_parent_dir"
-    [ ! -d "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
-
-    logowl "Execute mknod $mirror_node_path c 0 0"
-    mknod "$mirror_node_path" c 0 0
-
-    result_make_node="$?"
-    if [ $result_make_node -eq 0 ]; then
-        logowl "Succeeded (code: $result_make_node)"
-        return 0
-    else
-        logowl "Failed to create node file: $node_path (code: $result_make_node)"
-        return 3
-    fi
-
-}
 
 brick_rescue() {
 
@@ -114,6 +82,10 @@ preparation() {
     if [ -n "$MODDIR" ] && [ -d "$MODDIR" ] && [ "$MODDIR" != "/" ] && [ -d "$EMPTY_DIR" ]; then
         logowl "Remove old empty folder"
         rm -rf "$EMPTY_DIR"
+    fi
+    if [ -e "$LINK_MB_FILE" ]; then
+        logowl "Remove old link mount bind log file"
+        rm -f "$LINK_MB_FILE"
     fi
 
     if [ "$SLAY_MODE" = "MN" ]; then
@@ -203,6 +175,90 @@ preparation() {
 
 }
 
+mirror_make_node() {
+
+    node_path=$1
+
+    if [ -z "$node_path" ]; then
+        logowl "node_path is NOT ordered!" "ERROR"
+        return 5
+    elif [ ! -e "$node_path" ]; then
+        logowl "$node_path does NOT exist!" "ERROR"
+        return 6
+    fi
+
+    node_path_parent_dir=$(dirname "$node_path")
+    mirror_parent_dir="$MODDIR$node_path_parent_dir"
+    mirror_node_path="$MODDIR$node_path"
+
+    logowl "Create parent path: $mirror_parent_dir"
+    [ ! -d "$mirror_parent_dir" ] && mkdir -p "$mirror_parent_dir"
+
+    logowl "Execute mknod $mirror_node_path c 0 0"
+    mknod "$mirror_node_path" c 0 0
+
+    result_make_node="$?"
+    if [ $result_make_node -eq 0 ]; then
+        return 0
+    else
+        return $result_make_node
+    fi
+
+}
+
+mirror_magisk_replace() {
+
+    replace_path=$1
+
+    if [ -z "$replace_path" ]; then
+        logowl "replace_path is NOT ordered!" "ERROR"
+        return 5
+    elif [ ! -d "$replace_path" ]; then
+        logowl "$replace_path is NOT a directory!" "ERROR"
+        return 6
+    fi
+
+    mirror_app_path="$MODDIR$replace_path"
+
+    logowl "Create mirror path: $mirror_app_path"
+    [ ! -d "$mirror_app_path" ] && mkdir -p "$mirror_app_path"
+
+    logowl "Execute touch $mirror_app_path/.replace"
+    touch "$mirror_app_path/.replace"
+
+    result_magisk_replace="$?"
+    if [ $result_magisk_replace -eq 0 ]; then
+        return 0
+    else
+        return $result_magisk_replace
+    fi
+
+}
+
+link_mount_bind() {
+
+    link_path=$1
+
+    if [ -z "$link_path" ]; then
+        logowl "link_path is NOT ordered!" "ERROR"
+        return 5
+    elif [ ! -d "$link_path" ]; then
+        logowl "$link_path is NOT a directory!" "ERROR"
+        return 6
+    fi
+
+    logowl "Execute mount -o bind $EMPTY_DIR $app_path"
+    mount -o bind "$EMPTY_DIR" "$app_path"
+
+    result_mount_bind="$?"
+    if [ $result_mount_bind -eq 0 ]; then
+        return 0
+    else
+        return $result_mount_bind
+    fi
+
+}
+
 bloatware_slayer() {
 
     logowl "Slaying bloatwares"
@@ -283,54 +339,29 @@ bloatware_slayer() {
             if [ -d "$app_path" ]; then
 
                 if [ "$SLAY_MODE" = "MB" ]; then
-
-                    logowl "Execute mount -o bind $EMPTY_DIR $app_path"
-                    mount -o bind "$EMPTY_DIR" "$app_path"
-
-                    result_mount_bind=$?
-                    if [ $result_mount_bind -eq 0 ]; then
-                        logowl "Succeeded (code: $result_mount_bind)"
-                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-                        if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
-                            echo "$app_path" >> "$TARGET_LIST_BSA"
-                        fi
-                        break
-                    else
-                        logowl "Failed to mount: $app_path (code: $result_mount_bind)"
-                    fi
-
+                    link_mount_bind "$app_path"
                 elif [ "$SLAY_MODE" = "MN" ]; then
-
-                    if mirror_make_node "$app_path"; then
-                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-                        if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
-                            echo "$app_path" >> "$TARGET_LIST_BSA"
-                        fi
-                        break                        
-                    fi
-
+                    mirror_make_node "$app_path"
                 elif [ "$SLAY_MODE" = "MR" ]; then
+                    mirror_magisk_replace "$app_path"
+                fi
 
-                    mirror_app_path="$MODDIR$app_path"
+                bloatware_slay_result=$?
+                if [ $bloatware_slay_result -eq 0 ]; then
+                    logowl "Succeeded (code: $bloatware_slay_result)"
 
-                    logowl "Create mirror path: $mirror_app_path"
-                    [ ! -d "$mirror_app_path" ] && mkdir -p "$mirror_app_path"
-
-                    logowl "Execute touch $mirror_app_path/.replace"
-                    touch "$mirror_app_path/.replace"
-
-                    result_touch_replace="$?"
-                    if [ $result_touch_replace -eq 0 ]; then
-                        logowl "Succeeded (code: $result_touch_replace)"
-                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-                        if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
-                            echo "$app_path" >> "$TARGET_LIST_BSA"
-                        fi
-                        break
-                    else
-                        logowl "Failed to touch .replace: $mirror_app_path (code: $result_touch_replace)"
+                    BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                    if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
+                        echo "$app_path" >> "$TARGET_LIST_BSA"
                     fi
 
+                    if [ "$SLAY_MODE" = "MB" ]; then
+                        echo "$app_path" >> "$LINK_MB_FILE"
+                    fi
+
+                    break
+                else
+                    logowl "Failed to mount: $app_path (code: $bloatware_slay_result)"
                 fi
 
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
@@ -338,15 +369,19 @@ bloatware_slayer() {
                 logowl "Detect file: $app_path"
 
                 if [ "$SLAY_MODE" = "MN" ]; then
+                    mirror_make_node "$app_path"
+                fi
 
-                    if mirror_make_node "$app_path"; then
-                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-                        if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
-                            echo "$app_path" >> "$TARGET_LIST_BSA"
-                        fi
-                        break                        
+                bloatware_slay_result=$?
+                if [ $bloatware_slay_result -eq 0 ]; then
+                    logowl "Succeeded (code: $bloatware_slay_result)"
+                    BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                    if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
+                        echo "$app_path" >> "$TARGET_LIST_BSA"
                     fi
-
+                    break
+                else
+                    logowl "Failed to mount: $app_path (code: $bloatware_slay_result)"
                 fi
 
             else
