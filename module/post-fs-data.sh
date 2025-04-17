@@ -32,7 +32,7 @@ SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /syst
 
 brick_rescue() {
 
-    logowl "Checking brick status"
+    logowl "Check brick status"
 
     if [ -f "$BRICKED_STATUS" ]; then
         logowl "Detect flag bricked!" "FATAL"
@@ -113,7 +113,7 @@ preparation() {
 
     if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
         logowl "Detect multiple root solutions!" "WARN"
-        logowl "Using multiple root solutions is NOT a healthy or normal way"
+        logowl "Install multiple root solutions is NOT a healthy or normal way"
         logowl "Please keep using one root solution ONLY if no need!"
         logowl "$MOD_NAME will revert to mount bind mode for multiple root solutions"
         SLAY_MODE="MB"
@@ -370,7 +370,7 @@ bloatware_slayer() {
                         logowl "Failed to mount $app_path (code: $bloatware_slay_result)"
                     fi
                 else
-                    logowl "Make Node mode is required when bloatwares locating in apex files!" "WARN"
+                    logowl "Make Node mode is required as bloatwares locating in apex files!" "WARN"
                     logowl "Because Magisk Replace mode or Mount Bind mode does NOT support deleting file systemlessly!" "WARN"
                 fi
             else
@@ -393,12 +393,10 @@ bloatware_slayer() {
 
 module_status_update() {
 
-    logowl "Updating module status"
-
     APP_NOT_FOUND=$((TOTAL_APPS_COUNT - BLOCKED_APPS_COUNT))
     logowl "$TOTAL_APPS_COUNT APP(s) in total"
-    logowl "$BLOCKED_APPS_COUNT APP(s) slain"
-    logowl "$APP_NOT_FOUND APP(s) not found"
+    logowl "$BLOCKED_APPS_COUNT APP(s) has been slain"
+    logowl "$APP_NOT_FOUND APP(s) are not found"
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
