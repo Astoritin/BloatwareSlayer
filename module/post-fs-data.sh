@@ -116,7 +116,7 @@ preparation() {
         logowl "$MOD_NAME will revert to mount bind mode for multiple root solutions"
         SLAY_MODE="MB"
     fi
-        
+
     case "$SLAY_MODE" in
         MB)
             MODE_MOD="Mount Bind"
@@ -132,13 +132,14 @@ preparation() {
             logowl "Create $MIRROR_DIR"
             mkdir -p "$MIRROR_DIR"
             ;;
-        *)
-            MODE_MOD="Unknown"
-            logowl "Unknown mode: $SLAY_MODE" "ERROR"
-            ;;
     esac
     logowl "Current mode: $SLAY_MODE ($MODE_MOD)"
 
+    if [ "$MN_SUPPORT" = "true" ]; then
+        logowl "Detect current root solution supports Make Node mode"
+        logowl "Create $MIRROR_DIR"
+        mkdir -p "$MIRROR_DIR"
+    fi
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
@@ -280,7 +281,7 @@ bloatware_slayer() {
             logowl "Detect empty line, skip processing" "TIPS"
             continue
         elif [ "$first_char" = "#" ]; then
-            logowl 'Detect comment symbol "#", skip processing' "TIPS"
+            logowl "Detect comment line, skip processing" "TIPS"
             continue
         fi
 
@@ -288,7 +289,7 @@ bloatware_slayer() {
         package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
         if [ -z "$package" ]; then
-            logowl "Detect only comment in this line, skip processing" "TIPS"
+            logowl "Detect only comment left in this line, skip processing" "TIPS"
             continue
         fi
 
@@ -298,7 +299,7 @@ bloatware_slayer() {
                 package=$(echo "$package" | sed -e 's/\\/\//g')
                 ;;
         esac
-        logowl "After processed: $package"
+        logowl "After process: $package"
 
         TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT+1))
         for path in $SYSTEM_APP_PATHS; do
@@ -314,7 +315,7 @@ bloatware_slayer() {
                         elif [ -f "${app_path}.capex" ]; then
                             app_path="${app_path}.capex"
                         else
-                            logowl "custom apex dir does NOT exist: $app_path"
+                            logowl "apex dir does NOT exist: $app_path"
                             continue
                         fi
                         logowl "Detect apex path: $app_path"
@@ -330,10 +331,8 @@ bloatware_slayer() {
                 app_path="$path/$package"
             fi
 
-            logowl "Checking dir: $app_path"
-
+            logowl "Check dir: $app_path"
             if [ -d "$app_path" ]; then
-
                 if [ "$SLAY_MODE" = "MB" ]; then
                     link_mount_bind "$app_path"
                 elif [ "$SLAY_MODE" = "MN" ]; then
@@ -341,27 +340,22 @@ bloatware_slayer() {
                 elif [ "$SLAY_MODE" = "MR" ]; then
                     mirror_magisk_replace "$app_path"
                 fi
-
                 bloatware_slay_result=$?
                 if [ $bloatware_slay_result -eq 0 ]; then
                     logowl "Succeeded (code: $bloatware_slay_result)"
-
                     BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                     if [ "$UPDATE_TARGET_LIST" = true ] && [ "$AUTO_UPDATE_TARGET_LIST" = "true" ]; then
                         echo "$app_path" >> "$TARGET_LIST_BSA"
                     fi
                     break
                 else
-                    logowl "Failed to mount: $app_path (code: $bloatware_slay_result)"
+                    logowl "Failed to mount $app_path (code: $bloatware_slay_result)"
                 fi
 
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
-                logowl "Detect file: $app_path"
-
-                if [ "$SLAY_MODE" = "MN" ]; then
-
+                logowl "Check specific file: $app_path"
+                if [ "$SLAY_MODE" = "MN" ] || [ "$MN_SUPPORT" = "true" ]; then
                     mirror_make_node "$app_path"
-
                     bloatware_slay_result=$?
                     if [ $bloatware_slay_result -eq 0 ]; then
                         logowl "Succeeded (code: $bloatware_slay_result)"
@@ -371,16 +365,13 @@ bloatware_slayer() {
                         fi
                         break
                     else
-                        logowl "Failed to mount: $app_path (code: $bloatware_slay_result)"
+                        logowl "Failed to mount $app_path (code: $bloatware_slay_result)"
                     fi
-
                 else
                     logowl "Make Node mode is required when bloatwares locating in apex files!" "WARN"
-                    logowl "Since Magisk Replace or Mount Bind mode does NOT support deleting file systemlessly!" "WARN"
+                    logowl "Because Magisk Replace mode or Mount Bind mode does NOT support deleting file systemlessly!" "WARN"
                 fi
-
             else
-
                 if [ "$first_char" = "/" ]; then
                     logowl "Custom dir not found: $app_path" "WARN"
                     break
