@@ -26,7 +26,6 @@ DISABLE_MODULE_AS_BRICK=true
 SLAY_MODE=MB
 MN_SUPPORT=false
 MR_SUPPORT=false
-MB_UMOUNT_BIND=true
 
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
@@ -62,13 +61,12 @@ config_loader() {
     system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
-    mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
+
 
     verify_variables "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
     verify_variables "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
     verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
-    verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
 
 }
 
@@ -85,52 +83,40 @@ preparation() {
         rm -rf "$EMPTY_DIR"
     fi
 
+
     if [ "$DETECT_KSU" = "true" ] || [ "$DETECT_APATCH" = "true" ]; then
         logowl "$MOD_NAME is running on KernelSU / APatch, which supports Make Node mode"
         MN_SUPPORT=true
+
+        if [ "$DETECT_MAGISK" = "false" ]; then
+            logowl "KernelSU / APatch does NOT support Magisk Replace mode!" "WARN"
+            logowl "$MOD_NAME will revert to Make Node mode"
+            MR_SUPPORT=false
+            [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
+        fi
+
     elif [ "$DETECT_MAGISK" = "true" ]; then
         MR_SUPPORT=true
+
         if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
             logowl "$MOD_NAME is running on Magisk 28102+, which supports Make Node mode"
             MN_SUPPORT=true
         else
-            logowl "Make Node mode requires Magisk version 28102 and higher (current $MAGISK_V_VER_CODE)!" "ERROR"
+            logowl "Make Node mode requires Magisk version 28102 and higher (current $MAGISK_V_VER_CODE)!" "WARN"
             logowl "$MOD_NAME will revert to Magisk Replace mode"
-        
-    
-
-    if [ "$SLAY_MODE" = "MN" ]; then
-        if is_kernelsu || is_apatch; then
-            
-        elif is_magisk; then
-            if ; then
-                
-            else
-                
-                SLAY_MODE="MR"
-            fi
-        else
-            logowl "Make Node mode needs Magisk 28102+, KernelSU or APatch!" "ERROR"
-            logowl "$MOD_NAME will revert to Mount Bind mode"
-            SLAY_MODE="MB"
-        fi
-    elif [ "$SLAY_MODE" = "MR" ]; then
-        if is_kernelsu || is_apatch; then
-            logowl "Magisk Replace mode is NOT available as $MOD_NAME running on KernelSU / APatch!" "ERROR"
-            logowl "Please use Magisk if you try to use Magisk Replace mode!"
-            logowl "$MOD_NAME will revert to Make Node mode"
-            SLAY_MODE="MN"
+            [ "$MN_SUPPORT" = true ] && MN_SUPPORT=false
+            [ "$SLAY_MODE" = "MN" ] && SLAY_MODE="MR"
         fi
     fi
 
     if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
         logowl "Detect multiple root solutions!" "WARN"
-        logowl "Using multiple root solutions is NOT a healthy way"
+        logowl "Using multiple root solutions is NOT a healthy or normal way"
         logowl "Please keep using one root solution ONLY if no need!"
-        logowl "$MOD_NAME will revert to mount bind mode for multiple root solutions" "WARN"
+        logowl "$MOD_NAME will revert to mount bind mode for multiple root solutions"
         SLAY_MODE="MB"
     fi
-
+        
     case "$SLAY_MODE" in
         MB)
             MODE_MOD="Mount Bind"
