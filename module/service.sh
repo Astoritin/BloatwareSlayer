@@ -27,7 +27,7 @@ MB_UMOUNT_BIND=true
 
 config_loader() {
 
-    logowl "Loading config"
+    logowl "Load config"
 
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
@@ -112,7 +112,7 @@ denylist_enforcing_status_update
             print_line
             logowl "Detect failed to boot after reaching the set limit, your device may be bricked by $MOD_NAME !" "FATAL"
             logowl "Please make sure no improper APP(s) being blocked!" "FATAL"
-            logowl "Marking status as bricked"
+            logowl "Mark status as bricked"
             touch "$BRICKED_STATUS"
             if [ "$DISABLE_MODULE_AS_BRICK" = true ]; then
                 logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
@@ -145,7 +145,7 @@ denylist_enforcing_status_update
     if [ "$SLAY_MODE" = "MB" ] && [ "$MB_UMOUNT_BIND" = true ]; then
         logowl "$MOD_NAME is running on MB (Mount Bind) mode"
         logowl "Detect flag MB_UMOUNT_BIND=true"
-        logowl "Umounting"
+        logowl "Execute umount processing"
         if [ ! -e "$TARGET_LIST_BSA" ]; then
             logowl "Target List ($MOD_NAME arranged) file does NOT exist!" "ERROR"
         elif [ -d "$TARGET_LIST_BSA" ]; then
@@ -185,10 +185,8 @@ denylist_enforcing_status_update
                         ;;
                 esac
                 logowl "After processing: $package"
-
                 logowl "Execute umount -f $package"
                 umount -f $package
-
                 result_umount=$?
                 if [ $result_umount -eq 0 ]; then
                     logowl "Succeeded (code: $result_umount)"
