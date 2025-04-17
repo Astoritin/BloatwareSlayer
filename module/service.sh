@@ -7,7 +7,7 @@ CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 EMPTY_DIR="$CONFIG_DIR/empty"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/bs_log_addon_$(date +"%Y-%m-%d_%H-%M-%S").log"
+LOG_FILE="$LOG_DIR/bs__$(date +"%Y-%m-%d_%H-%M-%S").log"
 LINK_MB_FILE="$LOG_DIR/target_link_mb.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
@@ -22,6 +22,8 @@ BRICK_TIMEOUT=180
 DISABLE_MODULE_AS_BRICK=true
 UPDATE_DESC_ON_ACTION=false
 
+SLAY_MODE="MB"
+
 config_loader() {
 
     logowl "Loading config"
@@ -29,10 +31,12 @@ config_loader() {
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     update_desc_on_action=$(init_variables "update_desc_on_action" "$CONFIG_FILE")
+    slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
 
     verify_variables "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
     verify_variables "update_desc_on_action" "$update_desc_on_action" "^(true|false)$"
+    verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
 
 }
 
@@ -88,10 +92,6 @@ update_config_value() {
 
 }
 
-link_bind_umount() {
-    
-}
-
 init_logowl "$LOG_DIR"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
@@ -138,6 +138,30 @@ denylist_enforcing_status_update
         logowl "Failed to reset bricked status" "FATAL"
     fi
     print_line
+
+    if [ "$SLAY_MODE" = "MB" ]; then
+        logowl "Detect $MOD_NAME running on Mount Bind mode"
+        logowl "Start umounting"
+        if [ ! -e "$LINK_MB_FILE" ]; then
+            logowl "Link mount bind file does NOT exist!" "ERROR"
+        elif [ -d "$LINK_MB_FILE" ]; then
+            logowl "$LINK_MB_FILE is a directory!" "WARN"
+        else
+            while IFS= read -r line; do
+
+                logowl "Execute umount -f $line"
+                umount -f $line
+
+                result_umount=$?
+                if [ $result_umount -eq 0 ]; then
+                    logowl "Succeeded (code: $result_umount)"
+                else
+                    logowl "Failed (code: $result_umount)"
+                fi
+
+            done < "$LINK_MB_FILE"
+        fi
+    fi
 
     MOD_REAL_TIME_DESC=""
     while true; do
