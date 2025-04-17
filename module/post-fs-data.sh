@@ -18,11 +18,15 @@ MOD_ROOT_DIR=$(dirname "$MODDIR")
 
 EMPTY_DIR="$CONFIG_DIR/empty"
 MIRROR_DIR="$MODDIR/system"
+MAKE_NODE_SUPPORT=false
+MAGISK_REPLACE_SUPPORT=false
 
 UPDATE_TARGET_LIST=true
 AUTO_UPDATE_TARGET_LIST=true
 DISABLE_MODULE_AS_BRICK=true
-SLAY_MODE="MB"
+
+SLAY_MODE=MB
+MB_UMOUNT_BIND=true
 
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
@@ -33,24 +37,20 @@ brick_rescue() {
     if [ -f "$BRICKED_STATUS" ]; then
         logowl "Detect flag bricked!" "FATAL"
         if [ "$DISABLE_MODULE_AS_BRICK" = "true" ] && [ ! -f "$MODDIR/disable" ]; then
-            logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
-            logowl "But module itself has NOT been disabled"
-            logowl "Maybe $MOD_NAME is enabled by user manually"
-            logowl "Reset brick status"
+            logowl "Detect flag DISABLE_MODULE_AS_BRICK=true, but $MOD_NAME has NOT been disabled"
+            logowl "Maybe $MOD_NAME is enabled by user manually, reset brick status"
             rm -f "$BRICKED_STATUS"
             logowl "$MOD_NAME will keep going"
             return 0
         else
-            logowl "Starting brick rescue"
-            logowl "Skip post-fs-data.sh process"
+            logowl "Start brick rescue processing"
             DESCRIPTION="[❌ Disabled. Auto disable from brick! 🧭 Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
-            logowl "Skip mounting"
+            logowl "Skip post-fs-data.sh process"
             exit 1
         fi
     else
-        logowl "Flag bricked does NOT detect"
-        logowl "$MOD_NAME will keep going"
+        logowl "Flag bricked does NOT exist, $MOD_NAME will keep going"
     fi
 }
 
