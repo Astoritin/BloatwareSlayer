@@ -23,6 +23,7 @@ DISABLE_MODULE_AS_BRICK=true
 UPDATE_DESC_ON_ACTION=false
 
 SLAY_MODE="MB"
+MB_UMOUNT_BIND=true
 
 config_loader() {
 
@@ -32,11 +33,13 @@ config_loader() {
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     update_desc_on_action=$(init_variables "update_desc_on_action" "$CONFIG_FILE")
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
+    mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
 
     verify_variables "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
     verify_variables "update_desc_on_action" "$update_desc_on_action" "^(true|false)$"
     verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
+    verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
 
 }
 
