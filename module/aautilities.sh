@@ -23,6 +23,7 @@ is_kernelsu() {
     if [ -n "$KSU" ]; then
         DETECT_KSU="true"
         DETECT_KSU_DETAIL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
+        ROOT_SOL="KernelSU"
         return 0
     fi
     return 1
@@ -32,6 +33,7 @@ is_apatch() {
     if [ -n "$APATCH" ]; then
         DETECT_APATCH="true"
         DETECT_APATCH_DETAIL="APatch ($APATCH_VER_CODE)"
+        ROOT_SOL="APatch"
         return 0
     fi
     return 1
@@ -107,23 +109,30 @@ install_env_check() {
     is_magisk && ROOT_SOL_COUNT=$((ROOT_SOL_COUNT + 1))
 
     if [ "$DETECT_KSU" = "true" ]; then
-        ROOT_SOL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
+        ROOT_SOL_DETAIL="KernelSU (kernel:$KSU_KERNEL_VER_CODE, ksud:$KSU_VER_CODE)"
         if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
+            ROOT_SOL="Multiple"
             if [ "$DETECT_APATCH" = "true" ] && [ "$DETECT_MAGISK" = "true" ]; then
-                ROOT_SOL="Multiple (${DETECT_MAGISK_DETAIL};${DETECT_KSU_DETAIL};${DETECT_APATCH_DETAIL})"
+                ROOT_SOL_DETAIL="Multiple (${DETECT_MAGISK_DETAIL};${DETECT_KSU_DETAIL};${DETECT_APATCH_DETAIL})"
             elif [ "$DETECT_APATCH" = "true" ]; then
-                ROOT_SOL="Multiple (${DETECT_KSU_DETAIL};${DETECT_APATCH_DETAIL})"
+                ROOT_SOL_DETAIL="Multiple (${DETECT_KSU_DETAIL};${DETECT_APATCH_DETAIL})"
             elif [ "$DETECT_MAGISK" = "true" ]; then
-                ROOT_SOL="Multiple (${DETECT_MAGISK_DETAIL};${DETECT_KSU_DETAIL})"
+                ROOT_SOL_DETAIL="Multiple (${DETECT_MAGISK_DETAIL};${DETECT_KSU_DETAIL})"
             fi
+        elif [ "$ROOT_SOL_COUNT" -eq 1 ]; then
+            ROOT_SOL="KernelSU"
         fi
     elif [ "$DETECT_APATCH" = "true" ]; then
-        ROOT_SOL="APatch ($APATCH_VER_CODE)"
+        ROOT_SOL_DETAIL="APatch ($APATCH_VER_CODE)"
         if [ "$ROOT_SOL_COUNT" -gt 1 ] && [ "$DETECT_MAGISK" = "true" ]; then
-            ROOT_SOL="Multiple (${DETECT_MAGISK_DETAIL};${DETECT_APATCH_DETAIL})"
+            ROOT_SOL="Multiple"
+            ROOT_SOL_DETAIL="Multiple (${DETECT_MAGISK_DETAIL};${DETECT_APATCH_DETAIL})"
+        elif [ "$ROOT_SOL_COUNT" -eq 1 ]; then
+            ROOT_SOL="APatch"
         fi
     elif [ "$DETECT_MAGISK" = "true" ]; then
-        ROOT_SOL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
+        ROOT_SOL="Magisk"
+        ROOT_SOL_DETAIL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
     fi
 
     if [ "$ROOT_SOL_COUNT" -lt 1 ]; then
