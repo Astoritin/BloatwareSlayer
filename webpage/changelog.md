@@ -8,6 +8,7 @@ A Magisk module to remove bloatware in systemless way / 一个无需修改 syste
 - 初步支持屏蔽以 APEX 组件方式安装的预装软件
 - 注意：1. 由于APEX类预装软件的特殊性，目前仅支持自定义路径（也就是说，你需要指定完整的路径，不支持仅文件夹名）; 2. 由于APEX类预装软件被压缩成 .apex 或者 .capex 文件，在 Android 启动时验证并解压，屏蔽APEX类预装软件需要你的 Root 方案支持`MN` (Make Node,节点创建) 模式，若不支持则无法屏蔽; 3. 由于 .apex 或 .capex 可能包含多个组件，可能你只是想屏蔽一个组件，但是重启后几个组件都不见了，这是APEX类预装软件的特性，请再三斟酌是否需要加入目标列表
 - 修复 KernelSU / APatch 下无法将 MR 模式切换到 MN 模式的问题
+- 当检测到实时更新模块描述被禁用时，不会再显示 Magisk 和 Zygisk Next 的遵守排除列表的启用状态
 - 
 
 ### 1.3.3
