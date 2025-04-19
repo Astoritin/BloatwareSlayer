@@ -367,13 +367,13 @@ verify_variables() {
 
         if [ -n "$default_value" ]; then
             if eval "[ -z \"\${$script_var_name+x}\" ]"; then
-                logowl "Using default value for $script_var_name: $default_value" "TIPS"
+                logowl "Use default value for $script_var_name: $default_value" "TIPS"
                 export "$script_var_name"="$default_value"
             else
-                logowl "Variable $script_var_name already set, skipping default value" "WARN"
+                logowl "Variable $script_var_name already set" "WARN"
             fi
         else
-            logowl "No default value provided for $script_var_name, keeping its current state" "TIPS"
+            logowl "No default value provided for $script_var_name, keep its current state" "TIPS"
         fi
     fi
 }
@@ -515,9 +515,9 @@ clean_old_logs() {
 
     files_count=$(ls -1 "$log_dir" | wc -l)
     if [ "$files_count" -gt "$files_max" ]; then
-        logowl "Detect too many log files" "WARN"
+        logowl "Too many log files" "WARN"
         logowl "$files_count files, current max allowed: $files_max"
-        logowl "Clearing old logs"
+        logowl "Clear old logs"
         ls -1t "$log_dir" | tail -n +$((files_max + 1)) | while read -r file; do
             rm -f "$log_dir/$file"
         done
