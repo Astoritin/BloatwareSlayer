@@ -429,4 +429,4 @@ logowl "Set permissions"
 set_permission_recursive "$MODDIR" 0 0 0755 0644
 set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
 logowl "post-fs-data.sh case closed!"
-debug_print_values >> "$LOG_FILE"
+# debug_print_values >> "$LOG_FILE"
