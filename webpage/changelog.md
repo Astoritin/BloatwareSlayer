@@ -3,6 +3,12 @@ A Magisk module to remove bloatware in systemless way / 一个无需修改 syste
 
 ### Changelog / 变更日志
 
+### 1.3.5
+
+- 初步支持屏蔽以 APEX 组件方式安装的预装软件
+- 注意：1. APEX路径仅支持自定义路径，不支持仅文件夹名;
+- 2. 屏蔽APEX类预装软件需要你的 Root 方案支持`MN` (Make Node,节点创建) 模式
+
 ### 1.3.3
 
 - Introduce update module description realtime back
