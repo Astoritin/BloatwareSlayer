@@ -2,6 +2,7 @@
 MODDIR=${0%/*}
 
 CONFIG_DIR="/data/adb/bloatwareslayer"
+DEBUG=false
 
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
@@ -428,5 +429,5 @@ module_status_update
 logowl "Set permissions"
 set_permission_recursive "$MODDIR" 0 0 0755 0644
 set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
+[ "$DEBUG" = true] && debug_print_values >> "$LOG_FILE"
 logowl "post-fs-data.sh case closed!"
-# debug_print_values >> "$LOG_FILE"
