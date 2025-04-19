@@ -196,7 +196,7 @@ print_line
         fi
     fi
     logowl "service.sh case closed!"
-    debug_print_values >> "$LOG_FILE"
+    # debug_print_values >> "$LOG_FILE"
     
     MOD_REAL_TIME_DESC=""
     while true; do
