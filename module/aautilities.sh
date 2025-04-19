@@ -60,7 +60,6 @@ magisk_enforce_denylist_status() {
             fi
         fi
     else
-        # logowl "Magisk does NOT exist!" "WARN"
         return 1
     fi
 
@@ -543,7 +542,6 @@ set_permission() {
 
 set_permission_recursive() {
 
-    logowl "Set permissions"
     find $1 -type d 2>/dev/null | while read dir; do
         set_permission $dir $2 $3 $4 $6
     done
