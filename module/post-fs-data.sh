@@ -58,6 +58,9 @@ config_loader() {
 
     logowl "Load config"
 
+    debug=$(init_variables "debug" "$CONFIG_FILE")
+    verify_variables "debug" "$debug" "^(true|false)$"
+
     auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
     system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
@@ -89,17 +92,12 @@ preparation() {
     if [ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ]; then
         logowl "$MOD_NAME is running on KernelSU / APatch, which supports Make Node mode"
         MN_SUPPORT=true
-
-        if [ "$DETECT_MAGISK" = false ]; then
-            logowl "KernelSU / APatch does NOT support Magisk Replace mode!" "WARN"
-            logowl "$MOD_NAME will revert to Make Node mode"
-            MR_SUPPORT=false
-            [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
-        fi
+        MR_SUPPORT=false
+        [ "$MR_SUPPORT" = true ] && [ "$DETECT_MAGISK" = false ] && MR_SUPPORT=false
+        [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
 
     elif [ "$DETECT_MAGISK" = true ]; then
         MR_SUPPORT=true
-
         if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
             logowl "$MOD_NAME is running on Magisk 28102+, which supports Make Node mode"
             MN_SUPPORT=true
@@ -114,7 +112,7 @@ preparation() {
     if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
         logowl "Detect multiple root solutions!" "WARN"
         logowl "Install multiple root solutions is NOT a healthy or normal way"
-        logowl "Please keep using one root solution ONLY if no need!"
+        logowl "Please keep using one root solution ONLY!"
         logowl "$MOD_NAME will revert to mount bind mode for multiple root solutions"
         SLAY_MODE="MB"
     fi
@@ -304,8 +302,10 @@ bloatware_slayer() {
                     /system/apex*)
                         app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
                         if [ -f "${app_path}.apex" ]; then
+                            logowl "Detect ${app_path}.apex"
                             app_path="${app_path}.apex"
                         elif [ -f "${app_path}.capex" ]; then
+                            logowl "Detect ${app_path}.capex"
                             app_path="${app_path}.capex"
                         else
                             logowl "Neither ${app_path}.apex nor ${app_path}.capex exists"
@@ -429,5 +429,5 @@ module_status_update
 logowl "Set permissions"
 set_permission_recursive "$MODDIR" 0 0 0755 0644
 set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
-[ "$DEBUG" = true] && debug_print_values >> "$LOG_FILE"
+debug_print_values >> "$LOG_FILE"
 logowl "post-fs-data.sh case closed!"
