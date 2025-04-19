@@ -56,6 +56,5 @@ fi
 if [ -n "$VERIFY_DIR" ] && [ -d "$VERIFY_DIR" ] && [ "$VERIFY_DIR" != "/" ]; then
     rm -rf "$VERIFY_DIR"
 fi
-logowl "Setting permissions"
-set_perm_recursive "$MODPATH" 0 0 0755 0644
+set_permission_recursive "$MODPATH" 0 0 0755 0644
 logowl "Welcome to use $MOD_NAME!"
