@@ -2,6 +2,7 @@
 MODDIR=${0%/*}
 
 CONFIG_DIR="/data/adb/bloatwareslayer"
+DEBUG=false
 
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
@@ -195,8 +196,8 @@ print_line
             done < "$TARGET_LIST_BSA"
         fi
     fi
+    [ "$DEBUG" = true] && debug_print_values >> "$LOG_FILE"
     logowl "service.sh case closed!"
-    # debug_print_values >> "$LOG_FILE"
     
     MOD_REAL_TIME_DESC=""
     while true; do
