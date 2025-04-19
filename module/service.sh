@@ -102,7 +102,7 @@ print_line
 logowl "Starting service.sh"
 config_loader
 print_line
-denylist_enforcing_status_update
+[ "$UPDATE_DESC_ON_ACTION" = true ] && denylist_enforcing_status_update
 
 {    
 
