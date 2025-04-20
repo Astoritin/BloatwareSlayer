@@ -20,8 +20,7 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 4. 打开 `/data/adb/bloatwareslayer/target.conf`，并将你通过步骤3获得的预装软件所在的文件夹名放在上面，**一行一个**
 5. 保存 target.conf 的更改，并重新启动后查看效果
 
-你可以在模块描述中看到被该模块屏蔽的APP数 (slain)、未找到目录的APP数 (missing)和列表里配置的APP总数 (targeted in total)
-![Bloatware Slayer](webpage/img/bs_work_normal.png)
+*你可以在模块描述中看到被该模块屏蔽的APP数 (slain)、未找到目录的APP数 (missing)和列表里配置的APP总数 (targeted in total)*
 
 例如：我需要卸载小爱同学，那么我会通过 AppManager 查看小爱同学所在的文件夹，得知其名字是 `VoiceAssistAndroidT`，然后将 `VoiceAssistAndroidT` 复制到 `target.conf` ，回车并保存更改后重启设备。
 
