@@ -149,6 +149,7 @@ module_intro() {
     logowl "By $MOD_AUTHOR"
     logowl "Version: $MOD_VER"
     logowl "Root solution: $ROOT_SOL"
+    logowl "Current version: $ROOT_SOL_DETAIL"
     logowl "Current time stamp: $(date +"%Y-%m-%d %H:%M:%S")"
     logowl "Current module dir: $MODDIR"
     print_line
@@ -171,10 +172,10 @@ init_logowl() {
         }
         logowl "Created $LOG_DIR"
     else
-        logowl "$LOG_DIR already exists"
+        logowl "$LOG_DIR exists already"
     fi
 
-    logowl "Logowl initialized"
+    logowl "logowl initialized"
 
 }
 
@@ -238,7 +239,7 @@ init_variables() {
     config_file="$2"
 
     if [ ! -f "$config_file" ]; then
-        logowl "Configuration file $config_file does NOT exist" "ERROR" >&2
+        logowl "Config file $config_file does NOT exist" "ERROR" >&2
         return 1
     fi
 
@@ -347,7 +348,7 @@ check_value_safety(){
     dangerous_chars='[`$();|<>]'
 
     if echo "$value" | grep -Eq "$dangerous_chars"; then
-        logowl "Key '$key' contains potential dangerous characters" "ERROR" >&2
+        logowl "Key '$key' contains potential dangerous characters" "WARN" >&2
         return 3
     fi
     if ! echo "$value" | grep -Eq "$regex"; then
@@ -372,14 +373,14 @@ verify_variables() {
         logowl "Set $script_var_name=$config_var_value" "TIPS"
     else
         logowl "Config var value is empty or does NOT match the pattern" "WARN"
-        logowl "Unavailable var: $script_var_name=$config_var_value"
+        logowl "Invalid var: $script_var_name=$config_var_value"
 
         if [ -n "$default_value" ]; then
             if eval "[ -z \"\${$script_var_name+x}\" ]"; then
                 logowl "Use default value for $script_var_name: $default_value" "TIPS"
                 export "$script_var_name"="$default_value"
             else
-                logowl "Variable $script_var_name already set" "WARN"
+                logowl "Variable $script_var_name set already" "WARN"
             fi
         else
             logowl "No default value provided for $script_var_name, keep its current state" "TIPS"
@@ -416,6 +417,8 @@ update_config_value() {
 
 debug_print_values() {
 
+    [ "$DEBUG" = false ] && return 0
+
     print_line
     logowl "All Environment Variables"
     print_line
@@ -440,22 +443,26 @@ file_compare() {
     file_a="$1"
     file_b="$2"
     if [ -z "$file_a" ] || [ -z "$file_b" ]; then
-      logowl "Value a or value b does NOT exist!" "WARN"
-      return 2
+        [ "$DEBUG" = true ] && logowl "Value a or value b does NOT exist!" "WARN"
+        return 2
     fi
     if [ ! -f "$file_a" ]; then
-      logowl "a is NOT a file!" "WARN"
-      return 3
+        [ "$DEBUG" = true ] && logowl "a is NOT a file!" "WARN"
+        return 3
     fi
     if [ ! -f "$file_b" ]; then
-      logowl "b is NOT a file!" "WARN"
-      return 3
+        [ "$DEBUG" = true ] && logowl "b is NOT a file!" "WARN"
+        return 3
     fi
+    
     hash_file_a=$(sha256sum "$file_a" | awk '{print $1}')
     hash_file_b=$(sha256sum "$file_b" | awk '{print $1}')
+    
     if [ "$hash_file_a" == "$hash_file_b" ]; then
+        [ "$DEBUG" = true ] && logowl "File $file_a and $file_b are the same file"
         return 0
     else
+        [ "$DEBUG" = true ] && logowl "File $file_a and $file_b are the different file"
         return 1
     fi
 }
@@ -524,15 +531,15 @@ clean_old_logs() {
 
     files_count=$(ls -1 "$log_dir" | wc -l)
     if [ "$files_count" -gt "$files_max" ]; then
-        logowl "Too many log files" "WARN"
-        logowl "$files_count files, current max allowed: $files_max"
-        logowl "Clear old logs"
+        [ "$DEBUG" = true ] && logowl "Too many log files" "WARN"
+        [ "$DEBUG" = true ] && logowl "$files_count files, current max allowed: $files_max"
+        [ "$DEBUG" = true ] && logowl "Clear old logs"
         ls -1t "$log_dir" | tail -n +$((files_max + 1)) | while read -r file; do
             rm -f "$log_dir/$file"
         done
-        logowl "Cleared!"
+        [ "$DEBUG" = true ] && logowl "Cleared!"
     else
-        logowl "Detect $files_count files in $log_dir"
+        [ "$DEBUG" = true ] && logowl "Detect $files_count files in $log_dir"
     fi
 }
 
