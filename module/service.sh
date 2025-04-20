@@ -6,7 +6,6 @@ DEBUG=false
 
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
-EMPTY_DIR="$CONFIG_DIR/empty"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_brickd_$(date +"%Y-%m-%d_%H-%M-%S").log"
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
@@ -30,17 +29,20 @@ config_loader() {
 
     logowl "Load config"
 
+    debug=$(init_variables "debug" "$CONFIG_FILE")
+    verify_variables "debug" "$debug" "^(true|false)$"
+
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
-    update_desc_on_action=$(init_variables "update_desc_on_action" "$CONFIG_FILE")
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
     mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
+    update_desc_on_action=$(init_variables "update_desc_on_action" "$CONFIG_FILE")
 
     verify_variables "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
-    verify_variables "update_desc_on_action" "$update_desc_on_action" "^(true|false)$"
     verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
     verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
+    verify_variables "update_desc_on_action" "$update_desc_on_action" "^(true|false)$"
 
 }
 
@@ -62,9 +64,7 @@ denylist_enforcing_status_update() {
         else
             MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E 's/\]/, ⛔DenyList Enforcing: '"${ROOT_SOL_DE}"'\]/')
         fi
-
         update_config_value "description" "$MOD_DESC_NEW" "$MODULE_PROP"
-
     fi
 
 }
@@ -144,9 +144,9 @@ print_line
     print_line
 
     if [ "$SLAY_MODE" = "MB" ] && [ "$MB_UMOUNT_BIND" = true ]; then
-        logowl "$MOD_NAME is running on MB (Mount Bind) mode"
+        logowl "$MOD_NAME is running on MB (Mount Bind) mode currently"
         logowl "Detect flag MB_UMOUNT_BIND=true"
-        logowl "Execute umount processing"
+        logowl "Execute umount process"
         if [ ! -f "$TARGET_LIST_BSA" ]; then
             logowl "Invalid Target List ($MOD_NAME arranged) file!" "ERROR"
         else
@@ -196,7 +196,7 @@ print_line
             done < "$TARGET_LIST_BSA"
         fi
     fi
-    [ "$DEBUG" = true] && debug_print_values >> "$LOG_FILE"
+    debug_print_values >> "$LOG_FILE"
     logowl "service.sh case closed!"
     
     MOD_REAL_TIME_DESC=""
@@ -215,9 +215,9 @@ print_line
         fi
     
         if [ "$MOD_CURRENT_STATUS" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), 🧭Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+            MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
         elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
-            MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), 🧭Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+            MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
         elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
             MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
         fi
