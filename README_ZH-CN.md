@@ -35,6 +35,7 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 
 ## 配置文件
 自 v1.2.1 起， Bloatware Slayer 支持手动启用或禁用以下功能，如有需求请打开配置文件`/data/adb/bloatwareslayer/settings.conf`查看并修改。
+
 0. **`debug`**: 控制 Bloatware Slayer 的日志输出模式，默认情况下为`false`(禁用)，若你遇到问题并需要提交日志反馈，请修改其为`true`并重新启动，这样日志会包含更多细节。
 1. **`slay_mode`**: Bloatware Slayer 屏蔽预装软件的方式。
 - `MB` (Mount Bind), 是在绝大多数ROM内的各种Root方案通用的方法。
