@@ -27,7 +27,7 @@ install_env_check
 init_logowl "$LOG_DIR"
 clean_old_logs "$LOG_DIR" 20
 show_system_info
-logowl "Install from $ROOT_SOL"
+logowl "Install from $ROOT_SOL app"
 logowl "Essential checks"
 extract "$ZIPFILE" 'aautilities.sh' "$VERIFY_DIR"
 extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
