@@ -20,9 +20,7 @@ Bloatware Slayer removes bloatwares in systemless way, using specific mount meth
 4. Open the file `/data/adb/bloatwareslayer/target.conf` and add the directories of the bloatwares obtained in step 3, **one per line**.
 5. Save the changes to `target.conf` and reboot your device to observe the results.
 
-You can see the information of blocked APPs (slain), APPs not found (missing) and APPs in total (targeted in total) in the module description.
-
-![Bloatware Slayer](webpage/img/bs_work_normal.png)
+*You can see the information of blocked APPs (slain), APPs not found (missing) and APPs in total (targeted in total) in the module description.*
 
 For example, I need to uninstall XiaoAi Voice Assistant, so I will get the folder XiaoAi Voice Assistant located in by AppManager and soon get its name `VoiceAssistAndroidT`, then copy `VoiceAssistAndroidT` and add it into `target.conf` , save the changes and reboot my device.
 
