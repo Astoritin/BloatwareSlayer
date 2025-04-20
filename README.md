@@ -4,7 +4,7 @@ English | [简体中文](README_ZH-SC.md)
 
 A Magisk module to remove bloatware in systemless way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
-![Bloatware Slayer](webpage/img/bs_work_allclear.png)
+![Bloatware Slayer](webpage/img/bs.png)
 
 ## Supported Root Solution
 
