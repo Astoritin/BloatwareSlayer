@@ -1,17 +1,13 @@
 English | [简体中文](README_ZH-CN.md)
 
 # **Bloatware Slayer / 干掉预装软件**
-
 A Magisk module to remove bloatware in systemless way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
-
 ![Bloatware Slayer](webpage/img/bs.png)
 
 ## Supported Root Solution
-
 [Magisk](https://github.com/topjohnwu/Magisk) (Recommended!) 丨 [KernelSU](https://github.com/tiann/KernelSU) (Recommended!) 丨 [APatch](https://github.com/bmax121/APatch) (Not test yet)
 
 ## Details
-
 Bloatware Slayer removes bloatwares in systemless way, using specific mount methods from Magisk, KernelSU and APatch. Below are the steps:
 
 1. Install Magisk / KernelSU / APatch
