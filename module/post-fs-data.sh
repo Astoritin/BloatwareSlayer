@@ -44,7 +44,7 @@ brick_rescue() {
             return 0
         else
             logowl "Start brick rescue processing"
-            DESCRIPTION="[❌Disabled. Auto disable from brick! 🧭Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+            DESCRIPTION="[❌Disabled. Auto disable from brick! 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip post-fs-data.sh process"
             exit 1
@@ -93,7 +93,6 @@ preparation() {
         logowl "$MOD_NAME is running on KernelSU / APatch, which supports Make Node mode"
         MN_SUPPORT=true
         MR_SUPPORT=false
-        [ "$MR_SUPPORT" = true ] && [ "$DETECT_MAGISK" = false ] && MR_SUPPORT=false
         [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
 
     elif [ "$DETECT_MAGISK" = true ]; then
@@ -104,7 +103,7 @@ preparation() {
         else
             logowl "Make Node mode requires Magisk version 28102 and higher (current $MAGISK_V_VER_CODE)!" "WARN"
             logowl "$MOD_NAME will revert to Magisk Replace mode"
-            [ "$MN_SUPPORT" = true ] && MN_SUPPORT=false
+            MN_SUPPORT=false
             [ "$SLAY_MODE" = "MN" ] && SLAY_MODE="MR"
         fi
     fi
@@ -143,7 +142,7 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
-        DESCRIPTION="[❌No effect. Target list does NOT exist! 🧭Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+        DESCRIPTION="[❌No effect. Target list does NOT exist! 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -300,18 +299,23 @@ bloatware_slayer() {
                 logowl "Detect custom dir"
                 case "$app_path" in
                     /system/apex*)
-                        app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
-                        if [ -f "${app_path}.apex" ]; then
-                            logowl "Detect ${app_path}.apex"
-                            app_path="${app_path}.apex"
-                        elif [ -f "${app_path}.capex" ]; then
-                            logowl "Detect ${app_path}.capex"
-                            app_path="${app_path}.capex"
-                        else
-                            logowl "Neither ${app_path}.apex nor ${app_path}.capex exists"
-                            break
-                        fi
-                        logowl "Detect apex path: $app_path"
+                        case "$app_path" in
+                        *.apex|*.capex)
+                            ;;
+                        *)
+                            app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
+                            if [ -f "${app_path}.apex" ]; then
+                                logowl "Detect apex path: ${app_path}.apex"
+                                app_path="${app_path}.apex"
+                            elif [ -f "${app_path}.capex" ]; then
+                                logowl "Detect capex path: ${app_path}.capex"
+                                app_path="${app_path}.capex"
+                            else
+                                logowl "Neither ${app_path}.apex nor ${app_path}.capex exists"
+                                break
+                            fi
+                            ;;
+                        esac
                         ;;
                     /system*)
                         ;;
@@ -394,16 +398,16 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌No effect. Abnormal status! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL] A Magisk module to remove bloatware in systemless way"
+                DESCRIPTION="[❌No effect. Abnormal status! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
             fi
         fi
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
