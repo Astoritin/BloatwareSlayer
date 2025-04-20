@@ -6,18 +6,28 @@ A Magisk module to remove bloatware in systemless way / 一个无需修改 syste
 ### 1.3.5
 
 - Initial support for blocking bloatwares deployed via APEX components
-- Notes:1.Due to the particularity of APEX-based pre-installed software,custom paths are currently the only option(i.e.,you need to specify the full path,and folder names alone are not supported);2.Since APEX-based pre-installed software is compressed into.apex or.capex files and verified/uncompressed during Android startup,blocking this type of software requires your Root solution to support the“MN”(Make Node)mode.Otherwise,blocking will not be possible;3.Because a single.apex or.capex file might contain multiple components,blocking one component could lead to the disappearance of several components after a reboot.This is a characteristic of APEX-based pre-installed software.Please think carefully before adding it to the target list;4.Bloatware Slayer will automatically check whether your device supports“MN”mode.You don’t need to modify“slay_mode”and can still choose your preferred mode.
+- Notes:
+ 1. Due to the particularity of APEX-based bloatwares, custom paths are currently the only option (i.e. You need to specify the full path and folder names alone are not supported).
+ 2. Since APEX-based bloatwares is compressed into .apex or .capex files and verified/uncompressed during Android startup, blocking this type of bloatwares requires your Root solution to support `MN` (Make Node) mode. Otherwise, blocking will not be possible.
+ 3. Because a single .apex or .capex file might contain multiple components, blocking one component could lead to the disappearance of several components after a reboot. This is a characteristic of APEX-based bloatwares. Please think carefully before adding it to the target list.
+ 4. Bloatware Slayer will automatically check whether your device supports `MN` mode. You don’t need to modify `slay_mode` and can still choose your preferred mode.
 - Enhanced the root-hiding capability of `MB` (Mount Bind) mode. Bloatware Slayer will umount itself by default now.
 - Fix the problem where MR mode couldn’t be switched/corrected to MN mode under KernelSU/APatch
 - The status of Magisk and Zygisk Next for DenyList Enforcing will no longer be displayed when the real-time update module description function is disabled
 - Refactored a large amount of code
+- SHA256: `9b8e4b5d48ffa1c9a8ba9edd3287904cb1a1042ed8942f7d1e528df1568c8df5`
 
 - 初步支持屏蔽以 APEX 组件方式安装的预装软件
-- 注意：1. 由于APEX类预装软件的特殊性，目前仅支持自定义路径（也就是说，你需要指定完整的路径，不支持仅文件夹名）; 2. 由于APEX类预装软件被压缩成 .apex 或者 .capex 文件，在 Android 启动时验证并解压，屏蔽APEX类预装软件需要你的 Root 方案支持`MN` (Make Node,节点创建) 模式，若不支持则无法屏蔽; 3. 由于 .apex 或 .capex 可能包含多个组件，可能你只是想屏蔽一个组件，但是重启后几个组件都不见了，这是APEX类预装软件的特性，请再三斟酌是否需要加入目标列表 4. Bloatware Slayer 会自行检测设备是否支持 `MN` 模式，你无需修改 `slay_mode` ， 仍可选择你想要保持的模式
+- 注意：
+ 1. 由于APEX类预装软件的特殊性，目前仅支持自定义路径（也就是说，你需要指定完整的路径，不支持仅文件夹名）;
+ 2. 由于APEX类预装软件被压缩成 .apex 或者 .capex 文件，在 Android 启动时验证并解压，屏蔽APEX类预装软件需要你的 Root 方案支持`MN` (Make Node,节点创建) 模式，若不支持则无法屏蔽;
+ 3. 由于 .apex 或 .capex 可能包含多个组件，可能你只是想屏蔽一个组件，但是重启后几个组件都不见了，这是APEX类预装软件的特性，请再三斟酌是否需要加入目标列表
+ 4. Bloatware Slayer 会自行检测设备是否支持 `MN` 模式，你无需修改 `slay_mode` ， 仍可选择你想要保持的模式
 - 增强 `MB` (Mount Bind,挂载绑定) 模式的隐藏 Root 能力：现在，Bloatware Slayer 在 MB 模式下，默认情况下会自我 umount
 - 修复 KernelSU / APatch 下无法将 MR 模式切换到 MN 模式的问题
 - 当检测到实时更新模块描述功能被禁用时，不会再显示 Magisk 和 Zygisk Next 的遵守排除列表的启用状态
 - 重构大量代码
+- SHA256: `9b8e4b5d48ffa1c9a8ba9edd3287904cb1a1042ed8942f7d1e528df1568c8df5`
 
 ### 1.3.3
 
