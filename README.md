@@ -1,4 +1,4 @@
-English | [简体中文](README_ZH-SC.md)
+English | [简体中文](README_ZH-CN.md)
 
 # **Bloatware Slayer / 干掉预装软件**
 
