@@ -59,14 +59,13 @@ config_loader() {
     logowl "Load config"
 
     debug=$(init_variables "debug" "$CONFIG_FILE")
-    verify_variables "debug" "$debug" "^(true|false)$"
-
     auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
     system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
     mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
 
+    verify_variables "debug" "$debug" "^(true|false)$"
     verify_variables "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
     verify_variables "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
@@ -169,12 +168,14 @@ mirror_make_node() {
     mirror_node_path="$MODDIR$node_path"
 
     if [ ! -d "$mirror_parent_dir" ]; then
-        logowl "Create parent path: $mirror_parent_dir"
+        [ "$DEBUG" = true ] && logowl "Parent dir $mirror_parent_dir does NOT exist"
+        logowl "Create parent dir: $mirror_parent_dir"
         mkdir -p "$mirror_parent_dir"
     fi
 
     if [ ! -e "$mirror_node_path" ]; then
-        logowl "Execute mknod $mirror_node_path c 0 0"
+        [ "$DEBUG" = true ] && logowl "Node $mirror_node_path does NOT exist"
+        logowl "Execute: mknod $mirror_node_path c 0 0"
         mknod "$mirror_node_path" c 0 0
         result_make_node="$?"
         if [ $result_make_node -eq 0 ]; then
@@ -183,6 +184,7 @@ mirror_make_node() {
             return $result_make_node
         fi
     else
+        [ "$DEBUG" = true ] && logowl "Node $mirror_node_path exists already"
         return 0
     fi
 
@@ -208,7 +210,7 @@ mirror_magisk_replace() {
     fi
 
     if [ ! -e "$mirror_app_path/.replace" ]; then
-        logowl "Execute touch $mirror_app_path/.replace"
+        logowl "Execute: touch $mirror_app_path/.replace"
         touch "$mirror_app_path/.replace"
         result_magisk_replace="$?"
         if [ $result_magisk_replace -eq 0 ]; then
@@ -234,7 +236,7 @@ link_mount_bind() {
         return 6
     fi
 
-    logowl "Execute mount -o bind $EMPTY_DIR $app_path"
+    logowl "Execute: mount -o bind $EMPTY_DIR $app_path"
     mount -o bind "$EMPTY_DIR" "$app_path"
 
     result_mount_bind="$?"
@@ -296,7 +298,7 @@ bloatware_slayer() {
 
             if [ "$first_char" = "/" ]; then
                 app_path="$package"
-                logowl "Detect custom dir"
+                logowl "Detect custom dir: $app_path"
                 case "$app_path" in
                     /system/apex*)
                         case "$app_path" in
@@ -320,7 +322,7 @@ bloatware_slayer() {
                     /system*)
                         ;;
                     *)
-                        logowl "Unsupport custom path" "WARN"
+                        logowl "Unsupport custom path: $app_path" "WARN"
                         break
                         ;;
                 esac
@@ -328,8 +330,8 @@ bloatware_slayer() {
                 app_path="$path/$package"
             fi
 
-            logowl "Check dir: $app_path" "TIPS"
             if [ -d "$app_path" ]; then
+                logowl "Processing app path: $app_path"
                 if [ "$SLAY_MODE" = "MB" ]; then
                     link_mount_bind "$app_path"
                 elif [ "$SLAY_MODE" = "MN" ]; then
@@ -337,13 +339,10 @@ bloatware_slayer() {
                 elif [ "$SLAY_MODE" = "MR" ]; then
                     mirror_magisk_replace "$app_path"
                 fi
-
                 bloatware_slay_result=$?
                 if [ $bloatware_slay_result -eq 0 ]; then
                     logowl "Succeeded (code: $bloatware_slay_result)"
-
                     BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-
                     echo "$app_path" >> "$TARGET_LIST_BSA"
                     break
                 else
@@ -351,17 +350,14 @@ bloatware_slayer() {
                 fi
 
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
-                logowl "Check specific file: $app_path"
-
+                logowl "Processing file path: $app_path"
                 if [ "$SLAY_MODE" = "MN" ] || [ "$MN_SUPPORT" = true ]; then
                     mirror_make_node "$app_path"
                     bloatware_slay_result=$?
                     if [ $bloatware_slay_result -eq 0 ]; then
                         logowl "Succeeded (code: $bloatware_slay_result)"
                         BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-
                         [ "$SLAY_MODE" != "MN" ] && hybrid_mode=true
-
                         echo "$app_path" >> "$TARGET_LIST_BSA"
                         break
                     else
@@ -379,6 +375,9 @@ bloatware_slayer() {
 
         done
     done < "$TARGET_LIST"
+
+    logowl "Clean duplicate items"
+    clean_duplicate_items "$TARGET_LIST_BSA"
 
     if [ "$AUTO_UPDATE_TARGET_LIST" = true ]; then
         logowl "Update target list"
@@ -430,7 +429,6 @@ brick_rescue
 preparation
 bloatware_slayer
 module_status_update
-logowl "Set permissions"
 set_permission_recursive "$MODDIR" 0 0 0755 0644
 set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
 debug_print_values >> "$LOG_FILE"
