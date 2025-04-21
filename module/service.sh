@@ -2,8 +2,6 @@
 MODDIR=${0%/*}
 
 CONFIG_DIR="/data/adb/bloatwareslayer"
-DEBUG=false
-
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 LOG_DIR="$CONFIG_DIR/logs"
@@ -18,26 +16,25 @@ MOD_DESC_OLD="$(sed -n 's/^description=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_ROOT_DIR=$(dirname "$MODDIR")
 MOD_ZYGISKSU_PATH="${MOD_ROOT_DIR}/zygisksu"
 
+DEBUG=false
+SLAY_MODE="MB"
+MB_UMOUNT_BIND=true
 BRICK_TIMEOUT=180
 DISABLE_MODULE_AS_BRICK=true
 UPDATE_DESC_ON_ACTION=false
-
-SLAY_MODE="MB"
-MB_UMOUNT_BIND=true
 
 config_loader() {
 
     logowl "Load config"
 
     debug=$(init_variables "debug" "$CONFIG_FILE")
-    verify_variables "debug" "$debug" "^(true|false)$"
-
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
     mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
     update_desc_on_action=$(init_variables "update_desc_on_action" "$CONFIG_FILE")
 
+    verify_variables "debug" "$debug" "^(true|false)$"
     verify_variables "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
     verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
