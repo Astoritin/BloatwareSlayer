@@ -8,9 +8,7 @@ VERIFY_DIR="$TMPDIR/.aa_verify"
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
 
-if [ ! -d "$VERIFY_DIR" ]; then
-    mkdir -p "$VERIFY_DIR"
-fi
+[ ! -d "$VERIFY_DIR" ] && mkdir -p "$VERIFY_DIR"
 
 echo "- Extract aautilities.sh"
 unzip -o "$ZIPFILE" 'aautilities.sh' -d "$TMPDIR" >&2
@@ -21,16 +19,52 @@ fi
 
 . "$TMPDIR/aautilities.sh"
 
+migrate_old_files() {
+
+    logowl "Migrating old files"
+
+    if [ -f "$CONFIG_DIR/target.txt" ] && [ ! -f "$CONFIG_DIR/target.conf"  ]; then
+        logowl "Detect old config file"
+        logowl "Migrate target.txt -> target.conf"
+        mv "$CONFIG_DIR/target.txt" "$CONFIG_DIR/target.conf"
+    elif [ -f "$CONFIG_DIR/target.txt" ] && [ -f "$CONFIG_DIR/target.conf" ]; then
+        logowl "Both target.txt and target.conf exist"
+        logowl "Merging contents"
+        cat "$CONFIG_DIR/target.txt" >> "$CONFIG_DIR/target.conf"
+        sort -u "$CONFIG_DIR/target.txt" >> "$CONFIG_DIR/target.conf"
+        logowl "Merged, target.txt has been removed"
+        rm -f "$CONFIG_DIR/target.txt"
+    fi
+
+    if [ -f "$CONFIG_DIR/root.txt" ]; then
+        logowl "Detect old root solution logging file"
+        rm -f "$CONFIG_DIR/root.txt"
+        logowl "Removed root.txt"
+    fi
+
+    if [ -f "$CONFIG_DIR/status.info" ]; then
+        logowl "Detect old status logging file"
+        rm -f "$CONFIG_DIR/status.info"
+        logowl "Removed status.info"
+    fi
+    
+    rm -f "$CONFIG_DIR/target_bsa.conf"
+    rm -f "$CONFIG_DIR/target_bsa.txt"
+
+    rm -f "$CONFIG_DIR/empty"
+}
+
 logowl "Setting up $MOD_NAME"
 logowl "Version: $MOD_VER"
-install_env_check
 init_logowl "$LOG_DIR"
-clean_old_logs "$LOG_DIR" 20
+install_env_check
 show_system_info
 logowl "Install from $ROOT_SOL app"
 logowl "Essential checks"
 extract "$ZIPFILE" 'aautilities.sh' "$VERIFY_DIR"
 extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
+clean_old_logs "$LOG_DIR" 20
+migrate_old_files
 logowl "Extract module files"
 extract "$ZIPFILE" 'aautilities.sh' "$MODPATH"
 extract "$ZIPFILE" 'module.prop' "$MODPATH"
