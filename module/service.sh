@@ -141,7 +141,7 @@ print_line
     print_line
 
     if [ "$SLAY_MODE" = "MB" ] && [ "$MB_UMOUNT_BIND" = true ]; then
-        logowl "$MOD_NAME is running on MB (Mount Bind) mode currently"
+        logowl "$MOD_NAME is running on Mount Bind mode"
         logowl "Detect flag MB_UMOUNT_BIND=true"
         logowl "Execute umount process"
         if [ ! -f "$TARGET_LIST_BSA" ]; then
