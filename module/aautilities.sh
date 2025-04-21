@@ -545,11 +545,14 @@ clean_old_logs() {
 
 set_permission() {
 
+    [ "$DEBUG" = true ] && logowl "chown $2:$3 $1"
     chown $2:$3 $1 || return 1
     
+    [ "$DEBUG" = true ] && logowl "chmod $4 $1"
     chmod $4 $1 || return 1
     
     selinux_content=$5
+    [ -z "$selinux_content" ] && [ "$DEBUG" = true ] && logowl "chcon $selinux_content $1"
     [ -z "$selinux_content" ] && selinux_content=u:object_r:system_file:s0
 
     chcon $selinux_content $1 || return 1
@@ -558,11 +561,33 @@ set_permission() {
 
 set_permission_recursive() {
 
+    logowl "Set permission"
+
     find $1 -type d 2>/dev/null | while read dir; do
         set_permission $dir $2 $3 $4 $6
+        [ "$DEBUG" = true ] && logowl "Execute for dir: $dir"
     done
     find $1 -type f -o -type l 2>/dev/null | while read file; do
         set_permission $file $2 $3 $5 $6
+        [ "$DEBUG" = true ] && logowl "Execute for file: $file"
     done
 
+}
+
+clean_duplicate_items() {
+    filed=$1
+
+    if [ -z "$filed" ]; then
+        logowl "File is NOT provided!" "ERROR"
+        return 1
+    elif [ ! -f "$filed" ]; then
+        logowl "$filed does NOT exist or is NOT a file!" "ERROR"
+        return 2
+    fi
+
+    [ "$DEBUG" = true ] && logowl "filed: ${filed}"
+    [ "$DEBUG" = true ] && logowl "filed.tmp: ${filed}.tmp"
+
+    awk '!seen[$0]++' "$filed" > "${filed}.tmp"
+    return 0
 }
