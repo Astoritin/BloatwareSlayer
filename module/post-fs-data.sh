@@ -15,9 +15,8 @@ MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
-MOD_ROOT_DIR=$(dirname "$MODDIR")
 
-EMPTY_DIR="$CONFIG_DIR/empty"
+EMPTY_DIR="$MODDIR/empty"
 MIRROR_DIR="$MODDIR/system"
 
 MN_SUPPORT=false
@@ -198,7 +197,7 @@ mirror_magisk_replace() {
         logowl "replace_path is NOT ordered!" "ERROR"
         return 5
     elif [ ! -d "$replace_path" ]; then
-        logowl "$replace_path is NOT a directory!" "ERROR"
+        logowl "$replace_path is NOT a dir!" "ERROR"
         return 6
     fi
 
@@ -232,7 +231,7 @@ link_mount_bind() {
         logowl "link_path is NOT ordered!" "ERROR"
         return 5
     elif [ ! -d "$link_path" ]; then
-        logowl "$link_path is NOT a directory!" "ERROR"
+        logowl "$link_path is NOT a dir!" "ERROR"
         return 6
     fi
 
