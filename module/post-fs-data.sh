@@ -36,8 +36,10 @@ brick_rescue() {
     if [ -f "$BRICKED_STATUS" ]; then
         logowl "Detect flag bricked!" "FATAL"
         if [ "$DISABLE_MODULE_AS_BRICK" = true ] && [ ! -f "$MODDIR/disable" ]; then
-            logowl "Detect flag DISABLE_MODULE_AS_BRICK=true, but $MOD_NAME has NOT been disabled"
-            logowl "Maybe $MOD_NAME is enabled by user manually, reset brick status"
+            logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
+            logowl "But $MOD_NAME has NOT been disabled"
+            logowl "Maybe $MOD_NAME is enabled by user manually"
+            logowl "Reset brick status"
             rm -f "$BRICKED_STATUS"
             logowl "$MOD_NAME will keep going"
             return 0
@@ -88,7 +90,8 @@ preparation() {
 
 
     if [ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ]; then
-        logowl "$MOD_NAME is running on KernelSU / APatch, which supports Make Node mode"
+        logowl "$MOD_NAME is running on KernelSU / APatch"
+        logowl "Make Node mode support is present"
         MN_SUPPORT=true
         MR_SUPPORT=false
         [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
@@ -96,7 +99,8 @@ preparation() {
     elif [ "$DETECT_MAGISK" = true ]; then
         MR_SUPPORT=true
         if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
-            logowl "$MOD_NAME is running on Magisk 28102+, which supports Make Node mode"
+            logowl "$MOD_NAME is running on Magisk 28102+"
+            logowl "Make Node mode support is present"
             MN_SUPPORT=true
         else
             logowl "Make Node mode requires Magisk version 28102 and higher (current $MAGISK_V_VER_CODE)!" "WARN"
@@ -133,7 +137,6 @@ preparation() {
     logowl "Current mode: $SLAY_MODE ($SLAY_MODE_DESC)"
 
     if [ "$MN_SUPPORT" = true ]; then
-        logowl "Current root solution supports Make Node mode"
         logowl "Create $MIRROR_DIR"
         [ ! -e "$MIRROR_DIR" ] && mkdir -p "$MIRROR_DIR"
     fi
@@ -345,7 +348,7 @@ bloatware_slayer() {
                     echo "$app_path" >> "$TARGET_LIST_BSA"
                     break
                 else
-                    logowl "Failed to deal $app_path (code: $bloatware_slay_result)"
+                    logowl "Failed to process $app_path (code: $bloatware_slay_result)"
                 fi
 
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
@@ -360,7 +363,7 @@ bloatware_slayer() {
                         echo "$app_path" >> "$TARGET_LIST_BSA"
                         break
                     else
-                        logowl "Failed to deal $app_path (code: $bloatware_slay_result)"
+                        logowl "Failed to process $app_path (code: $bloatware_slay_result)"
                     fi
                 fi
             else
