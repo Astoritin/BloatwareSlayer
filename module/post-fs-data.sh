@@ -345,7 +345,7 @@ bloatware_slayer() {
                     echo "$app_path" >> "$TARGET_LIST_BSA"
                     break
                 else
-                    logowl "Failed to mount $app_path (code: $bloatware_slay_result)"
+                    logowl "Failed to deal $app_path (code: $bloatware_slay_result)"
                 fi
 
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
@@ -360,7 +360,7 @@ bloatware_slayer() {
                         echo "$app_path" >> "$TARGET_LIST_BSA"
                         break
                     else
-                        logowl "Failed to mount $app_path (code: $bloatware_slay_result)"
+                        logowl "Failed to deal $app_path (code: $bloatware_slay_result)"
                     fi
                 fi
             else
