@@ -161,17 +161,17 @@ print_line
                 line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
                 first_char=$(printf '%s' "$line" | cut -c1)
                 if [ -z "$line" ]; then
-                    logowl "Detect empty line, skip processing" "TIPS"
+                    logowl "Empty in line $lines_count (code: 2)" "WARN"
                     continue
                 elif [ "$first_char" = "#" ]; then
-                    logowl "Detect comment line, skip processing" "TIPS"
+                    logowl "Comment symbol in line $lines_count (code: 3)" "WARN"
                     continue
                 fi
 
                 package=$(echo "$line" | cut -d '#' -f1)
                 package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
                 if [ -z "$package" ]; then
-                    logowl "Detect only comment left in this line, skip processing" "TIPS"
+                    logowl "Only comment left in line $lines_count, skip processing" "TIPS"
                     continue
                 fi
                 case "$package" in
@@ -181,14 +181,9 @@ print_line
                         ;;
                 esac
                 logowl "After processing: $package"
-                logowl "Execute umount -f $package"
                 umount -f $package
                 result_umount=$?
-                if [ $result_umount -eq 0 ]; then
-                    logowl "Succeeded (code: $result_umount)"
-                else
-                    logowl "Failed (code: $result_umount)"
-                fi
+                logowl "Execute umount -f (SC: $result_umount)"
 
             done < "$TARGET_LIST_BSA"
         fi
