@@ -192,7 +192,7 @@ logowl() {
     case "$LOG_LEVEL" in
         "TIPS") LOG_LEVEL="*" ;;
         "WARN") LOG_LEVEL="- Warn:" ;;
-        "ERROR") LOG_LEVEL="! ERROR:" ;;
+        "ERROR") LOG_LEVEL="! Error:" ;;
         "FATAL") LOG_LEVEL="× FATAL:" ;;
         "SPACE") LOG_LEVEL=" " ;;
         "NONE") LOG_LEVEL="_" ;;
@@ -200,7 +200,7 @@ logowl() {
     esac
 
     if [ -n "$LOG_FILE" ]; then
-        if [ "$LOG_LEVEL" = "! ERROR:" ] || [ "$LOG_LEVEL" = "× FATAL:" ]; then
+        if [ "$LOG_LEVEL" = "! Error:" ] || [ "$LOG_LEVEL" = "× FATAL:" ]; then
             echo "--------------------------------------------------------------------------------------------------------" >> "$LOG_FILE"
             echo "$LOG_LEVEL $LOG_MSG" >> "$LOG_FILE"
             echo "--------------------------------------------------------------------------------------------------------" >> "$LOG_FILE"
@@ -211,7 +211,7 @@ logowl() {
         fi
     else
         if command -v ui_print >/dev/null 2>&1 && [ "$BOOTMODE" ]; then
-            if [ "$LOG_LEVEL" = "! ERROR:" ] || [ "$LOG_LEVEL" = "× FATAL:" ]; then
+            if [ "$LOG_LEVEL" = "! Error:" ] || [ "$LOG_LEVEL" = "× FATAL:" ]; then
                 ui_print "--------------------------------------------------------------------------------------------------------"
                 ui_print "$LOG_LEVEL $LOG_MSG"
                 ui_print "--------------------------------------------------------------------------------------------------------"
@@ -300,11 +300,11 @@ init_variables() {
     case $awk_exit_status in
         1)
             logowl "Key '$key' not found or unclosed quote in $config_file" "ERROR" >&2
-            return 1
+            return 5
             ;;
         0)  ;;
         *)  logowl "Error processing key '$key' in $config_file" "ERROR" >&2
-            return 1
+            return 6
             ;;
     esac
 
@@ -314,8 +314,7 @@ init_variables() {
         echo "$value"
         return 0
     else
-        result=$?
-        return "$result"
+        return $?
     fi
 }
 
@@ -324,22 +323,27 @@ check_value_safety(){
     key="$1"
     value="$2"
 
-    if [ -z "$value" ]; then
-        logowl "Detect empty value (code: 1)" "WARN"
+    if [ -z "$key" ]; then
+        logowl "Variable is NOT ordered! (code: 1)" "ERROR"
         return 1
+    fi
+
+    if [ -z "$value" ]; then
+        logowl "Detect empty value (code: 2)" "WARN"
+        return 2
     fi
 
     value=$(printf "%s" "$value" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
 
-    if [ "$value" = "true" ] || [ "$value" = "false" ]; then
+    if [ "$value" = true ] || [ "$value" = false ]; then
         logowl "Verified $key=$value (boolean)" "TIPS"
         return 0
     fi
 
     first_char=$(printf '%s' "$value" | cut -c1)
     if [ "$first_char" = "#" ]; then
-        logowl "Detect comment symbol (code: 2)" "WARN"
-        return 2
+        logowl "Detect comment symbol (code: 3)" "WARN"
+        return 3
     fi
 
     value=$(echo "$value" | cut -d'#' -f1 | xargs)
@@ -348,11 +352,11 @@ check_value_safety(){
     dangerous_chars='[`$();|<>]'
 
     if echo "$value" | grep -Eq "$dangerous_chars"; then
-        logowl "Key '$key' contains potential dangerous characters" "WARN" >&2
+        logowl "Variable '$key' contains potential dangerous characters" "WARN" >&2
         return 3
     fi
     if ! echo "$value" | grep -Eq "$regex"; then
-        logowl "Key '$key' contains illegal characters" "WARN" >&2
+        logowl "Variable '$key' contains illegal characters" "WARN" >&2
         return 4
     fi
 
@@ -384,10 +388,10 @@ verify_variables() {
                 logowl "Set default value $script_var_name=$default_value" "TIPS"
                 export "$script_var_name"="$default_value"
             else
-                logowl "Variable $script_var_name set already" "WARN"
+                logowl "Variable $script_var_name is set already" "WARN"
             fi
         else
-            logowl "No default value provided for $script_var_name, keep its current state" "TIPS"
+            logowl "No default value provided for $script_var_name" "WARN"
         fi
     fi
 }
