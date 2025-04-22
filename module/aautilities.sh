@@ -2,21 +2,24 @@
 MODDIR=${0%/*}
 
 is_magisk() {
-    if [ -n "$(magisk -v || magisk -V)" ]; then
-        MAGISK_V_VER_NAME="$(magisk -v)"
-        MAGISK_V_VER_CODE="$(magisk -V)"
-        case "$MAGISK_VER $MAGISK_V_VER_NAME" in
-            *"-alpha"*) MAGISK_BRANCH_NAME="Magisk Alpha" ;;
-            *"-lite"*)  MAGISK_BRANCH_NAME="Magisk Lite" ;;
-            *"-kitsune"*) MAGISK_BRANCH_NAME="Kitsune Mask" ;;
-            *"-delta"*) MAGISK_BRANCH_NAME="Magisk Delta" ;;
-            *) MAGISK_BRANCH_NAME="Magisk" ;;
-        esac
-        DETECT_MAGISK="true"
-        DETECT_MAGISK_DETAIL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
-        return 0
+
+    if ! command -v magisk >/dev/null 2>&1; then
+        return 1
     fi
-    return 1
+
+    MAGISK_V_VER_NAME="$(magisk -v)"
+    MAGISK_V_VER_CODE="$(magisk -V)"
+    case "$MAGISK_V_VER_NAME" in
+        *"-alpha"*) MAGISK_BRANCH_NAME="Magisk Alpha" ;;
+        *"-lite"*)  MAGISK_BRANCH_NAME="Magisk Lite" ;;
+        *"-kitsune"*) MAGISK_BRANCH_NAME="Kitsune Mask" ;;
+        *"-delta"*) MAGISK_BRANCH_NAME="Magisk Delta" ;;
+        *) MAGISK_BRANCH_NAME="Magisk" ;;
+    esac
+    DETECT_MAGISK="true"
+    DETECT_MAGISK_DETAIL="$MAGISK_BRANCH_NAME (${MAGISK_VER_CODE:-$MAGISK_V_VER_CODE})"
+    return 0
+
 }
 
 is_kernelsu() {
