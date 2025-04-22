@@ -165,17 +165,17 @@ init_logowl() {
     fi
 
     if [ ! -d "$LOG_DIR" ]; then
-        logowl "Log dir does NOT exist"
+        [ "$DEBUG" = true ] && logowl "Log dir does NOT exist"
         mkdir -p "$LOG_DIR" || {
             logowl "Failed to create $LOG_DIR" "ERROR" >&2
             return 2
         }
-        logowl "Created $LOG_DIR"
+        [ "$DEBUG" = true ] && logowl "Created $LOG_DIR"
     else
-        logowl "$LOG_DIR exists already"
+        [ "$DEBUG" = true ] && logowl "$LOG_DIR exists already"
     fi
 
-    logowl "logowl initialized"
+    [ "$DEBUG" = true ] && logowl "logowl initialized"
 
 }
 
@@ -368,16 +368,20 @@ verify_variables() {
     default_value="${4:-}"
     script_var_name=$(echo "$config_var_name" | tr '[:lower:]' '[:upper:]')
 
-    if [ -n "$config_var_value" ] && echo "$config_var_value" | grep -qE "$validation_pattern"; then
+    if [ -n "$config_var_value" ]; then
+        logowl "Variable $config_var_value is NOT ordered!" "WARN"
+        return 1    
+    elif echo "$config_var_value" | grep -qE "$validation_pattern"; then
         export "$script_var_name"="$config_var_value"
-        logowl "Set $script_var_name=$config_var_value" "TIPS"
+        result_export_var=$?
+        logowl "Set $script_var_name=$config_var_value (result: $result_export_var)" "TIPS"
+        return $result_export_var
     else
-        logowl "Config var value is empty or does NOT match the pattern" "WARN"
-        logowl "Invalid var: $script_var_name=$config_var_value"
-
+        logowl "Variable value does NOT match the pattern" "WARN"
+        logowl "Invalid variable: $script_var_name=$config_var_value"
         if [ -n "$default_value" ]; then
             if eval "[ -z \"\${$script_var_name+x}\" ]"; then
-                logowl "Use default value for $script_var_name: $default_value" "TIPS"
+                logowl "Set default value $script_var_name=$default_value" "TIPS"
                 export "$script_var_name"="$default_value"
             else
                 logowl "Variable $script_var_name set already" "WARN"
@@ -402,14 +406,14 @@ update_config_value() {
         logowl "$file_path is NOT a valid file!" "ERROR"
         return 2
     fi
-    logowl "Update $key_name: $key_value"
     sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
 
     result_update_value=$?
-    if [ $result_update_value -eq 0 ]; then
-        logowl "Succeeded (code: $result_update_value)"
+    logowl "Update $key_name=$key_value (code: $result_update_value)"
+    if [ "$result_update_value" -eq 0 ]; then
+        return 0
     else
-        logowl "Failed to update $key_name=$key_value into $file_path (code: $result_update_value)" "WARN"
+        return "$result_update_value"
     fi
 
 }
@@ -521,7 +525,7 @@ clean_old_logs() {
     files_max="$2"
     
     if [ -z "$log_dir" ] || [ ! -d "$log_dir" ]; then
-        logowl "$log_dir is not found or is not a directory!" "ERROR"
+        logowl "$log_dir is not found or is not a dir!" "ERROR"
         return
     fi
 
@@ -529,31 +533,29 @@ clean_old_logs() {
         files_max=30
     fi
 
+    logowl "Current log dir: $log_dir"
     files_count=$(ls -1 "$log_dir" | wc -l)
     if [ "$files_count" -gt "$files_max" ]; then
-        [ "$DEBUG" = true ] && logowl "Too many log files" "WARN"
-        [ "$DEBUG" = true ] && logowl "$files_count files, current max allowed: $files_max"
-        [ "$DEBUG" = true ] && logowl "Clear old logs"
+        logowl "Clear old logs ($files_count as max allowed $files_max)"
         ls -1t "$log_dir" | tail -n +$((files_max + 1)) | while read -r file; do
             rm -f "$log_dir/$file"
         done
-        [ "$DEBUG" = true ] && logowl "Cleared!"
     else
-        [ "$DEBUG" = true ] && logowl "Detect $files_count files in $log_dir"
+        logowl "Detect $files_count files in $log_dir (max allowed $files_max)"
     fi
 }
 
 set_permission() {
 
-    [ "$DEBUG" = true ] && logowl "chown $2:$3 $1"
+    [ "$DEBUG" = true ] && logowl "chown $2:$3 $1 (code: $?)"
     chown $2:$3 $1 || return 1
     
-    [ "$DEBUG" = true ] && logowl "chmod $4 $1"
+    [ "$DEBUG" = true ] && logowl "chmod $4 $1 (code: $?)"
     chmod $4 $1 || return 1
     
     selinux_content=$5
-    [ -z "$selinux_content" ] && [ "$DEBUG" = true ] && logowl "chcon $selinux_content $1"
     [ -z "$selinux_content" ] && selinux_content=u:object_r:system_file:s0
+    [ -z "$selinux_content" ] && [ "$DEBUG" = true ] && logowl "chcon $selinux_content $1 (code: $?)"
 
     chcon $selinux_content $1 || return 1
 
@@ -565,11 +567,11 @@ set_permission_recursive() {
 
     find $1 -type d 2>/dev/null | while read dir; do
         set_permission $dir $2 $3 $4 $6
-        [ "$DEBUG" = true ] && logowl "Execute for dir: $dir"
+        [ "$DEBUG" = true ] && logowl "Execute for dir: $dir (code: $?)"
     done
     find $1 -type f -o -type l 2>/dev/null | while read file; do
         set_permission $file $2 $3 $5 $6
-        [ "$DEBUG" = true ] && logowl "Execute for file: $file"
+        [ "$DEBUG" = true ] && logowl "Execute for file: $file (code: $?)"
     done
 
 }
