@@ -115,8 +115,6 @@ preparation() {
 
     if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
         logowl "Detect multiple root solutions!" "WARN"
-        logowl "Install multiple root solutions is NOT a healthy or normal way"
-        logowl "Please keep using one root solution ONLY!"
         logowl "$MOD_NAME will revert to mount bind mode for multiple root solutions"
         SLAY_MODE="MB"
     fi
