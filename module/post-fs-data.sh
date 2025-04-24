@@ -31,7 +31,7 @@ SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /syst
 
 brick_rescue() {
 
-    logowl "Check brick status"
+    logowl "Checking brick status"
 
     if [ -f "$BRICKED_STATUS" ]; then
         logowl "Detect flag bricked!" "FATAL"
@@ -51,13 +51,14 @@ brick_rescue() {
             exit 1
         fi
     else
-        logowl "Flag bricked does NOT exist, $MOD_NAME will keep going"
+        logowl "Flag bricked does NOT exist"
+        logowl "$MOD_NAME will keep going"
     fi
 }
 
 config_loader() {
 
-    logowl "Load config"
+    logowl "Loading config"
 
     debug=$(init_variables "debug" "$CONFIG_FILE")
     auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
@@ -97,6 +98,8 @@ preparation() {
         [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
 
     elif [ "$DETECT_MAGISK" = true ]; then
+        logowl "$MOD_NAME is running on Magisk"
+        logowl "Magisk Replace mode support is present"
         MR_SUPPORT=true
         if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
             logowl "$MOD_NAME is running on Magisk 28102+"
