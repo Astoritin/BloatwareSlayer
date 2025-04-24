@@ -21,7 +21,7 @@ fi
 
 migrate_old_files() {
 
-    logowl "Migrating old files"
+    logowl "Migrate old files"
 
     if [ -f "$CONFIG_DIR/target.txt" ] && [ ! -f "$CONFIG_DIR/target.conf"  ]; then
         logowl "Detect old config file"
