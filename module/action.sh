@@ -27,7 +27,6 @@ me.zhanghai.android.files/me.zhanghai.android.files.filelist.FileListActivity
 "
 
 init_logowl "$LOG_DIR"
-print_line
 module_intro
 logowl "Starting action.sh"
 
@@ -60,6 +59,6 @@ done
 
 sleep 7
 
-logowl "No available Root Explorer detected, please open config folder manually if needed!" "ERROR"
+logowl "No available Root Explorer detected, please open config dir manually if needed!" "ERROR"
 print_line
 logowl "action.sh case closed!"
