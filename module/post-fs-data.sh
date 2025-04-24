@@ -44,7 +44,7 @@ brick_rescue() {
             logowl "$MOD_NAME will keep going"
             return 0
         else
-            logowl "Start brick rescue processing"
+            logowl "Start brick rescue"
             DESCRIPTION="[❌Disabled. Auto disable from brick! 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip post-fs-data.sh process"
@@ -170,23 +170,23 @@ mirror_make_node() {
     mirror_node_path="$MODDIR$node_path"
 
     if [ ! -d "$mirror_parent_dir" ]; then
-        [ "$DEBUG" = true ] && logowl "Parent dir $mirror_parent_dir does NOT exist"
-        logowl "Create parent dir: $mirror_parent_dir"
+        logowl "Parent dir $mirror_parent_dir does NOT exist"
         mkdir -p "$mirror_parent_dir"
+        logowl "Create parent dir: $mirror_parent_dir"
     fi
 
     if [ ! -e "$mirror_node_path" ]; then
-        [ "$DEBUG" = true ] && logowl "Node $mirror_node_path does NOT exist"
-        logowl "Execute: mknod $mirror_node_path c 0 0"
+        logowl "Node $mirror_node_path does NOT exist"
         mknod "$mirror_node_path" c 0 0
         result_make_node="$?"
+        logowl "Execute: mknod $mirror_node_path c 0 0"
         if [ $result_make_node -eq 0 ]; then
             return 0
         else
             return $result_make_node
         fi
     else
-        [ "$DEBUG" = true ] && logowl "Node $mirror_node_path exists already"
+        logowl "Node $mirror_node_path exists already"
         return 0
     fi
 
@@ -207,14 +207,14 @@ mirror_magisk_replace() {
     mirror_app_path="$MODDIR$replace_path"
 
     if [ ! -d "$mirror_app_path" ]; then
-        logowl "Create mirror path: $mirror_app_path"
         mkdir -p "$mirror_app_path"
+        logowl "Create mirror path: $mirror_app_path"
     fi
 
     if [ ! -e "$mirror_app_path/.replace" ]; then
-        logowl "Execute: touch $mirror_app_path/.replace"
         touch "$mirror_app_path/.replace"
         result_magisk_replace="$?"
+        logowl "Execute: touch $mirror_app_path/.replace"
         if [ $result_magisk_replace -eq 0 ]; then
             return 0
         else
@@ -238,10 +238,9 @@ link_mount_bind() {
         return 6
     fi
 
-    logowl "Execute: mount -o bind $EMPTY_DIR $app_path"
     mount -o bind "$EMPTY_DIR" "$app_path"
-
     result_mount_bind="$?"
+    logowl "Execute: mount -o bind $EMPTY_DIR $app_path"
     if [ $result_mount_bind -eq 0 ]; then
         return 0
     else
@@ -270,10 +269,10 @@ bloatware_slayer() {
         first_char=$(printf '%s' "$line" | cut -c1)
 
         if [ -z "$line" ]; then
-            logowl "Detect empty line, skip processing" "TIPS"
+            [ "$DEBUG" = true ] && logowl "Line $lines_count is empty line, skip processing"
             continue
         elif [ "$first_char" = "#" ]; then
-            logowl "Detect comment line, skip processing" "TIPS"
+            [ "$DEBUG" = true ] && logowl "Line $lines_count is comment line, skip processing"
             continue
         fi
 
@@ -281,26 +280,25 @@ bloatware_slayer() {
         package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
         if [ -z "$package" ]; then
-            logowl "Detect only comment left in this line, skip processing" "TIPS"
+            [ "$DEBUG" = true ] && logowl "Detect only comment left in this line, skip processing"
             continue
         fi
 
         case "$package" in
             *\\*)
-                logowl "Replace '\\' with '/' in path: $package" "WARN"
+                [ "$DEBUG" = true ] && logowl "Replace '\\' with '/' in path: $package" "WARN"
                 package=$(echo "$package" | sed -e 's/\\/\//g')
                 ;;
         esac
-        logowl "After processing: $package"
 
         TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT+1))
 
         for path in $SYSTEM_APP_PATHS; do
-            first_char=$(printf '%s' "$line" | cut -c1)
 
+            first_char=$(printf '%s' "$line" | cut -c1)
             if [ "$first_char" = "/" ]; then
                 app_path="$package"
-                logowl "Detect custom dir: $app_path"
+                [ "$DEBUG" = true ] && logowl "Detect custom dir: $app_path"
                 case "$app_path" in
                     /system/apex*)
                         case "$app_path" in
@@ -308,32 +306,35 @@ bloatware_slayer() {
                             ;;
                         *)
                             app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
-                            if [ -f "${app_path}.apex" ]; then
-                                logowl "Detect apex path: ${app_path}.apex"
-                                app_path="${app_path}.apex"
-                            elif [ -f "${app_path}.capex" ]; then
-                                logowl "Detect capex path: ${app_path}.capex"
-                                app_path="${app_path}.capex"
+                            if [ -f "$app_path.apex" ]; then
+                                app_path="$app_path.apex"
+                                [ "$DEBUG" = true ] && logowl "Detect apex path: $app_path"
+                            elif [ -f "$app_path.capex" ]; then
+                                app_path="$app_path.capex"
+                                [ "$DEBUG" = true ] && logowl "Detect capex path: $app_path"
                             else
-                                logowl "Neither ${app_path}.apex nor ${app_path}.capex exists"
+                                [ "$DEBUG" = true ] && logowl "Neither apex path nor capex path is found!" "WARN"
                                 break
                             fi
                             ;;
                         esac
                         ;;
                     /system*)
+                        [ "$DEBUG" = true ] && logowl "Detect custom /system path: $app_path"
                         ;;
                     *)
-                        logowl "Unsupport custom path: $app_path" "WARN"
+                        [ "$DEBUG" = true ] && logowl "Unsupported custom path: $app_path !"
                         break
                         ;;
                 esac
             else
+                [ "$DEBUG" = true ] && logowl "Detect app name: $app_path"
                 app_path="$path/$package"
+                [ "$DEBUG" = true ] && logowl "Current full path: $app_path"
             fi
 
+            app_name="$(basename "$app_path")"
             if [ -d "$app_path" ]; then
-                logowl "Processing app path: $app_path"
                 if [ "$SLAY_MODE" = "MB" ]; then
                     link_mount_bind "$app_path"
                 elif [ "$SLAY_MODE" = "MN" ]; then
@@ -341,40 +342,38 @@ bloatware_slayer() {
                 elif [ "$SLAY_MODE" = "MR" ]; then
                     mirror_magisk_replace "$app_path"
                 fi
-                bloatware_slay_result=$?
-                if [ $bloatware_slay_result -eq 0 ]; then
-                    logowl "Succeeded (code: $bloatware_slay_result)"
+                app_process_result=$?
+                if [ $app_process_result -eq 0 ]; then
                     BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                     echo "$app_path" >> "$TARGET_LIST_BSA"
+                    logowl "$app_name has been slain"
                     break
                 else
-                    logowl "Failed to process $app_path (code: $bloatware_slay_result)"
+                    logowl "Slay $app_name failed (code: $app_process_result)" "WARN"
                 fi
 
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
-                logowl "Processing file path: $app_path"
                 if [ "$SLAY_MODE" = "MN" ] || [ "$MN_SUPPORT" = true ]; then
                     mirror_make_node "$app_path"
-                    bloatware_slay_result=$?
-                    if [ $bloatware_slay_result -eq 0 ]; then
-                        logowl "Succeeded (code: $bloatware_slay_result)"
+                    file_process_result=$?
+                    if [ $file_process_result -eq 0 ]; then
                         BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                         [ "$SLAY_MODE" != "MN" ] && hybrid_mode=true
                         echo "$app_path" >> "$TARGET_LIST_BSA"
+                        logowl "$app_name has been slain"
                         break
                     else
-                        logowl "Failed to process $app_path (code: $bloatware_slay_result)"
+                        logowl "Slay $app_name failed (code: $file_process_result)" "WARN"
                     fi
                 fi
             else
                 if [ "$first_char" = "/" ]; then
-                    logowl "Custom dir not found: $app_path" "WARN"
+                    logowl "Custom dir not found" "WARN"
                     break
                 else
-                    logowl "Dir not found: $app_path" "WARN"
+                    logowl "Dir not found" "WARN"
                 fi
             fi
-
         done
     done < "$TARGET_LIST"
 
@@ -399,9 +398,9 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Infiltrated. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅Enabled. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Infiltrated. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
