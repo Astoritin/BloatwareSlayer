@@ -183,7 +183,7 @@ print_line
                 logowl "After processing: $package"
                 umount -f $package
                 result_umount=$?
-                logowl "Execute umount -f (SC: $result_umount)"
+                logowl "Execute umount -f (code: $result_umount)"
 
             done < "$TARGET_LIST_BSA"
         fi
@@ -207,9 +207,9 @@ print_line
         fi
     
         if [ "$MOD_CURRENT_STATUS" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Remove (Reboot to take effect), 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+            MOD_REAL_TIME_DESC="[🗑️Remove, 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
         elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
-            MOD_REAL_TIME_DESC="[❌Disable (Reboot to take effect), 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+            MOD_REAL_TIME_DESC="[❌Disable, 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
         elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
             MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
         fi
