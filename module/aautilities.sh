@@ -375,13 +375,12 @@ verify_variables() {
     default_value="${4:-}"
     script_var_name=$(echo "$config_var_name" | tr '[:lower:]' '[:upper:]')
 
-    if [ -n "$config_var_value" ]; then
-        logowl "Variable $config_var_value is NOT ordered!" "WARN"
+    if [ -z "$config_var_name" ] || [ -z "$config_var_value" ] || [ -z "$validation_pattern" ]; then
+        logowl "Variable name or value or pattern is NOT ordered!" "WARN"
         return 1    
     elif echo "$config_var_value" | grep -qE "$validation_pattern"; then
         export "$script_var_name"="$config_var_value"
-        result_export_var=$?
-        logowl "Set $script_var_name=$config_var_value (result: $result_export_var)" "TIPS"
+        logowl "Set $script_var_name=$config_var_value" "TIPS"
         return $result_export_var
     else
         logowl "Variable value does NOT match the pattern" "WARN"
@@ -416,8 +415,8 @@ update_config_value() {
     sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
 
     result_update_value=$?
-    logowl "Update $key_name=$key_value (code: $result_update_value)"
     if [ "$result_update_value" -eq 0 ]; then
+        logowl "Update $key_name=$key_value"
         return 0
     else
         return "$result_update_value"
@@ -570,7 +569,7 @@ set_permission() {
 
 set_permission_recursive() {
 
-    logowl "Set permission"
+    [ "$DEBUG" = true ] && logowl "Set permission"
 
     find $1 -type d 2>/dev/null | while read dir; do
         set_permission $dir $2 $3 $4 $6
@@ -598,5 +597,6 @@ clean_duplicate_items() {
     [ "$DEBUG" = true ] && logowl "filed.tmp: ${filed}.tmp"
 
     awk '!seen[$0]++' "$filed" > "${filed}.tmp"
+    mv "${filed}.tmp" "$filed"
     return 0
 }
