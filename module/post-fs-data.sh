@@ -31,7 +31,7 @@ SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /syst
 
 brick_rescue() {
 
-    logowl "Checking brick status"
+    logowl "Check brick status"
 
     if [ -f "$BRICKED_STATUS" ]; then
         logowl "Detect flag bricked!" "FATAL"
@@ -45,9 +45,9 @@ brick_rescue() {
             return 0
         else
             logowl "Start brick rescue"
-            DESCRIPTION="[❌Disabled. Auto disable from brick! 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+            DESCRIPTION="[❌Auto disable from brick! 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
-            logowl "Skip post-fs-data.sh process"
+            logowl "Skip executing post-fs-data.sh"
             exit 1
         fi
     else
@@ -58,7 +58,7 @@ brick_rescue() {
 
 config_loader() {
 
-    logowl "Loading config"
+    logowl "Load config"
 
     debug=$(init_variables "debug" "$CONFIG_FILE")
     auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
@@ -106,7 +106,7 @@ preparation() {
             logowl "Make Node mode support is present"
             MN_SUPPORT=true
         else
-            logowl "Make Node mode requires Magisk version 28102 and higher (current $MAGISK_V_VER_CODE)!" "WARN"
+            logowl "Make Node mode requires Magisk version 28102+ !" "WARN"
             logowl "$MOD_NAME will revert to Magisk Replace mode"
             MN_SUPPORT=false
             [ "$SLAY_MODE" = "MN" ] && SLAY_MODE="MR"
@@ -270,10 +270,10 @@ bloatware_slayer() {
         first_char=$(printf '%s' "$line" | cut -c1)
 
         if [ -z "$line" ]; then
-            [ "$DEBUG" = true ] && logowl "Line $lines_count is empty line, skip processing"
+            logowl "Line $lines_count is empty line, skip processing"
             continue
         elif [ "$first_char" = "#" ]; then
-            [ "$DEBUG" = true ] && logowl "Line $lines_count is comment line, skip processing"
+            logowl "Line $lines_count is comment line, skip processing"
             continue
         fi
 
@@ -281,13 +281,13 @@ bloatware_slayer() {
         package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
         if [ -z "$package" ]; then
-            [ "$DEBUG" = true ] && logowl "Detect only comment left in this line, skip processing"
+            logowl "Detect only comment left in this line, skip processing"
             continue
         fi
 
         case "$package" in
             *\\*)
-                [ "$DEBUG" = true ] && logowl "Replace '\\' with '/' in path: $package" "WARN"
+                logowl "Replace '\\' with '/' in path: $package" "WARN"
                 package=$(echo "$package" | sed -e 's/\\/\//g')
                 ;;
         esac
@@ -299,7 +299,7 @@ bloatware_slayer() {
             first_char=$(printf '%s' "$line" | cut -c1)
             if [ "$first_char" = "/" ]; then
                 app_path="$package"
-                [ "$DEBUG" = true ] && logowl "Detect custom dir: $app_path"
+                logowl "Detect custom dir: $app_path"
                 case "$app_path" in
                     /system/apex*)
                         case "$app_path" in
@@ -309,29 +309,29 @@ bloatware_slayer() {
                             app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
                             if [ -f "$app_path.apex" ]; then
                                 app_path="$app_path.apex"
-                                [ "$DEBUG" = true ] && logowl "Detect apex path: $app_path"
+                                logowl "Detect apex path: $app_path"
                             elif [ -f "$app_path.capex" ]; then
                                 app_path="$app_path.capex"
-                                [ "$DEBUG" = true ] && logowl "Detect capex path: $app_path"
+                                logowl "Detect capex path: $app_path"
                             else
-                                [ "$DEBUG" = true ] && logowl "Neither apex path nor capex path is found!" "WARN"
+                                logowl "Neither apex path nor capex path is found!" "WARN"
                                 break
                             fi
                             ;;
                         esac
                         ;;
                     /system*)
-                        [ "$DEBUG" = true ] && logowl "Detect custom /system path: $app_path"
+                        logowl "Detect custom /system path: $app_path"
                         ;;
                     *)
-                        [ "$DEBUG" = true ] && logowl "Unsupported custom path: $app_path !"
+                        logowl "Unsupported custom path: $app_path !"
                         break
                         ;;
                 esac
             else
-                [ "$DEBUG" = true ] && logowl "Detect app name: $app_path"
+                logowl "Detect app name: $app_path"
                 app_path="$path/$package"
-                [ "$DEBUG" = true ] && logowl "Current full path: $app_path"
+                logowl "Current full path: $app_path"
             fi
 
             app_name="$(basename "$app_path")"
@@ -399,13 +399,13 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Infiltrated. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅Infiltrated. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅No effect. No APP slain yet, $TOTAL_APPS_COUNT APP(s) targeted in total, 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
                 DESCRIPTION="[❌No effect. Abnormal status! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
