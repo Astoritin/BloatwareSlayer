@@ -384,7 +384,7 @@ verify_variables() {
         return $result_export_var
     else
         logowl "Variable value does NOT match the pattern" "WARN"
-        logowl "Invalid variable: $script_var_name=$config_var_value"
+        logowl "Invalid variable: $script_var_name=$config_var_value" "WARN"
         if [ -n "$default_value" ]; then
             if eval "[ -z \"\${$script_var_name+x}\" ]"; then
                 logowl "Set default value $script_var_name=$default_value" "TIPS"
@@ -416,7 +416,7 @@ update_config_value() {
 
     result_update_value=$?
     if [ "$result_update_value" -eq 0 ]; then
-        logowl "Update $key_name=$key_value"
+        [ "$DEBUG" = true ] && logowl "Update $key_name=$key_value"
         return 0
     else
         return "$result_update_value"
