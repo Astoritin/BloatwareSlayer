@@ -23,35 +23,39 @@ migrate_old_files() {
 
     logowl "Migrate old files"
 
-    if [ -f "$CONFIG_DIR/target.txt" ] && [ ! -f "$CONFIG_DIR/target.conf"  ]; then
-        logowl "Detect old config file"
-        logowl "Migrate target.txt -> target.conf"
-        mv "$CONFIG_DIR/target.txt" "$CONFIG_DIR/target.conf"
-    elif [ -f "$CONFIG_DIR/target.txt" ] && [ -f "$CONFIG_DIR/target.conf" ]; then
-        logowl "Both target.txt and target.conf exist"
-        logowl "Merging contents"
-        cat "$CONFIG_DIR/target.txt" >> "$CONFIG_DIR/target.conf"
-        sort -u "$CONFIG_DIR/target.txt" >> "$CONFIG_DIR/target.conf"
-        logowl "Merged, target.txt has been removed"
-        rm -f "$CONFIG_DIR/target.txt"
+    if [ -n "$CONFIG_DIR" ] && [ -d "$CONFIG_DIR" ] && [ "$CONFIG_DIR" != "/" ]; then
+
+        if [ -f "$CONFIG_DIR/target.txt" ] && [ ! -f "$CONFIG_DIR/target.conf"  ]; then
+            logowl "Detect old config file"
+            logowl "Migrate target.txt → target.conf"
+            mv "$CONFIG_DIR/target.txt" "$CONFIG_DIR/target.conf"
+        elif [ -f "$CONFIG_DIR/target.txt" ] && [ -f "$CONFIG_DIR/target.conf" ]; then
+            logowl "Both target.txt and target.conf exist"
+            logowl "Merging contents"
+            cat "$CONFIG_DIR/target.txt" >> "$CONFIG_DIR/target.conf"
+            sort -u "$CONFIG_DIR/target.txt" >> "$CONFIG_DIR/target.conf"
+            logowl "Merged, target.txt has been removed"
+            rm -f "$CONFIG_DIR/target.txt"
+        fi
+
+        if [ -f "$CONFIG_DIR/root.txt" ]; then
+            logowl "Detect old root solution logging file"
+            rm -f "$CONFIG_DIR/root.txt"
+            logowl "Removed root.txt"
+        fi
+
+        if [ -f "$CONFIG_DIR/status.info" ]; then
+            logowl "Detect old status logging file"
+            rm -f "$CONFIG_DIR/status.info"
+            logowl "Removed status.info"
+        fi
+        
+        rm -f "$CONFIG_DIR/target_bsa.conf"
+        rm -f "$CONFIG_DIR/target_bsa.txt"
+
+        rm -f "$CONFIG_DIR/empty"
     fi
 
-    if [ -f "$CONFIG_DIR/root.txt" ]; then
-        logowl "Detect old root solution logging file"
-        rm -f "$CONFIG_DIR/root.txt"
-        logowl "Removed root.txt"
-    fi
-
-    if [ -f "$CONFIG_DIR/status.info" ]; then
-        logowl "Detect old status logging file"
-        rm -f "$CONFIG_DIR/status.info"
-        logowl "Removed status.info"
-    fi
-    
-    rm -f "$CONFIG_DIR/target_bsa.conf"
-    rm -f "$CONFIG_DIR/target_bsa.txt"
-
-    rm -f "$CONFIG_DIR/empty"
 }
 
 logowl "Setting up $MOD_NAME"
@@ -60,7 +64,7 @@ init_logowl "$LOG_DIR"
 install_env_check
 show_system_info
 logowl "Install from $ROOT_SOL app"
-logowl "Essential checks"
+logowl "Essential check"
 extract "$ZIPFILE" 'aautilities.sh' "$VERIFY_DIR"
 extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
 clean_old_logs "$LOG_DIR" 20
