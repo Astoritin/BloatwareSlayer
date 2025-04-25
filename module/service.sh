@@ -68,31 +68,6 @@ denylist_enforcing_status_update() {
 
 . "$MODDIR/aautilities.sh"
 
-update_config_value() {
-
-    key_name="$1"
-    key_value="$2"
-    file_path="$3"
-
-    if [ -z "$key_name" ] || [ -z "$key_value" ] || [ -z "$file_path" ]; then
-        logowl "Key name/value/file path is NOT provided yet!" "ERROR"
-        return 1
-    elif [ ! -f "$file_path" ]; then
-        logowl "$file_path is NOT a valid file!" "ERROR"
-        return 2
-    fi
-
-    sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
-    result_update_value=$?
-
-    if [ $result_update_value -eq 0 ]; then
-        return 0
-    else
-        return 1
-    fi
-
-}
-
 init_logowl "$LOG_DIR"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
