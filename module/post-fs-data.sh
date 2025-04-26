@@ -138,7 +138,6 @@ preparation() {
     logowl "Current mode: $SLAY_MODE ($SLAY_MODE_DESC)"
 
     if [ "$MN_SUPPORT" = true ]; then
-        logowl "Create $MIRROR_DIR"
         [ ! -e "$MIRROR_DIR" ] && mkdir -p "$MIRROR_DIR"
     fi
 
@@ -394,13 +393,13 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL]「シャルルマーニュに敗北の二字は無い」、てな！"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。 ——よっしゃあ、勝ったぜー！"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL]「シャルルマーニュに敗北の二字は無い」、てな！"
+                DESCRIPTION="[✅All Done. $BLOCKED_APPS_COUNT APP(s) slain. 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。 ——よっしゃあ、勝ったぜー！"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL]「シャルルマーニュに敗北の二字は無い」、てな！"
+                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。 ——よっしゃあ、勝ったぜー！"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
                 DESCRIPTION="[❌No effect. Abnormal status! 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
