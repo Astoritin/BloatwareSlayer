@@ -11,7 +11,7 @@ A Magisk module to remove bloatware in systemless way / 一个无需修改 syste
 - 新增 `debug` 标识符/选项以提供更多细节 
 - Fix some logical loophole
 - 修复部分逻辑漏洞
-- SHA256: `2601d72d02a58db1a292d40b0d116f89f4b9c76c14ff60caf14ddb90756a8f8a`
+- SHA256: `c969207da6d429593dfda1e8cb0153eda2bb8b5564665a083df3d89d94ac75a7`
 
 ### 1.3.5
 
