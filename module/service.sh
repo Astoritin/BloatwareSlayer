@@ -56,12 +56,12 @@ denylist_enforcing_status_update() {
         [ -z "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_OLD"
         [ -n "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_DE_OLD"
 
-        if echo "$MOD_DESC_TMP" | grep -q "⛔DenyList Enforcing: "; then
-            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E "s/(⛔DenyList Enforcing: )[^]]*/\1${ROOT_SOL_DE}/")
+        if echo "$MOD_DESC_TMP" | grep -q "🚫Enforce DenyList: "; then
+            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E "s/(🚫Enforce DenyList: )[^]]*/\1${ROOT_SOL_DE}/")
         else
-            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E 's/\]/, ⛔DenyList Enforcing: '"${ROOT_SOL_DE}"'\]/')
+            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E 's/\]/, 🚫Enforce DenyList: '"${ROOT_SOL_DE}"'\]/')
         fi
-        update_config_value "description" "$MOD_DESC_NEW" "$MODULE_PROP"
+        update_config_value "description" "$MOD_DESC_NEW" "$MODULE_PROP" "true"
     fi
 
 }
@@ -83,8 +83,8 @@ print_line
     while [ "$(getprop sys.boot_completed)" != "1" ]; do
         if [ $BRICK_TIMEOUT -le "0" ]; then
             print_line
-            logowl "Detect failed to boot after reaching the set limit, your device may be bricked by $MOD_NAME !" "FATAL"
-            logowl "Please make sure no improper APP(s) being blocked!" "FATAL"
+            logowl "Detect failed to boot after reaching the set limit!" "FATAL"
+            logowl "Your device may be bricked by $MOD_NAME!"
             logowl "Mark status as bricked"
             touch "$BRICKED_STATUS"
             if [ "$DISABLE_MODULE_AS_BRICK" = true ]; then
@@ -173,18 +173,24 @@ print_line
             logowl "Exit background task"
             exit 0
         fi
-        if [ -f "$MODDIR/remove" ]; then
+        if [ -f "$MODDIR/update" ]; then
+            MOD_CURRENT_STATUS="update"
+        elif [ -f "$MODDIR/remove" ]; then
             MOD_CURRENT_STATUS="remove"
         elif [ -f "$MODDIR/disable" ]; then
             MOD_CURRENT_STATUS="disable"
         else
             MOD_CURRENT_STATUS="enable"
         fi
-    
-        if [ "$MOD_CURRENT_STATUS" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Remove, 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+
+        if [ "$MOD_CURRENT_STATUS" = "update" ]; then
+            logowl "Detect update status"
+            logowl "Exit background task"
+            exit 0
+        elif [ "$MOD_CURRENT_STATUS" = "remove" ]; then
+            MOD_REAL_TIME_DESC="[🗑️Remove. 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
         elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
-            MOD_REAL_TIME_DESC="[❌Disable, 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+            MOD_REAL_TIME_DESC="[❌Disable. 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
         elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
             MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
         fi
