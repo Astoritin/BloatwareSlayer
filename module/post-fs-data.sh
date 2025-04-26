@@ -45,7 +45,7 @@ brick_rescue() {
             return 0
         else
             logowl "Start brick rescue"
-            DESCRIPTION="[❌The sneak mission hit a snag. Auto disable from brick! 🤖Root:$ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+            DESCRIPTION="[❌No effect. Auto disable from brick! 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip executing post-fs-data.sh"
             exit 1
@@ -144,7 +144,7 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
-        DESCRIPTION="[❌The sneak mission hit a snag. Target list does NOT exist! 🤖Root:$ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+        DESCRIPTION="[❌No effect. Target list does NOT exist! 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -394,16 +394,16 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🧭Mode:$SLAY_MODE_DESC, 🤖Root:$ROOT_SOL_DETAIL] 勝った勝った、また勝ったあーっと！🎉✨"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL]「シャルルマーニュに敗北の二字は無い」、てな！"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🧭Mode:$SLAY_MODE_DESC, 🤖Root:$ROOT_SOL_DETAIL] 勝った勝った、また勝ったあーっと！🎉✨"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL]「シャルルマーニュに敗北の二字は無い」、てな！"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🧭Mode:$SLAY_MODE_DESC, 🤖Root:$ROOT_SOL_DETAIL] 勝った勝った、また勝ったあーっと！🎉✨"
+                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL]「シャルルマーニュに敗北の二字は無い」、てな！"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌No effect. Abnormal status! 🧭Mode:$SLAY_MODE_DESC, 🤖Root:$ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+                DESCRIPTION="[❌No effect. Abnormal status! 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
             fi
         fi
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
