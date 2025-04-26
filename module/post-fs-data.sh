@@ -45,7 +45,7 @@ brick_rescue() {
             return 0
         else
             logowl "Start brick rescue"
-            DESCRIPTION="[❌Auto disable from brick! 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+            DESCRIPTION="[❌The sneak mission hit a snag. Auto disable from brick! 🤖Root:$ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip executing post-fs-data.sh"
             exit 1
@@ -144,7 +144,7 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
-        DESCRIPTION="[❌No effect. Target list does NOT exist! 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+        DESCRIPTION="[❌The sneak mission hit a snag. Target list does NOT exist! 🤖Root:$ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -252,7 +252,7 @@ link_mount_bind() {
 
 bloatware_slayer() {
 
-    logowl "Slaying bloatwares"
+    logowl "Sniffing out the target"
 
     TOTAL_APPS_COUNT=0
     BLOCKED_APPS_COUNT=0
@@ -299,7 +299,6 @@ bloatware_slayer() {
             first_char=$(printf '%s' "$line" | cut -c1)
             if [ "$first_char" = "/" ]; then
                 app_path="$package"
-                logowl "Detect custom dir: $app_path"
                 case "$app_path" in
                     /system/apex*)
                         case "$app_path" in
@@ -309,32 +308,26 @@ bloatware_slayer() {
                             app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
                             if [ -f "$app_path.apex" ]; then
                                 app_path="$app_path.apex"
-                                logowl "Detect apex path: $app_path"
                             elif [ -f "$app_path.capex" ]; then
                                 app_path="$app_path.capex"
-                                logowl "Detect capex path: $app_path"
                             else
-                                logowl "Neither apex path nor capex path is found!" "WARN"
                                 break
                             fi
                             ;;
                         esac
                         ;;
                     /system*)
-                        logowl "Detect custom /system path: $app_path"
                         ;;
                     *)
-                        logowl "Unsupported custom path: $app_path !"
                         break
                         ;;
                 esac
             else
-                logowl "Detect app name: $app_path"
                 app_path="$path/$package"
-                logowl "Current full path: $app_path"
             fi
 
             app_name="$(basename "$app_path")"
+            logowl "Process path: $app_path"
             if [ -d "$app_path" ]; then
                 if [ "$SLAY_MODE" = "MB" ]; then
                     link_mount_bind "$app_path"
@@ -381,9 +374,11 @@ bloatware_slayer() {
     logowl "Clean duplicate items"
     clean_duplicate_items "$TARGET_LIST_BSA"
 
-    if [ "$AUTO_UPDATE_TARGET_LIST" = true ]; then
+    if [ "$AUTO_UPDATE_TARGET_LIST" = true ] && [ $BLOCKED_APPS_COUNT -gt 0 ]; then
         logowl "Update target list"
         cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
+    elif [ $BLOCKED_APPS_COUNT -eq 0 ];
+        logowl "No App has been slain, skip updating target list"
     fi
 
 }
@@ -399,16 +394,16 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🧭Mode:$SLAY_MODE_DESC, 🤖Root:$ROOT_SOL_DETAIL] 勝った勝った、また勝ったあーっと！🎉✨"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain. All targets neutralized! 🧭Mode:$SLAY_MODE_DESC, 🤖Root:$ROOT_SOL_DETAIL] 勝った勝った、また勝ったあーっと！🎉✨"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] Victoire sur victoire ! Hourra !"
+                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🧭Mode:$SLAY_MODE_DESC, 🤖Root:$ROOT_SOL_DETAIL] 勝った勝った、また勝ったあーっと！🎉✨"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌No effect. Abnormal status! 🤖Mode: $SLAY_MODE_DESC, 🧭Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
+                DESCRIPTION="[❌No effect. Abnormal status! 🧭Mode:$SLAY_MODE_DESC, 🤖Root:$ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way"
             fi
         fi
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
@@ -424,7 +419,7 @@ init_logowl "$LOG_DIR"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
-logowl "Starting post-fs-data.sh"
+logowl "Start post-fs-data.sh"
 config_loader
 print_line
 brick_rescue
@@ -434,4 +429,5 @@ module_status_update
 set_permission_recursive "$MODDIR" 0 0 0755 0644
 set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
 debug_print_values >> "$LOG_FILE"
+print_line
 logowl "post-fs-data.sh case closed!"
