@@ -5,10 +5,12 @@ A Magisk module to remove bloatware in systemless way / 一个无需修改 syste
 
 ### 1.3.6
 
+- As detecting update flag, module description will be ceased automatically
+- 当检测到更新时，会自动停止更新模块描述
+- Add debug flag/option to provide more details
+- 新增 `debug` 标识符/选项以提供更多细节 
 - Fix some logical loophole
 - 修复部分逻辑漏洞
-- update module description
-- 更新模块描述
 - SHA256: `2601d72d02a58db1a292d40b0d116f89f4b9c76c14ff60caf14ddb90756a8f8a`
 
 ### 1.3.5
