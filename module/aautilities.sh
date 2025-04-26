@@ -404,26 +404,26 @@ update_config_value() {
     key_name="$1"
     key_value="$2"
     file_path="$3"
+    keep_quiet="${4:-false}"
 
     if [ -z "$key_name" ] || [ -z "$key_value" ] || [ -z "$file_path" ]; then
-        logowl "Key name/value/file path is NOT provided yet!" "ERROR"
+        [ "$keep_quiet" = false ] && logowl "Key name/value/file path is NOT provided yet!" "ERROR"
         return 1
     elif [ ! -f "$file_path" ]; then
-        logowl "$file_path is NOT a valid file!" "ERROR"
+        [ "$keep_quiet" = false ] && logowl "$file_path is NOT a valid file!" "ERROR"
         return 2
     fi
     sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
 
     result_update_value=$?
     if [ "$result_update_value" -eq 0 ]; then
-        [ "$DEBUG" = true ] && logowl "Update $key_name=$key_value"
+        [ "$keep_quiet" = false ] && logowl "Update $key_name=$key_value"
         return 0
     else
         return "$result_update_value"
     fi
 
 }
-
 
 debug_print_values() {
 
@@ -434,7 +434,6 @@ debug_print_values() {
     print_line
     env | sed 's/^/- /'
     print_line
-
     logowl "All Shell Variables"
     print_line
     ( set -o posix; set ) | sed 's/^/- /'
@@ -598,5 +597,16 @@ clean_duplicate_items() {
 
     awk '!seen[$0]++' "$filed" > "${filed}.tmp"
     mv "${filed}.tmp" "$filed"
+    return 0
+}
+
+debug_get_prop() {
+    prop_name=$1
+
+    if [ -z "$prop_name" ]; then
+        logowl "$prop_name does NOT exist!" "WARN"
+        return 1
+    fi
+    logowl "$prop_name=$(getprop "$prop_name")"
     return 0
 }
