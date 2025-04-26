@@ -377,7 +377,7 @@ bloatware_slayer() {
     if [ "$AUTO_UPDATE_TARGET_LIST" = true ] && [ $BLOCKED_APPS_COUNT -gt 0 ]; then
         logowl "Update target list"
         cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
-    elif [ $BLOCKED_APPS_COUNT -eq 0 ];
+    elif [ $BLOCKED_APPS_COUNT -eq 0 ]; then
         logowl "No App has been slain, skip updating target list"
     fi
 
