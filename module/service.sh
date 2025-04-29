@@ -17,7 +17,8 @@ MOD_ROOT_DIR=$(dirname "$MODDIR")
 MOD_ZYGISKSU_PATH="${MOD_ROOT_DIR}/zygisksu"
 
 DEBUG=false
-SLAY_MODE="MB"
+BRICK_RESCUE=true
+SLAY_MODE=MB
 MB_UMOUNT_BIND=true
 BRICK_TIMEOUT=180
 DISABLE_MODULE_AS_BRICK=true
@@ -28,6 +29,7 @@ config_loader() {
     logowl "Load config"
 
     debug=$(init_variables "debug" "$CONFIG_FILE")
+    brick_rescue=$(init_variables "brick_rescue" "$CONFIG_FILE")
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
@@ -35,34 +37,12 @@ config_loader() {
     update_desc_on_action=$(init_variables "update_desc_on_action" "$CONFIG_FILE")
 
     verify_variables "debug" "$debug" "^(true|false)$"
+    verify_variables "brick_rescue" "$brick_rescue" "^(true|false)$"
     verify_variables "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
     verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
     verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
     verify_variables "update_desc_on_action" "$update_desc_on_action" "^(true|false)$"
-
-}
-
-denylist_enforcing_status_update() {
-
-    MOD_DESC_DE_OLD="$1"
-
-    magisk_enforce_denylist_status
-    zygisksu_enforce_denylist_status
-    enforce_denylist_desc
-
-    if [ -n "$ROOT_SOL_DE" ]; then
-
-        [ -z "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_OLD"
-        [ -n "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_DE_OLD"
-
-        if echo "$MOD_DESC_TMP" | grep -q "🚫Enforce DenyList: "; then
-            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E "s/(🚫Enforce DenyList: )[^]]*/\1${ROOT_SOL_DE}/")
-        else
-            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E 's/\]/, 🚫Enforce DenyList: '"${ROOT_SOL_DE}"'\]/')
-        fi
-        update_config_value "description" "$MOD_DESC_NEW" "$MODULE_PROP" "true"
-    fi
 
 }
 
@@ -72,7 +52,7 @@ init_logowl "$LOG_DIR"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
-logowl "Starting service.sh"
+logowl "Start service.sh"
 config_loader
 print_line
 [ "$UPDATE_DESC_ON_ACTION" = true ] && denylist_enforcing_status_update
@@ -81,6 +61,13 @@ print_line
 
     logowl "Current booting timeout: $BRICK_TIMEOUT"
     while [ "$(getprop sys.boot_completed)" != "1" ]; do
+
+        if [ "$BRICK_RESCUE" = false ]; then
+            logowl "Detect flag BRICK_RESCUE=false" "WARN"
+            logowl "$MOD_NAME will NOT take action as brick occurred!" "WARN"
+            break
+        fi
+
         if [ $BRICK_TIMEOUT -le "0" ]; then
             print_line
             logowl "Detect failed to boot after reaching the set limit!" "FATAL"
@@ -95,10 +82,13 @@ print_line
                 logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
             fi
             logowl "Rebooting"
-            sync
+            logowl "Execute: systemctl reboot --force"
+            systemctl reboot --force
+            sleep 5
+            logowl "Execute: reboot -f"
             reboot -f
             sleep 5
-            logowl "Reboot command did not take effect, exiting"
+            logowl "Reboot command does NOT take effect, exiting"
             exit 1
         fi
         BRICK_TIMEOUT=$((BRICK_TIMEOUT-1))
@@ -127,9 +117,7 @@ print_line
             while IFS= read -r line; do
                 lines_count=$((lines_count + 1))
 
-                if check_value_safety "line $lines_count" "$line"; then
-                    logowl "Current line: $line"
-                else
+                if ! check_value_safety "line $lines_count" "$line"; then
                     continue
                 fi
 
@@ -155,10 +143,16 @@ print_line
                         package=$(echo "$package" | sed -e 's/\\/\//g')
                         ;;
                 esac
-                logowl "After processing: $package"
+                logowl "Process path: $package"
                 umount -f $package
                 result_umount=$?
-                logowl "Execute umount -f (code: $result_umount)"
+                logowl "Execute umount -f $package"
+                app_name="$(basename "$package")"
+                if [ $result_umount -eq 0 ]; then
+                    logowl "Unmount mount spot $app_name successfully"
+                else
+                    logowl "Failed to unmount spot $app_name (code: $result_umount)"
+                fi
 
             done < "$TARGET_LIST_BSA"
         fi
@@ -188,9 +182,9 @@ print_line
             logowl "Exit background task"
             exit 0
         elif [ "$MOD_CURRENT_STATUS" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Remove. 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+            MOD_REAL_TIME_DESC="[🗑️Remove or reboot to remove. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
         elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
-            MOD_REAL_TIME_DESC="[❌Disable. 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+            MOD_REAL_TIME_DESC="[❌OFF or reboot to turn off. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
         elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
             MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
         fi
