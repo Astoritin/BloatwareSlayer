@@ -22,14 +22,21 @@ MIRROR_DIR="$MODDIR/system"
 MN_SUPPORT=false
 MR_SUPPORT=false
 
-AUTO_UPDATE_TARGET_LIST=true
+BRICK_RESCUE=true
 DISABLE_MODULE_AS_BRICK=true
+AUTO_UPDATE_TARGET_LIST=true
 SLAY_MODE=MB
 MB_UMOUNT_BIND=true
 
 SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
 brick_rescue() {
+
+    if [ "$BRICK_RESCUE" = false ]; then
+        logowl "Detect flag BRICK_RESCUE=false" "WARN"
+        logowl "$MOD_NAME will NOT take action as brick occurred!" "WARN"
+        return 1
+    fi
 
     logowl "Check brick status"
 
@@ -45,7 +52,7 @@ brick_rescue() {
             return 0
         else
             logowl "Start brick rescue"
-            DESCRIPTION="[❌No effect. Auto disable from brick! 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+            DESCRIPTION="[❌No effect. Auto disable from brick! ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip executing post-fs-data.sh"
             exit 1
@@ -61,16 +68,18 @@ config_loader() {
     logowl "Load config"
 
     debug=$(init_variables "debug" "$CONFIG_FILE")
+    brick_rescue=$(init_variables "brick_rescue" "$CONFIG_FILE")
+    disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
     system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE")
-    disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
     mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
 
     verify_variables "debug" "$debug" "^(true|false)$"
+    verify_variables "brick_rescue" "$brick_rescue" "^(true|false)$"
+    verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
     verify_variables "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
     verify_variables "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
-    verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
     verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
     verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
 
@@ -98,19 +107,19 @@ preparation() {
         [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
 
     elif [ "$DETECT_MAGISK" = true ]; then
-        logowl "$MOD_NAME is running on Magisk"
-        logowl "Magisk Replace mode support is present"
-        MR_SUPPORT=true
         if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
             logowl "$MOD_NAME is running on Magisk 28102+"
             logowl "Make Node mode support is present"
             MN_SUPPORT=true
         else
+            logowl "$MOD_NAME is running on Magisk"
             logowl "Make Node mode requires Magisk version 28102+ !" "WARN"
             logowl "$MOD_NAME will revert to Magisk Replace mode"
             MN_SUPPORT=false
             [ "$SLAY_MODE" = "MN" ] && SLAY_MODE="MR"
         fi
+        logowl "Magisk Replace mode support is present"
+        MR_SUPPORT=true
     fi
 
     if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
@@ -143,7 +152,7 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
-        DESCRIPTION="[❌No effect. Target list does NOT exist! 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+        DESCRIPTION="[❌No effect. Target list does NOT exist! ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -258,7 +267,7 @@ bloatware_slayer() {
     hybrid_mode=false
     lines_count=0
 
-    while IFS= read -r line; do
+    while IFS= read -r line || [ -n "$line" ]; do
         lines_count=$((lines_count + 1))
 
         if ! check_value_safety "line $lines_count" "$line"; then
@@ -269,10 +278,10 @@ bloatware_slayer() {
         first_char=$(printf '%s' "$line" | cut -c1)
 
         if [ -z "$line" ]; then
-            logowl "Line $lines_count is empty line, skip processing"
+            [ "$DEBUG" = true ] && logowl "Line $lines_count is empty line, skip processing"
             continue
         elif [ "$first_char" = "#" ]; then
-            logowl "Line $lines_count is comment line, skip processing"
+            [ "$DEBUG" = true ] && logowl "Line $lines_count is comment line, skip processing"
             continue
         fi
 
@@ -280,13 +289,13 @@ bloatware_slayer() {
         package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
         if [ -z "$package" ]; then
-            logowl "Detect only comment left in this line, skip processing"
+            [ "$DEBUG" = true ] && logowl "Detect only comment left in this line, skip processing"
             continue
         fi
 
         case "$package" in
             *\\*)
-                logowl "Replace '\\' with '/' in path: $package" "WARN"
+                [ "$DEBUG" = true ] && logowl "Replace '\\' with '/' in path: $package" "WARN"
                 package=$(echo "$package" | sed -e 's/\\/\//g')
                 ;;
         esac
@@ -361,10 +370,10 @@ bloatware_slayer() {
                 fi
             else
                 if [ "$first_char" = "/" ]; then
-                    logowl "Custom dir not found" "WARN"
+                    logowl "Custom dir NOT found"
                     break
                 else
-                    logowl "Dir not found" "WARN"
+                    logowl "Dir NOT found"
                 fi
             fi
         done
@@ -393,19 +402,19 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。 ——よっしゃあ、勝ったぜー！"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🧭Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅All Done. $BLOCKED_APPS_COUNT APP(s) slain. 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。 ——よっしゃあ、勝ったぜー！"
+                DESCRIPTION="[✅All Done. $BLOCKED_APPS_COUNT APP(s) slain. 🧭Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。 ——よっしゃあ、勝ったぜー！"
+                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🧭Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌No effect. Abnormal status! 🧭Mode: $SLAY_MODE_DESC, 🤖Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+                DESCRIPTION="[❌No effect. Abnormal status! 🧭Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
             fi
         fi
-        update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
+        update_config_value "description" "$DESCRIPTION" "$MODULE_PROP" "true"
     else
         logowl "module.prop not found, skip updating" "WARN"
     fi
