@@ -1,7 +1,7 @@
 id=bloatwareslayer
 name=Bloatware Slayer
-version=v1.3.6
-versionCode=1001
+version=v1.3.7
+versionCode=1002
 author=Astoritin Ambrosius
 description=A Magisk module to remove bloatware in systemless way.
 updateJson=https://raw.githubusercontent.com/Astoritin/BloatwareSlayer/main/webpage/update.json
