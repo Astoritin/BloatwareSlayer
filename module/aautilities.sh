@@ -175,7 +175,6 @@ module_intro() {
     logowl "By $MOD_AUTHOR"
     logowl "Version: $MOD_VER"
     logowl "Root solution: $ROOT_SOL"
-    logowl "Current version: $ROOT_SOL_DETAIL"
     logowl "Current time stamp: $(date +"%Y-%m-%d %H:%M:%S")"
     logowl "Current module dir: $MODDIR"
     print_line
