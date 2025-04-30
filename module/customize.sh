@@ -96,5 +96,5 @@ if [ -n "$VERIFY_DIR" ] && [ -d "$VERIFY_DIR" ] && [ "$VERIFY_DIR" != "/" ]; the
 fi
 set_permission_recursive "$MODPATH" 0 0 0755 0644
 logowl "Welcome to use $MOD_NAME!"
-DESCRIPTION="[🔄Reboot to take effect. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+DESCRIPTION="[⏳Reboot to take effect. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
 update_config_value "description" "$DESCRIPTION" "$MODPATH/module.prop" "true"
