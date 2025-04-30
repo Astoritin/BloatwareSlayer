@@ -5,7 +5,7 @@ CONFIG_DIR="/data/adb/bloatwareslayer"
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/bs_brickd_$(date +"%Y-%m-%d_%H-%M-%S").log"
+LOG_FILE="$LOG_DIR/bs_brickd_$(date +"%Y%m%dT%H%M%S").log"
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
@@ -81,10 +81,9 @@ print_line
             else
                 logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
             fi
+            DESCRIPTION="[❌No effect. Auto disable from brick! ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+            update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Rebooting"
-            logowl "Execute: systemctl reboot --force"
-            systemctl reboot --force
-            sleep 5
             logowl "Execute: reboot -f"
             reboot -f
             sleep 5
@@ -96,7 +95,7 @@ print_line
     done
 
     logowl "Congratulations! Boot complete!"
-    logowl "Current final countdown: $BRICK_TIMEOUT s"
+    logowl "Current countdown: $BRICK_TIMEOUT s"
     rm -f "$BRICKED_STATUS"
     if [ $? -eq 0 ]; then
         logowl "Bricked status reset"
@@ -114,7 +113,7 @@ print_line
         else
             lines_count=0
 
-            while IFS= read -r line; do
+            while IFS= read -r line || [ -n "$line" ]; do
                 lines_count=$((lines_count + 1))
 
                 if ! check_value_safety "line $lines_count" "$line"; then
@@ -124,40 +123,41 @@ print_line
                 line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
                 first_char=$(printf '%s' "$line" | cut -c1)
                 if [ -z "$line" ]; then
-                    logowl "Empty in line $lines_count (code: 2)" "WARN"
+                    [ "$DEBUG" = true ] && logowl "Empty in line $lines_count (code: 2)" "WARN"
                     continue
                 elif [ "$first_char" = "#" ]; then
-                    logowl "Comment symbol in line $lines_count (code: 3)" "WARN"
+                    [ "$DEBUG" = true ] && logowl "Comment symbol in line $lines_count (code: 3)" "WARN"
                     continue
                 fi
 
                 package=$(echo "$line" | cut -d '#' -f1)
                 package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
                 if [ -z "$package" ]; then
-                    logowl "Only comment left in line $lines_count, skip processing" "TIPS"
+                    [ "$DEBUG" = true ] && logowl "Only comment left in line $lines_count, skip processing" "TIPS"
                     continue
                 fi
                 case "$package" in
                     *\\*)
-                        logowl "Replace '\\' with '/' in path: $package" "WARN"
+                        [ "$DEBUG" = true ] && logowl "Replace '\\' with '/' in path: $package" "WARN"
                         package=$(echo "$package" | sed -e 's/\\/\//g')
                         ;;
                 esac
                 logowl "Process path: $package"
                 umount -f $package
                 result_umount=$?
-                logowl "Execute umount -f $package"
+                logowl "Execute: umount -f $package"
                 app_name="$(basename "$package")"
                 if [ $result_umount -eq 0 ]; then
-                    logowl "Unmount mount spot $app_name successfully"
+                    logowl "Mount point $app_name has been unmounted"
                 else
-                    logowl "Failed to unmount spot $app_name (code: $result_umount)"
+                    logowl "Failed to unmount point $app_name (code: $result_umount)"
                 fi
 
             done < "$TARGET_LIST_BSA"
         fi
     fi
     debug_print_values >> "$LOG_FILE"
+    print_line
     logowl "service.sh case closed!"
     
     MOD_REAL_TIME_DESC=""
@@ -182,7 +182,7 @@ print_line
             logowl "Exit background task"
             exit 0
         elif [ "$MOD_CURRENT_STATUS" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Remove or reboot to remove. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+            MOD_REAL_TIME_DESC="[🗑️Reboot to remove. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
         elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
             MOD_REAL_TIME_DESC="[❌OFF or reboot to turn off. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
         elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
