@@ -3,6 +3,16 @@ A Magisk module to remove bloatware in systemless way / 一个无需修改 syste
 
 ### Changelog / 变更日志
 
+### 1.3.7
+
+- Allow to disable inbuilt brick rescue by setting `brick_rescue=false` in `settings.conf`
+- 允许通过在 `settings.conf` 内设置条目 `brick_rescue=false` 以禁用内置救砖模式
+- Fix a bug which would ignore the last line of file `target.conf` before
+- 修复之前会忽略 `target.conf` 的最后一行条目的bug
+- Migrate brick rescue core code to fix the logical issue of updating module description
+- 迁移救砖模式的核心代码以修复更新模块描述的逻辑问题
+- SHA256: `baf5e0d4c0d190a8907a06e75aa78c72e755d715ca004d018f012fbd35c64646`
+
 ### 1.3.6
 
 - As detecting update flag, module description will be ceased automatically
