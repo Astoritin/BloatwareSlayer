@@ -8,7 +8,7 @@ CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 TARGET_LIST="$CONFIG_DIR/target.conf"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/bs_core_$(date +"%Y-%m-%d_%H-%M-%S").log"
+LOG_FILE="$LOG_DIR/bs_core_$(date +"%Y%m%dT%H%M%S").log"
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
@@ -52,8 +52,6 @@ brick_rescue() {
             return 0
         else
             logowl "Start brick rescue"
-            DESCRIPTION="[❌No effect. Auto disable from brick! ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
-            update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Skip executing post-fs-data.sh"
             exit 1
         fi
@@ -335,8 +333,8 @@ bloatware_slayer() {
             fi
 
             app_name="$(basename "$app_path")"
-            logowl "Process path: $app_path"
             if [ -d "$app_path" ]; then
+                logowl "Process path: $app_path"
                 if [ "$SLAY_MODE" = "MB" ]; then
                     link_mount_bind "$app_path"
                 elif [ "$SLAY_MODE" = "MN" ]; then
@@ -355,6 +353,7 @@ bloatware_slayer() {
                 fi
 
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
+                logowl "Process path: $app_path"
                 if [ "$SLAY_MODE" = "MN" ] || [ "$MN_SUPPORT" = true ]; then
                     mirror_make_node "$app_path"
                     file_process_result=$?
@@ -370,10 +369,10 @@ bloatware_slayer() {
                 fi
             else
                 if [ "$first_char" = "/" ]; then
-                    logowl "Custom dir NOT found"
+                    logowl "Custom dir $app_path NOT found"
                     break
                 else
-                    logowl "Dir NOT found"
+                    logowl "Dir $app_path NOT found"
                 fi
             fi
         done
@@ -402,16 +401,16 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🧭Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅All Done. $BLOCKED_APPS_COUNT APP(s) slain. 🧭Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
+                DESCRIPTION="[✅All Done. $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🧭Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
+                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌No effect. Abnormal status! 🧭Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+                DESCRIPTION="[❌No effect. Abnormal status! 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
             fi
         fi
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP" "true"
