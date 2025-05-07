@@ -346,7 +346,7 @@ bloatware_slayer() {
                 if [ $app_process_result -eq 0 ]; then
                     BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                     echo "$app_path" >> "$TARGET_LIST_BSA"
-                    logowl "$app_name has been slain"
+                    logowl "$app_name has been slain" "TIPS"
                     break
                 else
                     logowl "Slay $app_name failed (code: $app_process_result)" "WARN"
@@ -361,7 +361,7 @@ bloatware_slayer() {
                         BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                         [ "$SLAY_MODE" != "MN" ] && hybrid_mode=true
                         echo "$app_path" >> "$TARGET_LIST_BSA"
-                        logowl "$app_name has been slain"
+                        logowl "$app_name has been slain" "TIPS"
                         break
                     else
                         logowl "Slay $app_name failed (code: $file_process_result)" "WARN"
