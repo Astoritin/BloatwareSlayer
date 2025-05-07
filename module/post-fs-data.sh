@@ -1,91 +1,163 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
-CONFIG_DIR="/data/adb/vbmetadisguiser"
+CONFIG_DIR="/data/adb/bloatwareslayer"
 DEBUG=false
 
-CONFIG_FILE="$CONFIG_DIR/vbmeta.conf"
+CONFIG_FILE="$CONFIG_DIR/settings.conf"
+BRICKED_STATUS="$CONFIG_DIR/bricked"
+TARGET_LIST="$CONFIG_DIR/target.conf"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/vd_security_patch_$(date +"%Y-%m-%d_%H-%M-%S").log"
+LOG_FILE="$LOG_DIR/bs_core_$(date +"%Y%m%dT%H%M%S").log"
+TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 
-MODULE_PROP="${MODDIR}/module.prop"
+MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
 
+EMPTY_DIR="$MODDIR/empty"
+MIRROR_DIR="$MODDIR/system"
+
 MN_SUPPORT=false
 MR_SUPPORT=false
 
-TRICKY_STORE_CONFIG_FILE="/data/adb/tricky_store/security_patch.txt"
-SECURITY_PATCH_DATE=""
+BRICK_RESCUE=true
+DISABLE_MODULE_AS_BRICK=true
+AUTO_UPDATE_TARGET_LIST=true
+SLAY_MODE=MB
+MB_UMOUNT_BIND=true
+
+SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
+
+brick_rescue() {
+
+    if [ "$BRICK_RESCUE" = false ]; then
+        logowl "Detect flag BRICK_RESCUE=false" "WARN"
+        logowl "$MOD_NAME will NOT take action as brick occurred!" "WARN"
+        return 1
+    fi
+
+    logowl "Check brick status"
+
+    if [ -f "$BRICKED_STATUS" ]; then
+        logowl "Detect flag bricked!" "FATAL"
+        if [ "$DISABLE_MODULE_AS_BRICK" = true ] && [ ! -f "$MODDIR/disable" ]; then
+            logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
+            logowl "But $MOD_NAME has NOT been disabled"
+            logowl "Maybe $MOD_NAME is enabled by user manually"
+            logowl "Reset brick status"
+            rm -f "$BRICKED_STATUS"
+            logowl "$MOD_NAME will keep going"
+            return 0
+        else
+            logowl "Start brick rescue"
+            logowl "Skip executing post-fs-data.sh"
+            exit 1
+        fi
+    else
+        logowl "Flag bricked does NOT exist"
+        logowl "$MOD_NAME will keep going"
+    fi
+}
 
 config_loader() {
 
     logowl "Load config"
 
     debug=$(init_variables "debug" "$CONFIG_FILE")
+    brick_rescue=$(init_variables "brick_rescue" "$CONFIG_FILE")
+    disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
+    auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
+    system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE")
+    slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
+    mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
+
     verify_variables "debug" "$debug" "^(true|false)$"
+    verify_variables "brick_rescue" "$brick_rescue" "^(true|false)$"
+    verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
+    verify_variables "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
+    verify_variables "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
+    verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
+    verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
+
+}
+
+preparation() {
+
+    logowl "Some preparatory work"
+
+    if [ -n "$MODDIR" ] && [ -d "$MODDIR" ] && [ "$MODDIR" != "/" ] && [ -d "$MIRROR_DIR" ]; then
+        logowl "Remove old mirror folder"
+        rm -rf "$MIRROR_DIR"
+    fi
+    if [ -n "$MODDIR" ] && [ -d "$MODDIR" ] && [ "$MODDIR" != "/" ] && [ -d "$EMPTY_DIR" ]; then
+        logowl "Remove old bind folder"
+        rm -rf "$EMPTY_DIR"
+    fi
+
 
     if [ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ]; then
         logowl "$MOD_NAME is running on KernelSU / APatch"
         logowl "Make Node mode support is present"
         MN_SUPPORT=true
         MR_SUPPORT=false
+        [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
 
     elif [ "$DETECT_MAGISK" = true ]; then
-        logowl "$MOD_NAME is running on Magisk"
-        logowl "Magisk Replace mode support is present"
-        MR_SUPPORT=true
         if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
             logowl "$MOD_NAME is running on Magisk 28102+"
             logowl "Make Node mode support is present"
             MN_SUPPORT=true
         else
+            logowl "$MOD_NAME is running on Magisk"
             logowl "Make Node mode requires Magisk version 28102+!" "WARN"
             logowl "$MOD_NAME will revert to Magisk Replace mode"
             MN_SUPPORT=false
+            [ "$SLAY_MODE" = "MN" ] && SLAY_MODE="MR"
         fi
+        logowl "Magisk Replace mode support is present"
+        MR_SUPPORT=true
     fi
 
-}
+    if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
+        logowl "Detect multiple root solutions!" "WARN"
+        logowl "$MOD_NAME will revert to mount bind mode for multiple root solutions"
+        SLAY_MODE="MB"
+    fi
 
-debug_props_info() {
+    case "$SLAY_MODE" in
+        MB)
+            SLAY_MODE_DESC="Mount Bind"
+            logowl "Create $EMPTY_DIR"
+            mkdir -p "$EMPTY_DIR"
+            ;;
+        MN|MR)
+            if [ "$SLAY_MODE" = "MN" ]; then
+                SLAY_MODE_DESC="Make Node"
+            elif [ "$SLAY_MODE" = "MR" ]; then
+                SLAY_MODE_DESC="Magisk Replace"
+            fi
+            logowl "Create $MIRROR_DIR"
+            mkdir -p "$MIRROR_DIR"
+            ;;
+    esac
+    logowl "Current mode: $SLAY_MODE ($SLAY_MODE_DESC)"
 
-    logowl " "
-    debug_get_prop ro.build.version.security_patch
-    debug_get_prop ro.vendor.build.security_patch
-    debug_get_prop ro.system.build.security_patch
-    logowl " "
+    if [ "$MN_SUPPORT" = true ]; then
+        [ ! -e "$MIRROR_DIR" ] && mkdir -p "$MIRROR_DIR"
+    fi
 
-}
-
-date_format_86() {
-
-    key_name=$1
-    key_date_value=$2
-
-    if [ -z "$key_name" ] || [ -z "$key_date_value" ]; then
-        logowl "Key name or date is NULL!" "ERROR"
+    if [ ! -f "$TARGET_LIST" ]; then
+        logowl "Target list does NOT exist!" "FATAL"
+        DESCRIPTION="[❌No effect. Target list does NOT exist! ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+        update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
 
-    if echo "$key_date_value" | grep -qE '^[0-9]{8}$'; then
-        formatted_date=$(echo "$key_date_value" | sed 's/\([0-9]\{4\}\)\([0-9]\{2\}\)\([0-9]\{2\}\)/\1-\2-\3/')
-        eval "$key_name=\"\$formatted_date\""
-        logowl "Set $key_name=$formatted_date" "TIPS"
+    touch "$TARGET_LIST_BSA"
+    echo -e "# Target List $MOD_NAME Arranged\n# Version: $MOD_VER\n" > "$TARGET_LIST_BSA"
 
-    elif echo "$key_date_value" | grep -qE '^[0-9]{6}$'; then
-        formatted_date=$(echo "$key_date_value" | sed 's/\([0-9]\{4\}\)\([0-9]\{2\}\)/\1-\2/')
-        eval "$key_name=\"\$formatted_date\""
-        logowl "Set $key_name=$formatted_date" "TIPS"
-    elif echo "$key_date_value" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'; then
-        logowl "Current key $key_name=$key_date_value has been formatted already" "WARN"
-    elif echo "$key_date_value" | grep -qE '^[0-9]{4}-[0-9]{2}$'; then
-        logowl "Current key $key_name=$key_date_value has been formatted already" "WARN"
-    else
-        logowl "Invalid date format: $key_date_value" "ERROR"
-        return 2
-    fi
 }
 
 mirror_make_node() {
@@ -127,276 +199,224 @@ mirror_make_node() {
 
 }
 
-ts_sp_config_simple() {
+mirror_magisk_replace() {
 
-    logowl "Load security patch config from TrickyStore (simple mode)"
+    replace_path=$1
 
-    patch_level=$(grep -v '^#' "$TRICKY_STORE_CONFIG_FILE" | grep -Eo '[0-9]+' | head -n 1)
-
-    if [ -z "$patch_level" ]; then
-        logowl "Security patch level is NOT set yet!" "ERROR"
-        exit 1
+    if [ -z "$replace_path" ]; then
+        logowl "replace_path is NOT ordered!" "ERROR"
+        return 5
+    elif [ ! -d "$replace_path" ]; then
+        logowl "$replace_path is NOT a dir!" "ERROR"
+        return 6
     fi
 
-    verify_variables "patch_level" "$patch_level" "^[0-9]{8}$"
-    date_format_86 "PATCH_LEVEL" "$PATCH_LEVEL"
+    mirror_app_path="$MODDIR$replace_path"
 
-    if [ -n "$PATCH_LEVEL" ]; then
-        resetprop -n "ro.build.version.security_patch" "$PATCH_LEVEL"
-        resetprop -n "ro.vendor.build.security_patch" "$PATCH_LEVEL"
-        resetprop -n "ro.system.build.security_patch" "$PATCH_LEVEL"
+    if [ ! -d "$mirror_app_path" ]; then
+        mkdir -p "$mirror_app_path"
+        logowl "Create mirror path: $mirror_app_path"
     fi
+
+    if [ ! -e "$mirror_app_path/.replace" ]; then
+        touch "$mirror_app_path/.replace"
+        result_magisk_replace="$?"
+        logowl "Execute: touch $mirror_app_path/.replace"
+        if [ $result_magisk_replace -eq 0 ]; then
+            return 0
+        else
+            return $result_magisk_replace
+        fi
+    else
+        return 0
+    fi
+
 }
 
-ts_sp_config_advanced() {
-    logowl "Load security patch config from TrickyStore (advanced mode)"
-    ts_all=$(init_variables "all" "$TRICKY_STORE_CONFIG_FILE")
-    
-    if [ -z "$ts_all" ]; then
-        ts_system=$(init_variables "system" "$TRICKY_STORE_CONFIG_FILE")
-        ts_boot=$(init_variables "boot" "$TRICKY_STORE_CONFIG_FILE")
-        ts_vendor=$(init_variables "vendor" "$TRICKY_STORE_CONFIG_FILE")
-        
-        [ -n "$ts_system" ] && verify_variables "ts_system" "$ts_system" "^([0-9]{6}|[0-9]{8}|[0-9]{4}-[0-9]{2}-[0-9]{2})$"
-        [ -n "$ts_boot" ] && verify_variables "ts_boot" "$ts_boot" "^([0-9]{6}|[0-9]{8}|[0-9]{4}-[0-9]{2}-[0-9]{2}|yes|no)$"
-        [ -n "$ts_vendor" ] && verify_variables "ts_vendor" "$ts_vendor" "^([0-9]{6}|[0-9]{8}|[0-9]{4}-[0-9]{2}-[0-9]{2}|yes|no)$"
-        
-        
-        if [ "$TS_BOOT" != "yes" ] && [ "$TS_BOOT" != "no" ]; then
-            date_format_86 "TS_BOOT" "$TS_BOOT"
-        fi
-        if [ "$TS_VENDOR" != "yes" ] && [ "$TS_VENDOR" != "no" ]; then
-            date_format_86 "TS_VENDOR" "$TS_VENDOR"
-        fi
-    else
-        [ -n "$ts_all" ] && verify_variables "ts_all" "$ts_all" "^([0-9]{6}|[0-9]{8}|[0-9]{4}-[0-9]{2}-[0-9]{2})$"
-        date_format_86 "TS_ALL" "$TS_ALL"
+link_mount_bind() {
+
+    link_path=$1
+
+    if [ -z "$link_path" ]; then
+        logowl "link_path is NOT ordered!" "ERROR"
+        return 5
+    elif [ ! -d "$link_path" ]; then
+        logowl "$link_path is NOT a dir!" "ERROR"
+        return 6
     fi
 
-    if [ -n "$TS_ALL" ]; then
-        resetprop -n "ro.build.version.security_patch" "$TS_ALL"
-        resetprop -n "ro.vendor.build.security_patch" "$TS_ALL"
-        resetprop -n "ro.system.build.security_patch" "$TS_ALL"
+    mount -o bind "$EMPTY_DIR" "$app_path"
+    result_mount_bind="$?"
+    logowl "Execute: mount -o bind $EMPTY_DIR $app_path"
+    if [ $result_mount_bind -eq 0 ]; then
+        return 0
     else
-        if [ -n "$TS_SYSTEM" ]; then
-            resetprop -n "ro.build.version.security_patch" "$TS_SYSTEM"
+        return $result_mount_bind
+    fi
+
+}
+
+bloatware_slayer() {
+
+    logowl "Sniffing out the target"
+
+    TOTAL_APPS_COUNT=0
+    BLOCKED_APPS_COUNT=0
+    hybrid_mode=false
+    lines_count=0
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        lines_count=$((lines_count + 1))
+
+        if ! check_value_safety "line $lines_count" "$line"; then
+            continue
         fi
 
-        if [ -n "$TS_BOOT" ]; then
-            if [ "$TS_BOOT" = "yes" ]; then
-                resetprop -n "ro.system.build.security_patch" "$TS_SYSTEM"
-            elif [ "$TS_BOOT" = "no" ]; then
-                logowl "boot=no, $MOD_NAME will NOT disguise boot partition security patch date" "WARN"
+        line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        first_char=$(printf '%s' "$line" | cut -c1)
+
+        if [ -z "$line" ]; then
+            [ "$DEBUG" = true ] && logowl "Line $lines_count is empty line, skip processing"
+            continue
+        elif [ "$first_char" = "#" ]; then
+            [ "$DEBUG" = true ] && logowl "Line $lines_count is comment line, skip processing"
+            continue
+        fi
+
+        package=$(echo "$line" | cut -d '#' -f1)
+        package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+
+        if [ -z "$package" ]; then
+            [ "$DEBUG" = true ] && logowl "Detect only comment left in this line, skip processing"
+            continue
+        fi
+
+        case "$package" in
+            *\\*)
+                [ "$DEBUG" = true ] && logowl "Replace '\\' with '/' in path: $package" "WARN"
+                package=$(echo "$package" | sed -e 's/\\/\//g')
+                ;;
+        esac
+
+        TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT+1))
+
+        for path in $SYSTEM_APP_PATHS; do
+
+            first_char=$(printf '%s' "$line" | cut -c1)
+            if [ "$first_char" = "/" ]; then
+                app_path="$package"
+                case "$app_path" in
+                    /system/apex*)
+                        case "$app_path" in
+                        *.apex|*.capex)
+                            ;;
+                        *)
+                            app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
+                            if [ -f "$app_path.apex" ]; then
+                                app_path="$app_path.apex"
+                            elif [ -f "$app_path.capex" ]; then
+                                app_path="$app_path.capex"
+                            else
+                                break
+                            fi
+                            ;;
+                        esac
+                        ;;
+                    /system*)
+                        ;;
+                    *)
+                        break
+                        ;;
+                esac
             else
-                resetprop -n "ro.system.build.security_patch" "$TS_BOOT"
+                app_path="$path/$package"
             fi
-        fi
 
-        if [ -n "$TS_VENDOR" ]; then
-            if [ "$TS_VENDOR" = "yes" ]; then
-                resetprop -n "ro.system.build.security_patch" "$TS_SYSTEM"
-            elif [ "$TS_VENDOR" = "no" ]; then
-                logowl "vendor=no, $MOD_NAME will NOT disguise vendor partition security patch date" "WARN"
+            app_name="$(basename "$app_path")"
+            if [ -d "$app_path" ]; then
+                logowl "Process path: $app_path"
+                if [ "$SLAY_MODE" = "MB" ]; then
+                    link_mount_bind "$app_path"
+                elif [ "$SLAY_MODE" = "MN" ]; then
+                    mirror_make_node "$app_path"
+                elif [ "$SLAY_MODE" = "MR" ]; then
+                    mirror_magisk_replace "$app_path"
+                fi
+                app_process_result=$?
+                if [ $app_process_result -eq 0 ]; then
+                    BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                    echo "$app_path" >> "$TARGET_LIST_BSA"
+                    logowl "$app_name has been slain" "TIPS"
+                    break
+                else
+                    logowl "Slay $app_name failed (code: $app_process_result)" "WARN"
+                fi
+
+            elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
+                logowl "Process path: $app_path"
+                if [ "$SLAY_MODE" = "MN" ] || [ "$MN_SUPPORT" = true ]; then
+                    mirror_make_node "$app_path"
+                    file_process_result=$?
+                    if [ $file_process_result -eq 0 ]; then
+                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                        [ "$SLAY_MODE" != "MN" ] && hybrid_mode=true
+                        echo "$app_path" >> "$TARGET_LIST_BSA"
+                        logowl "$app_name has been slain" "TIPS"
+                        break
+                    else
+                        logowl "Slay $app_name failed (code: $file_process_result)" "WARN"
+                    fi
+                fi
             else
-                resetprop -n "ro.vendor.build.security_patch" "$TS_VENDOR"
+                if [ "$first_char" = "/" ]; then
+                    logowl "Custom dir $app_path NOT found"
+                    break
+                else
+                    logowl "Dir $app_path NOT found"
+                fi
             fi
-        fi
+        done
+    done < "$TARGET_LIST"
+
+    logowl "Clean duplicate items"
+    clean_duplicate_items "$TARGET_LIST_BSA"
+
+    if [ "$AUTO_UPDATE_TARGET_LIST" = true ] && [ $BLOCKED_APPS_COUNT -gt 0 ]; then
+        logowl "Update target list"
+        cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
+    elif [ $BLOCKED_APPS_COUNT -eq 0 ]; then
+        logowl "No App has been slain, skip updating target list"
     fi
 
 }
 
-security_patch_info_disguiser() {    
-    if [ -f "$TRICKY_STORE_CONFIG_FILE" ]; then
+module_status_update() {
 
-        TS_FILE_CONTENT=$(cat "$TRICKY_STORE_CONFIG_FILE")
+    APP_NOT_FOUND=$((TOTAL_APPS_COUNT - BLOCKED_APPS_COUNT))
+    logowl "$TOTAL_APPS_COUNT APP(s) in total"
+    logowl "$BLOCKED_APPS_COUNT APP(s) has been slain"
+    logowl "$APP_NOT_FOUND APP(s) not found"
 
-        if printf '%s\n' "$TS_FILE_CONTENT" | grep -q '='; then
-            logowl "Detect $TRICKY_STORE_CONFIG_FILE is set as advanced mode" "TIPS"
-            ts_sp_config_advanced
+    [ "$hybrid_mode" = true ] && SLAY_MODE_DESC="Hybrid ($SLAY_MODE_DESC + Make Node)"
+
+    if [ -f "$MODULE_PROP" ]; then
+        if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
+            if [ $APP_NOT_FOUND -eq 0 ]; then
+                DESCRIPTION="[✅All Done. $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
+            fi
         else
-            logowl "Detect $TRICKY_STORE_CONFIG_FILE is set as simple mode" "TIPS"
-            ts_sp_config_simple
+            if [ $TOTAL_APPS_COUNT -gt 0 ]; then
+                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] 一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
+            else
+                logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
+                DESCRIPTION="[❌No effect. Abnormal status! 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+            fi
         fi
-    elif [ ! -f "$TRICKY_STORE_CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
-        logowl "Tricky Store security patch config file ($TRICKY_STORE_CONFIG_FILE) does NOT exist!" "WARN"
-        logowl "$MOD_NAME will try to fetch config from $CONFIG_FILE"
-        TRICKY_STORE_CONFIG_FILE="$CONFIG_FILE"
-        ts_sp_config_advanced
+        update_config_value "description" "$DESCRIPTION" "$MODULE_PROP" "true"
     else
-        logowl "Abnormal status! Both $TRICKY_STORE_CONFIG_FILE and $CONFIG_FILE are NULL!" "ERROR"
-        return 1
+        logowl "module.prop not found, skip updating" "WARN"
     fi
-}
-
-custom_install_recovery_script_remove() {
-
-    logowl "Start custom install-recovery.sh script removal process"
-
-    block_install_recovery_script=$(init_variables "block_install_recovery_script" "$CONFIG_FILE")
-    block_install_recovery_script_mode=$(init_variables "block_install_recovery_script_mode" "$CONFIG_FILE")
-    custom_install_recovery_script_path=$(init_variables "custom_install_recovery_script_path" "$CONFIG_FILE")
-
-    if [ -z "$custom_install_recovery_script_path" ]; then
-        logowl "Custom install-recovery.sh path is NOT set" "ERROR"
-        return 2
-    fi
-
-    WORK_MODE=""
-    if [ "$block_install_recovery_script" = "false" ] || [ -z "$block_install_recovery_script" ]; then
-        logowl "Custom install-recovery.sh removal feature is disabled"
-        return 1
-    elif [ "$block_install_recovery_script" = "true" ]; then
-
-        if [ -z "$block_install_recovery_script_mode" ]; then
-            logowl "Block install-recovery.sh mode is NOT set!" "ERROR"
-            return 1
-        fi
-
-        if [ "$block_install_recovery_script_mode" = "MN" ]; then
-            if [ "$MN_SUPPORT" = false ]; then
-                logowl "Make Node mode needs Magisk version 28102 and higher, KernelSU or APatch!" "ERROR"
-                logowl "However, either ED (Erase/Delete) or RN (Rename) mode is NOT systemless behavior"
-                logowl "$MOD_NAME will skip these step directly and will NOT switch into ED or RN mode"
-                logowl "Please adjust this option manually if need"
-                return 2
-            fi
-        elif [ "$block_install_recovery_script_mode" = "RN" ] || [ "$block_install_recovery_script_mode" = "ED" ]; then
-            if [ "$block_install_recovery_script_mode" = "RN" ]; then
-                WORK_MODE="RN (Rename)"
-            elif [ "$block_install_recovery_script_mode" = "ED" ]; then
-                WORK_MODE="DE (Delete/Erase)"
-            fi
-            logowl "$WORK_MODE mode is NOT systemless behavior" "WARN"
-            logowl "If your file system is read-only, it will NOT work at all...well it is okay"
-            logowl "But if NOT, please make sure you know how to rescue from your device being brick!"
-            logowl "Or make sure you have the method to modify the files located in /system partition by OrangeFox/TWRP"
-            logowl "This option/method must be switched by yourself ONLY"
-            logowl "You have been warned before you change the mode!" "WARN"
-        else
-            logowl "Abnormal block install-recovery.sh mode status!" "ERROR"
-            return 1
-        fi
-    else
-        logowl "Abnormal block install-recovery.sh switch status!" "ERROR"
-        return 1
-    fi
-
-    IFS=' '
-    SWITCH_TO_MN=false
-    for ins_rec_sh in $custom_install_recovery_script_path; do
-        if [ -f "$ins_rec_sh" ]; then
-            if [ "$block_install_recovery_script_mode" = "RN" ]; then
-                logowl "Rename $ins_rec_sh → ${ins_rec_sh}.old"
-                if ! mv -n "$ins_rec_sh" "${ins_rec_sh}.old"; then
-                    logowl "Rename failed (code: $?)" "ERROR";
-                    [ "$MN_SUPPORT" = true ] && SWITCH_TO_MN=true
-                else
-                    continue
-                fi
-            elif [ "$block_install_recovery_script_mode" = "ED" ]; then
-                logowl "Delete file: $ins_rec_sh"
-                if ! rm -f "$ins_rec_sh"; then
-                    logowl "Deletion failed (code: $?)" "ERROR";
-                    [ "$MN_SUPPORT" = true ] && SWITCH_TO_MN=true
-                else
-                    continue
-                fi
-            fi
-
-            if [ "$block_install_recovery_script_mode" = "MN" ] || [ "$SWITCH_TO_MN" = true ] ; then
-                mirror_make_node "$ins_rec_sh" || { logowl "Failed to make node (code: $?)" "ERROR"; }
-            fi
-
-        else
-            logowl "File not found: $ins_rec_sh" "WARN"
-        fi
-    done
-    unset IFS
-}
-
-custom_addon_d_remove() {
-
-    logowl "Start custom addon.d removal process"
-
-    block_addon_d_dir=$(init_variables "block_addon_d_dir" "$CONFIG_FILE")
-    block_addon_d_dir_mode=$(init_variables "block_addon_d_dir_mode" "$CONFIG_FILE")
-    custom_addon_d_path=$(init_variables "custom_addon_d_path" "$CONFIG_FILE")
-
-    if [ -z "$custom_addon_d_path" ]; then
-        logowl "Custom addon.d path is NOT set" "ERROR"
-        return 2
-    fi
-
-    WORK_MODE=""
-    if [ "$block_addon_d_dir" = "false" ] || [ -z "$block_addon_d_dir" ]; then
-        logowl "Custom addon.d removal feature is disabled"
-        return 1
-    elif [ "$block_addon_d_dir" = "true" ]; then
-        
-        if [ -z "$block_addon_d_dir_mode" ]; then
-            logowl "Block addon.d mode is NOT set!" "ERROR"
-            return 1
-        fi
-
-        if [ "$block_addon_d_dir_mode" = "MN" ]; then
-            if [ "$MN_SUPPORT" = false ]; then
-                logowl "Make Node mode needs Magisk version 28102 and higher, KernelSU or APatch!" "ERROR"
-                logowl "However, either ED (Erase/Delete) or RN (Rename) mode is NOT systemless behavior"
-                logowl "$MOD_NAME will skip these step directly and will NOT switch into ED or RN mode"
-                logowl "Please adjust this option manually if need"
-                return 2
-            fi
-        elif [ "$block_addon_d_dir_mode" = "RN" ] || [ "$block_addon_d_dir_mode" = "ED" ]; then
-            if [ "$block_addon_d_dir_mode" = "RN" ]; then
-                WORK_MODE="RN (Rename)"
-            elif [ "$block_addon_d_dir_mode" = "ED" ]; then
-                WORK_MODE="DE (Delete/Erase)"
-            fi
-            logowl "$WORK_MODE mode is NOT systemless behavior" "WARN"
-            logowl "If your file system is read-only, it will NOT work at all...well it is okay"
-            logowl "But if NOT, please make sure you know how to rescue from your device being brick!"
-            logowl "Or make sure you have the method to modify the files located in /system partition by OrangeFox/TWRP"
-            logowl "This option/method must be switched by yourself ONLY"
-            logowl "You have been warned before you change the mode!" "WARN"
-        else
-            logowl "Abnormal block addon.d mode status!" "ERROR"
-            return 1
-        fi
-    else
-        logowl "Abnormal block addon.d switch status!" "ERROR"
-        return 1
-    fi
-
-    IFS=' '
-    SWITCH_TO_MN=false
-    for addon_d in $custom_addon_d_path; do
-        if [ -f "$addon_d" ]; then
-            if [ "$block_addon_d_dir_mode" = "RN" ]; then
-                logowl "Rename $addon_d → ${addon_d}.old"
-                if ! mv -n "$addon_d" "${addon_d}.old"; then
-                    logowl "Rename failed (code: $?)" "ERROR";
-                    [ "$MN_SUPPORT" = true ] && SWITCH_TO_MN=true
-                else
-                    continue
-                fi
-            elif [ "$block_addon_d_dir_mode" = "ED" ]; then
-                logowl "Delete file: $addon_d"
-                if ! rm -f "$addon_d"; then
-                    logowl "Deletion failed (code: $?)" "ERROR";
-                    [ "$MN_SUPPORT" = true ] && SWITCH_TO_MN=true
-                else
-                    continue
-                fi
-            fi
-            
-            if [ "$block_addon_d_dir_mode" = "MN" ] || [ "$SWITCH_TO_MN" = true ]; then
-                mirror_make_node "$addon_d" || { logowl "Failed to make node (code: $?)" "ERROR"; }
-            fi
-
-        else
-            logowl "Dir not found: $addon_d" "WARN"
-        fi
-    done
 
 }
 
@@ -404,18 +424,17 @@ custom_addon_d_remove() {
 
 init_logowl "$LOG_DIR"
 module_intro >> "$LOG_FILE"
-show_system_info
-config_loader
+show_system_info >> "$LOG_FILE"
 print_line
 logowl "Start post-fs-data.sh"
+config_loader
 print_line
-logowl "Before:"
-debug_props_info
-security_patch_info_disguiser
-print_line
-logowl "After:"
-debug_props_info
-custom_install_recovery_script_remove
-custom_addon_d_remove
+brick_rescue
+preparation
+bloatware_slayer
+module_status_update
+set_permission_recursive "$MODDIR" 0 0 0755 0644
+set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
+debug_print_values >> "$LOG_FILE"
 print_line
 logowl "post-fs-data.sh case closed!"
