@@ -174,7 +174,7 @@ module_intro() {
     logowl "$MOD_NAME"
     logowl "By $MOD_AUTHOR"
     logowl "Version: $MOD_VER"
-    logowl "Root solution: $ROOT_SOL"
+    logowl "Root solution: $ROOT_SOL_DETAIL"
     logowl "Current time stamp: $(date +"%Y-%m-%d %H:%M:%S")"
     logowl "Current module dir: $MODDIR"
     print_line
@@ -361,7 +361,7 @@ check_value_safety(){
     value=$(printf "%s" "$value" | sed 's/'\''/'\\\\'\'''\''/g' | sed 's/[$;&|<>`"()]/\\&/g')
 
     if [ "$value" = true ] || [ "$value" = false ]; then
-        logowl "Verified $key=$value (boolean)" "TIPS"
+        logowl "Verified $key=$value (boolean)"
         return 0
     fi
 
@@ -385,7 +385,7 @@ check_value_safety(){
         return 4
     fi
 
-    logowl "Verified $key=$value" "TIPS"
+    logowl "Verified $key=$value"
     return 0
 }
 
@@ -623,10 +623,11 @@ clean_duplicate_items() {
 }
 
 debug_get_prop() {
+
     prop_name=$1
 
     if [ -z "$prop_name" ]; then
-        logowl "$prop_name does NOT exist!" "WARN"
+        logowl "Property name does NOT exist!" "WARN"
         return 1
     fi
     logowl "$prop_name=$(getprop "$prop_name")"
