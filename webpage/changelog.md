@@ -3,6 +3,12 @@ A Magisk module to remove bloatware in systemless way / 一个无需修改 syste
 
 ### Changelog / 变更日志
 
+### 1.3.8
+
+- Optimize and cleanup minor code
+- 优化和清理部分代码
+- SHA256: `8bddc669b16e567d9ce5e4fa60d3cc761aa7da0fbb65abb361daa9518673f6b0`
+
 ### 1.3.7
 
 - Allow to disable inbuilt brick rescue by setting `brick_rescue=false` in `settings.conf`
