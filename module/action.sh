@@ -3,9 +3,9 @@ MODDIR=${0%/*}
 
 . "$MODDIR/aautilities.sh"
 
-CONFIG_DIR="/data/adb/bloatwareslayer"
+CONFIG_DIR="/data/adb/vbmetadisguiser"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/bs_action_$(date +"%Y%m%dT%H%M%S").log"
+LOG_FILE="$LOG_DIR/vd_action_$(date +"%Y-%m-%d_%H-%M-%S").log"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
@@ -28,7 +28,7 @@ me.zhanghai.android.files/me.zhanghai.android.files.filelist.FileListActivity
 
 init_logowl "$LOG_DIR"
 module_intro
-logowl "Start action.sh"
+logowl "Starting action.sh"
 
 IFS=$'\n'
 
@@ -39,13 +39,17 @@ for fm in $ROOT_FILE_MANAGERS; do
 
     if pm path "$PKG" >/dev/null 2>&1; then
         logowl "Attempt to use $PKG to open config dir"
+        logowl "Execute: am start -n $fm file://$CONFIG_DIR"
         su -c "am start -n $fm file://$CONFIG_DIR"
+
         result_action="$?"
-        logowl "Execute: am start -n $fm file://$CONFIG_DIR (code: $result_action)"
         if [ $result_action -eq 0 ]; then
+            logowl "Succeeded (code: $result_action)"
             print_line
             logowl "action.sh case closed!"
             exit 0
+        else
+            logowl "Failed (code: $result_action)" "ERROR"
         fi
     else
           logowl "$PKG is NOT installed yet!" "ERROR"
@@ -53,9 +57,7 @@ for fm in $ROOT_FILE_MANAGERS; do
 
 done
 
-sleep 7
-
-logowl "No available Root Explorer detected!" "WARN"
-logowl "Please open config dir manually if needed" "WARN"
+ui_print "No available Root Explorer detected, please open config folder manually if needed!"
+logowl "No available Root Explorer detected, please open config folder manually if needed!" "ERROR"
 print_line
 logowl "action.sh case closed!"
