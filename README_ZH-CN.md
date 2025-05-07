@@ -2,6 +2,7 @@
 
 # **干掉预装软件 / Bloatware Slayer**
 一个无需修改 system 分区即可移除预装软件的 Magisk 模块 / A Magisk module to remove bloatware in systemless way
+
 <br>![Bloatware Slayer](webpage/img/bs.png)
 
 ## 支持的 Root 方案
