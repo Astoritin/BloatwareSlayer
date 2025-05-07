@@ -148,9 +148,9 @@ print_line
                 logowl "Execute: umount -f $package"
                 app_name="$(basename "$package")"
                 if [ $result_umount -eq 0 ]; then
-                    logowl "Mount point $app_name has been unmounted"
+                    logowl "Mount point $app_name has been unmounted" "TIPS"
                 else
-                    logowl "Failed to unmount point $app_name (code: $result_umount)"
+                    logowl "Failed to unmount point $app_name (code: $result_umount)" "WARN"
                 fi
 
             done < "$TARGET_LIST_BSA"
