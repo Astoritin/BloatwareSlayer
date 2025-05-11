@@ -2,6 +2,7 @@
 MODDIR=${0%/*}
 
 CONFIG_DIR="/data/adb/bloatwareslayer"
+
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 LOG_DIR="$CONFIG_DIR/logs"
@@ -12,37 +13,111 @@ MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
+MOD_INTRO="A Magisk module to remove bloatware in systemless way."
+
 MOD_DESC_OLD="$(sed -n 's/^description=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_ROOT_DIR=$(dirname "$MODDIR")
 MOD_ZYGISKSU_PATH="${MOD_ROOT_DIR}/zygisksu"
 
-DEBUG=false
 BRICK_RESCUE=true
+DISABLE_MODULE_AS_BRICK=true
+BRICK_TIMEOUT=180
 SLAY_MODE=MB
 MB_UMOUNT_BIND=true
-BRICK_TIMEOUT=180
-DISABLE_MODULE_AS_BRICK=true
 UPDATE_DESC_ON_ACTION=false
 
 config_loader() {
 
-    logowl "Load config"
+    logowl "Load configuration"
 
-    debug=$(init_variables "debug" "$CONFIG_FILE")
     brick_rescue=$(init_variables "brick_rescue" "$CONFIG_FILE")
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
+
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
     mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
+    
     update_desc_on_action=$(init_variables "update_desc_on_action" "$CONFIG_FILE")
 
-    verify_variables "debug" "$debug" "^(true|false)$"
     verify_variables "brick_rescue" "$brick_rescue" "^(true|false)$"
     verify_variables "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
+    
     verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
     verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
+    
     verify_variables "update_desc_on_action" "$update_desc_on_action" "^(true|false)$"
+
+}
+
+magisk_enforce_denylist_status() {
+
+    if is_magisk; then
+        MAGISK_DE_STATUS=$(magisk --sqlite "SELECT value FROM settings WHERE key='denylist';" | sed 's/^.*=\([01]\)$/\1/')
+        if [ -n "$MAGISK_DE_STATUS" ]; then
+            if [ "$MAGISK_DE_STATUS" = "1" ]; then
+                MAGISK_DE_DESC="ON (Magisk)"
+            elif [ "$MAGISK_DE_STATUS" = "0" ]; then
+                MAGISK_DE_DESC="OFF (Magisk)"
+            fi
+        fi
+    else
+        return 1
+    fi
+
+}
+
+zygisksu_enforce_denylist_status() {
+
+    if [ -d "$MOD_ZYGISKSU_PATH" ]; then
+        ZYGISKSU_DE_STATUS=$(znctl status | grep "enforce_denylist" | sed 's/^.*:\([01]\)$/\1/')
+        if [ -n "$ZYGISKSU_DE_STATUS" ]; then
+            if [ "$ZYGISKSU_DE_STATUS" = "1" ]; then
+                ZYGISKSU_DE_DESC="ON (Zygisk Next)"
+            elif [ "$ZYGISKSU_DE_STATUS" = "0" ]; then
+                ZYGISKSU_DE_DESC="OFF (Zygisk Next)"
+            fi
+        fi
+    else
+        return 1
+    fi
+
+}
+
+enforce_denylist_desc() {
+
+    if [ -n "$ZYGISKSU_DE_DESC" ] && [ -n "$MAGISK_DE_DESC" ]; then
+        ROOT_SOL_DE="${MAGISK_DE_DESC}, ${ZYGISKSU_DE_DESC}"
+    elif [ -n "$ZYGISKSU_DE_DESC" ]; then
+        ROOT_SOL_DE="${ZYGISKSU_DE_DESC}"
+    elif [ -n "$MAGISK_DE_DESC" ]; then
+        ROOT_SOL_DE="${MAGISK_DE_DESC}"
+    else
+        ROOT_SOL_DE=""
+    fi
+
+}
+
+denylist_enforcing_status_update() {
+
+    MOD_DESC_DE_OLD="$1"
+
+    magisk_enforce_denylist_status
+    zygisksu_enforce_denylist_status
+    enforce_denylist_desc
+
+    if [ -n "$ROOT_SOL_DE" ]; then
+
+        [ -z "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_OLD"
+        [ -n "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_DE_OLD"
+
+        if echo "$MOD_DESC_TMP" | grep -q "🚫Enforce DenyList: "; then
+            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E "s/(🚫Enforce DenyList: )[^]]*/\1${ROOT_SOL_DE}/")
+        else
+            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E 's/\]/, 🚫Enforce DenyList: '"${ROOT_SOL_DE}"'\]/')
+        fi
+        update_config_value "description" "$MOD_DESC_NEW" "$MODULE_PROP" "true"
+    fi
 
 }
 
@@ -81,7 +156,7 @@ print_line
             else
                 logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
             fi
-            DESCRIPTION="[❌No effect. Auto disable from brick! ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+            DESCRIPTION="[❌No effect. Auto disable from brick! ✨Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Rebooting"
             logowl "Execute: reboot -f"
@@ -123,22 +198,22 @@ print_line
                 line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
                 first_char=$(printf '%s' "$line" | cut -c1)
                 if [ -z "$line" ]; then
-                    [ "$DEBUG" = true ] && logowl "Empty in line $lines_count (code: 2)" "WARN"
+                    logowl "Empty in line $lines_count"
                     continue
                 elif [ "$first_char" = "#" ]; then
-                    [ "$DEBUG" = true ] && logowl "Comment symbol in line $lines_count (code: 3)" "WARN"
+                    logowl "Comment symbol in line $lines_count"
                     continue
                 fi
 
                 package=$(echo "$line" | cut -d '#' -f1)
                 package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
                 if [ -z "$package" ]; then
-                    [ "$DEBUG" = true ] && logowl "Only comment left in line $lines_count, skip processing" "TIPS"
+                    logowl "Only comment left in line $lines_count, skip processing"
                     continue
                 fi
                 case "$package" in
                     *\\*)
-                        [ "$DEBUG" = true ] && logowl "Replace '\\' with '/' in path: $package" "WARN"
+                        logowl "Replace '\\' with '/' in path: $package"
                         package=$(echo "$package" | sed -e 's/\\/\//g')
                         ;;
                 esac
@@ -150,13 +225,12 @@ print_line
                 if [ $result_umount -eq 0 ]; then
                     logowl "Mount point $app_name has been unmounted" "TIPS"
                 else
-                    logowl "Failed to unmount point $app_name (code: $result_umount)" "WARN"
+                    logowl "Failed to unmount point $app_name ($result_umount)" "TIPS"
                 fi
 
             done < "$TARGET_LIST_BSA"
         fi
     fi
-    debug_print_values >> "$LOG_FILE"
     print_line
     logowl "service.sh case closed!"
     
@@ -182,9 +256,9 @@ print_line
             logowl "Exit background task"
             exit 0
         elif [ "$MOD_CURRENT_STATUS" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Reboot to remove. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+            MOD_REAL_TIME_DESC="[🗑️Reboot to remove. ✨Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
         elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
-            MOD_REAL_TIME_DESC="[❌OFF or reboot to turn off. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+            MOD_REAL_TIME_DESC="[❌OFF or reboot to turn off. ✨Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
         elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
             MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
         fi
