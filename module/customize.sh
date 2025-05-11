@@ -2,11 +2,15 @@
 SKIPUNZIP=1
 
 CONFIG_DIR="/data/adb/bloatwareslayer"
+
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 LOG_DIR="$CONFIG_DIR/logs"
+
 VERIFY_DIR="$TMPDIR/.aa_verify"
+
 MOD_NAME="$(grep_prop name "$TMPDIR/module.prop")"
 MOD_VER="$(grep_prop version "$TMPDIR/module.prop") ($(grep_prop versionCode "$TMPDIR/module.prop"))"
+MOD_INTRO="A Magisk module to remove bloatware in systemless way."
 
 [ ! -d "$VERIFY_DIR" ] && mkdir -p "$VERIFY_DIR"
 
@@ -96,5 +100,5 @@ if [ -n "$VERIFY_DIR" ] && [ -d "$VERIFY_DIR" ] && [ "$VERIFY_DIR" != "/" ]; the
 fi
 set_permission_recursive "$MODPATH" 0 0 0755 0644
 logowl "Welcome to use $MOD_NAME!"
-DESCRIPTION="[⏳Reboot to take effect. ✨Root: $ROOT_SOL_DETAIL] A Magisk module to remove bloatware in systemless way."
+DESCRIPTION="[⏳Reboot to take effect. ✨Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
 update_config_value "description" "$DESCRIPTION" "$MODPATH/module.prop" "true"
