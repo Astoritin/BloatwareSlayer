@@ -48,14 +48,14 @@ for fm in $ROOT_FILE_MANAGERS; do
             exit 0
         fi
     else
-          logowl "$PKG is NOT installed yet!" "ERROR"
+          logowl "$PKG is NOT installed yet!" "WARN"
     fi
 
 done
 
 sleep 7
 
-logowl "No available Root Explorer detected!" "WARN"
-logowl "Please open config dir manually if needed" "WARN"
+logowl "No available Root Explorer detected!" "TIPS"
+logowl "Please open config dir manually if needed" "TIPS"
 print_line
 logowl "action.sh case closed!"
