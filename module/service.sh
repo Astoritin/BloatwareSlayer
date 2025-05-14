@@ -116,7 +116,7 @@ denylist_enforcing_status_update() {
         else
             MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E 's/\]/, 🚫Enforce DenyList: '"${ROOT_SOL_DE}"'\]/')
         fi
-        update_config_value "description" "$MOD_DESC_NEW" "$MODULE_PROP" "true"
+        update_config_value "description" "$MOD_DESC_NEW" "$MODULE_PROP"
     fi
 
 }
@@ -145,7 +145,7 @@ print_line
 
         if [ $BRICK_TIMEOUT -le "0" ]; then
             print_line
-            logowl "Detect failed to boot after reaching the set limit!" "FATAL"
+            logowl "Detect failed to boot after reaching the limit!" "FATAL"
             logowl "Your device may be bricked by $MOD_NAME!"
             logowl "Mark status as bricked"
             touch "$BRICKED_STATUS"
@@ -156,7 +156,7 @@ print_line
             else
                 logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
             fi
-            DESCRIPTION="[❌No effect. Auto disable from brick! ✨Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+            DESCRIPTION="[❌No effect. Auto disable from brick! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
             logowl "Rebooting"
             logowl "Execute: reboot -f"
@@ -237,6 +237,7 @@ print_line
     MOD_REAL_TIME_DESC=""
     while true; do
         if [ "$UPDATE_DESC_ON_ACTION" = false ]; then
+            print_line
             logowl "Detect flag UPDATE_DESC_ON_ACTION=false"
             logowl "Exit background task"
             exit 0
@@ -256,9 +257,9 @@ print_line
             logowl "Exit background task"
             exit 0
         elif [ "$MOD_CURRENT_STATUS" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Reboot to remove. ✨Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+            MOD_REAL_TIME_DESC="[🗑️Reboot to remove. ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
         elif [ "$MOD_CURRENT_STATUS" = "disable" ]; then
-            MOD_REAL_TIME_DESC="[❌OFF or reboot to turn off. ✨Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+            MOD_REAL_TIME_DESC="[❌OFF or reboot to turn off. ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
         elif [ "$MOD_CURRENT_STATUS" = "enable" ]; then
             MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
         fi
