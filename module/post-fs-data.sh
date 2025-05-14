@@ -15,7 +15,7 @@ MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
 MOD_INTRO="A Magisk module to remove bloatware in systemless way."
-MOD_SLOGAN="一度二度の勝いで喜んでいては、この先が思いやられるというもの。——よっしゃあ、勝ったぜー！"
+MOD_SLOGAN="勝った、勝った、また勝ったぁーっと！！🎉✨"
 
 EMPTY_DIR="$MODDIR/empty"
 MIRROR_DIR="$MODDIR/system"
@@ -93,18 +93,18 @@ preparation() {
 
     logowl "Some preparatory work"
 
-    if [ -n "$MODDIR" ] && [ -d "$MODDIR" ] && [ "$MODDIR" != "/" ] && [ -d "$MIRROR_DIR" ]; then
+    if [ -d "$MIRROR_DIR" ] && [ "$MIRROR_DIR" != "/" ]; then
         logowl "Remove old mirror folder"
         rm -rf "$MIRROR_DIR"
     fi
-    if [ -n "$MODDIR" ] && [ -d "$MODDIR" ] && [ "$MODDIR" != "/" ] && [ -d "$EMPTY_DIR" ]; then
+    if [ -d "$EMPTY_DIR" ] && [ "$EMPTY_DIR" != "/" ]; then
         logowl "Remove old bind folder"
         rm -rf "$EMPTY_DIR"
     fi
 
 
     if [ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ]; then
-        logowl "$MOD_NAME is running on KernelSU / APatch"
+        logowl "$MOD_NAME is running on $ROOT_SOL"
         logowl "Make Node mode support is present"
         MN_SUPPORT=true
         MR_SUPPORT=false
@@ -116,7 +116,7 @@ preparation() {
             logowl "Make Node mode support is present"
             MN_SUPPORT=true
         else
-            logowl "$MOD_NAME is running on Magisk"
+            logowl "$MOD_NAME is running on $ROOT_SOL"
             logowl "Make Node mode requires Magisk version 28102+!" "WARN"
             logowl "$MOD_NAME will revert to Magisk Replace mode"
             MN_SUPPORT=false
@@ -156,7 +156,7 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
-        DESCRIPTION="[❌No effect. Target list does NOT exist! ✨Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+        DESCRIPTION="[❌No effect. Target list does NOT exist! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
         update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
@@ -281,10 +281,7 @@ bloatware_slayer() {
         line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
         first_char=$(printf '%s' "$line" | cut -c1)
 
-        if [ -z "$line" ]; then
-            logowl "Line $lines_count is empty line, skip processing"
-            continue
-        elif [ "$first_char" = "#" ]; then
+        if [ "$first_char" = "#" ]; then
             logowl "Line $lines_count is comment line, skip processing"
             continue
         fi
@@ -407,19 +404,19 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅All Done. $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
+                DESCRIPTION="[✅All Done. $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
+                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
-                DESCRIPTION="[❌No effect. Abnormal status! 🐦Mode: $SLAY_MODE_DESC, ✨Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+                DESCRIPTION="[❌No effect. Maybe something went wrong? 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             fi
         fi
-        update_config_value "description" "$DESCRIPTION" "$MODULE_PROP" "true"
+        update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
     else
         logowl "module.prop not found, skip updating" "WARN"
     fi
@@ -439,7 +436,5 @@ brick_rescue
 preparation
 bloatware_slayer
 module_status_update
-set_permission_recursive "$MODDIR" 0 0 0755 0644
-set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
 print_line
 logowl "post-fs-data.sh case closed!"
