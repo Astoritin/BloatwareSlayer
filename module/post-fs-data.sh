@@ -8,7 +8,9 @@ BRICKED_STATUS="$CONFIG_DIR/bricked"
 TARGET_LIST="$CONFIG_DIR/target.conf"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_core_$(date +"%Y%m%dT%H%M%S").log"
+
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
+TARGET_LIST_LW="$LOG_DIR/target_lw.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
@@ -26,6 +28,8 @@ MR_SUPPORT=false
 BRICK_RESCUE=true
 DISABLE_MODULE_AS_BRICK=true
 AUTO_UPDATE_TARGET_LIST=true
+LAST_WORKED_TARGET_LIST=true
+
 SLAY_MODE=MB
 MB_UMOUNT_BIND=true
 
@@ -41,14 +45,31 @@ brick_rescue() {
 
     logowl "Check brick status"
 
+    rescue_from_last_worked_target_list=false
+
     if [ -f "$BRICKED_STATUS" ]; then
         logowl "Detect flag bricked!" "FATAL"
+        if [ "$DISABLE_MODULE_AS_BRICK" = false ] && [ "$LAST_WORKED_TARGET_LIST" = true ]; then
+            logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
+            logowl "Detect flag LAST_WORKED_TARGET_LIST=true"
+            if [ -f "$TARGET_LIST_LW" ]; then
+                cp "$TARGET_LIST_LW" "$TARGET_LIST" && logowl "Attempt to use last worked target list"
+                rm -f "$TARGET_LIST_LW" && logowl "Reset last worked target list status"
+                rm -f "$BRICKED_STATUS" && logowl "Reset brick status"
+                rm -f "$MODDIR/disable" && logowl "Enable $MOD_NAME again"
+                logowl "$MOD_NAME will keep going"
+                rescue_from_last_worked_target_list=true
+                return 0
+            else
+                logowl "Last worked target list file does NOT exist!" "WARN"
+            fi
+        fi
+
         if [ "$DISABLE_MODULE_AS_BRICK" = true ] && [ ! -f "$MODDIR/disable" ]; then
             logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
             logowl "But $MOD_NAME has NOT been disabled"
             logowl "Maybe $MOD_NAME is enabled by user manually"
-            logowl "Reset brick status"
-            rm -f "$BRICKED_STATUS"
+            rm -f "$BRICKED_STATUS" && logowl "Reset brick status"
             logowl "$MOD_NAME will keep going"
             return 0
         else
@@ -68,24 +89,19 @@ config_loader() {
 
     brick_rescue=$(init_variables "brick_rescue" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
-    
-    system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE")
-
+    last_worked_target_list=$(init_variables "last_worked_target_list" "$CONFIG_FILE")
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
     mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
-
+    system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE")
     auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
 
     verify_variables "brick_rescue" "$brick_rescue" "^(true|false)$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
-
-    verify_variables "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
-    
+    verify_variables "last_worked_target_list" "$last_worked_target_list" "^(true|false)$"
     verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
     verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
-
+    verify_variables "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
     verify_variables "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
-    
 
 }
 
@@ -402,15 +418,19 @@ module_status_update() {
 
     [ "$hybrid_mode" = true ] && SLAY_MODE_DESC="Hybrid ($SLAY_MODE_DESC + Make Node)"
 
+    desc_rescue_from_last_worked=""
+
+    [ "$rescue_from_last_worked_target_list" = true ] && desc_rescue_from_last_worked=" (switch to last worked target list from brick)"
+
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
+                DESCRIPTION="[✅Done${desc_rescue_from_last_worked}. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅All Done. $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
+                DESCRIPTION="[✅All Done${desc_rescue_from_last_worked}. $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
+                DESCRIPTION="[✅Standby${desc_rescue_from_last_worked}. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
                 DESCRIPTION="[❌No effect. Maybe something went wrong? 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
@@ -430,11 +450,14 @@ module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
 logowl "Start post-fs-data.sh"
+
 config_loader
 print_line
 brick_rescue
 preparation
 bloatware_slayer
 module_status_update
+set_permission_recursive "$MODDIR" 0 0 0755 0644
+set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
 print_line
 logowl "post-fs-data.sh case closed!"
