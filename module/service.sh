@@ -7,7 +7,9 @@ CONFIG_FILE="$CONFIG_DIR/settings.conf"
 BRICKED_STATUS="$CONFIG_DIR/bricked"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_brickd_$(date +"%Y%m%dT%H%M%S").log"
+
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
+TARGET_LIST_LW="$LOG_DIR/target_lw.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
@@ -22,8 +24,11 @@ MOD_ZYGISKSU_PATH="${MOD_ROOT_DIR}/zygisksu"
 BRICK_RESCUE=true
 DISABLE_MODULE_AS_BRICK=true
 BRICK_TIMEOUT=180
+LAST_WORKED_TARGET_LIST=true
+
 SLAY_MODE=MB
 MB_UMOUNT_BIND=true
+
 UPDATE_DESC_ON_ACTION=false
 
 config_loader() {
@@ -33,19 +38,17 @@ config_loader() {
     brick_rescue=$(init_variables "brick_rescue" "$CONFIG_FILE")
     brick_timeout=$(init_variables "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
-
+    last_worked_target_list=$(init_variables "last_worked_target_list" "$CONFIG_FILE")
     slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
     mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
-    
     update_desc_on_action=$(init_variables "update_desc_on_action" "$CONFIG_FILE")
 
     verify_variables "brick_rescue" "$brick_rescue" "^(true|false)$"
     verify_variables "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$"
     verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
-    
+    verify_variables "last_worked_target_list" "^(true|false)$"
     verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
     verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
-    
     verify_variables "update_desc_on_action" "$update_desc_on_action" "^(true|false)$"
 
 }
@@ -158,9 +161,10 @@ print_line
             fi
             DESCRIPTION="[❌No effect. Auto disable from brick! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
-            logowl "Rebooting"
-            logowl "Execute: reboot -f"
-            reboot -f
+            logowl "Start reboot process"
+            sync && logowl "Notify for sync"
+            logowl "Execute: setprop sys.powerctl reboot"
+            setprop sys.powerctl reboot
             sleep 5
             logowl "Reboot command does NOT take effect, exiting"
             exit 1
@@ -171,12 +175,8 @@ print_line
 
     logowl "Congratulations! Boot complete!"
     logowl "Current countdown: $BRICK_TIMEOUT s"
-    rm -f "$BRICKED_STATUS"
-    if [ $? -eq 0 ]; then
-        logowl "Bricked status reset"
-    else
-        logowl "Failed to reset bricked status" "FATAL"
-    fi
+    rm -f "$BRICKED_STATUS" && logowl "Bricked status reset"
+    cp "$TARGET_LIST_BSA" "$TARGET_LIST_LW" && logowl "Copy last worked target list file"
     print_line
 
     if [ "$SLAY_MODE" = "MB" ] && [ "$MB_UMOUNT_BIND" = true ]; then
