@@ -9,8 +9,8 @@ A Magisk module to remove bloatware in systemless way / 一个无需修改 syste
 - 新增 **最后一次正确目标列表** 功能
   set `last_worked_target_list=true` in `settings.conf`
   在 `settings.conf` 中设定 `last_worked_target_list=true`
-  Only available as `disable_module_as_brick=false` (the behavior logical is NOT compatible)
-  仅当 `disable_module_as_brick=false` 时可用 (行为逻辑不兼容)
+  Only available as `disable_module_as_brick=false` (the behavior logical is NOT compatible as enabling this option)
+  仅当 `disable_module_as_brick=false` 时可用 (启用该选项时行为逻辑不兼容)
   Bloatware Slayer will restore `target.conf` boot successfully at the last time
   Bloatware Slayer 会恢复上次成功启动系统时的 `target.conf` 版本
 - Fix the bug as most of devices can NOT reboot (by `reboot -f`) as detecting being bricked
