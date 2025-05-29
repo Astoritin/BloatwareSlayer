@@ -471,6 +471,6 @@ check_before_resetprop() {
     prop_expect_value=$2
     prop_current_value=$(resetprop "$prop_name")
 
-    [ -z "$prop_current_value" ] || [ "$prop_current_value" = "$prop_expect_value" ] || resetprop "$prop_param" "$prop_name" "$prop_expect_value"
+    [ -z "$prop_current_value" ] || [ "$prop_current_value" = "$prop_expect_value" ] || resetprop "$prop_name" "$prop_expect_value"
 
 }
