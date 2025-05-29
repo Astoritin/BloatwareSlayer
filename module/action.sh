@@ -1,7 +1,7 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
-. "$MODDIR/aautilities.sh"
+. "$MODDIR/aa-util.sh"
 
 CONFIG_DIR="/data/adb/bloatwareslayer"
 LOG_DIR="$CONFIG_DIR/logs"
@@ -27,7 +27,7 @@ nextapp.fx/nextapp.fx.ui.ExplorerActivity
 me.zhanghai.android.files/me.zhanghai.android.files.filelist.FileListActivity
 "
 
-init_logowl "$LOG_DIR"
+logowl_init "$LOG_DIR"
 module_intro
 logowl "Start action.sh"
 
@@ -49,12 +49,10 @@ for fm in $ROOT_FILE_MANAGERS; do
             exit 0
         fi
     else
-          logowl "$PKG is NOT installed yet!" "ERROR"
+          logowl "$PKG is NOT installed yet!" "WARN"
     fi
 
 done
-
-sleep 7
 
 logowl "No available Root Explorer detected!" "WARN"
 logowl "Please open config dir manually if needed" "WARN"
