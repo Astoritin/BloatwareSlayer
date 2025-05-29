@@ -4,7 +4,7 @@ MODDIR=${0%/*}
 CONFIG_DIR="/data/adb/bloatwareslayer"
 
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
-BRICKED_STATUS="$CONFIG_DIR/bricked"
+BRICKED_STATE="$CONFIG_DIR/bricked"
 TARGET_LIST="$CONFIG_DIR/target.conf"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_core_$(date +"%Y%m%dT%H%M%S").log"
@@ -17,9 +17,8 @@ MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
 MOD_INTRO="A Magisk module to remove bloatware in systemless way."
-MOD_SLOGAN="勝った、勝った、また勝ったぁーっと！！🎉✨"
+MOD_SLOGAN="$MOD_INTRO"
 
-EMPTY_DIR="$MODDIR/empty"
 MIRROR_DIR="$MODDIR/system"
 
 MN_SUPPORT=false
@@ -39,23 +38,22 @@ brick_rescue() {
 
     if [ "$BRICK_RESCUE" = false ]; then
         logowl "Detect flag BRICK_RESCUE=false" "WARN"
-        logowl "$MOD_NAME will NOT take action as brick occurred!" "WARN"
+        logowl "$MOD_NAME will skip brick rescue process"
         return 1
     fi
 
-    logowl "Check brick status"
-
+    logowl "Check brick state"
     rescue_from_last_worked_target_list=false
 
-    if [ -f "$BRICKED_STATUS" ]; then
+    if [ -f "$BRICKED_STATE" ]; then
         logowl "Detect flag bricked!" "FATAL"
         if [ "$DISABLE_MODULE_AS_BRICK" = false ] && [ "$LAST_WORKED_TARGET_LIST" = true ]; then
             logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
             logowl "Detect flag LAST_WORKED_TARGET_LIST=true"
             if [ -f "$TARGET_LIST_LW" ]; then
                 cp "$TARGET_LIST_LW" "$TARGET_LIST" && logowl "Attempt to use last worked target list"
-                rm -f "$TARGET_LIST_LW" && logowl "Reset last worked target list status"
-                rm -f "$BRICKED_STATUS" && logowl "Reset brick status"
+                rm -f "$TARGET_LIST_LW" && logowl "Reset last worked target list state"
+                rm -f "$BRICKED_STATE" && logowl "Reset brick state"
                 rm -f "$MODDIR/disable" && logowl "Enable $MOD_NAME again"
                 logowl "$MOD_NAME will keep going"
                 rescue_from_last_worked_target_list=true
@@ -69,7 +67,7 @@ brick_rescue() {
             logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
             logowl "But $MOD_NAME has NOT been disabled"
             logowl "Maybe $MOD_NAME is enabled by user manually"
-            rm -f "$BRICKED_STATUS" && logowl "Reset brick status"
+            rm -f "$BRICKED_STATE" && logowl "Reset brick state"
             logowl "$MOD_NAME will keep going"
             return 0
         else
@@ -87,21 +85,21 @@ config_loader() {
 
     logowl "Load configuration"
 
-    brick_rescue=$(init_variables "brick_rescue" "$CONFIG_FILE")
-    disable_module_as_brick=$(init_variables "disable_module_as_brick" "$CONFIG_FILE")
-    last_worked_target_list=$(init_variables "last_worked_target_list" "$CONFIG_FILE")
-    slay_mode=$(init_variables "slay_mode" "$CONFIG_FILE")
-    mb_umount_bind=$(init_variables "mb_umount_bind" "$CONFIG_FILE")
-    system_app_paths=$(init_variables "system_app_paths" "$CONFIG_FILE")
-    auto_update_target_list=$(init_variables "auto_update_target_list" "$CONFIG_FILE")
+    brick_rescue=$(get_config_var "brick_rescue" "$CONFIG_FILE")
+    disable_module_as_brick=$(get_config_var "disable_module_as_brick" "$CONFIG_FILE")
+    last_worked_target_list=$(get_config_var "last_worked_target_list" "$CONFIG_FILE")
+    slay_mode=$(get_config_var "slay_mode" "$CONFIG_FILE")
+    mb_umount_bind=$(get_config_var "mb_umount_bind" "$CONFIG_FILE")
+    system_app_paths=$(get_config_var "system_app_paths" "$CONFIG_FILE")
+    auto_update_target_list=$(get_config_var "auto_update_target_list" "$CONFIG_FILE")
 
-    verify_variables "brick_rescue" "$brick_rescue" "^(true|false)$"
-    verify_variables "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
-    verify_variables "last_worked_target_list" "$last_worked_target_list" "^(true|false)$"
-    verify_variables "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
-    verify_variables "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
-    verify_variables "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
-    verify_variables "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
+    verify_var "brick_rescue" "$brick_rescue" "^(true|false)$"
+    verify_var "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
+    verify_var "last_worked_target_list" "$last_worked_target_list" "^(true|false)$"
+    verify_var "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
+    verify_var "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
+    verify_var "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
+    verify_var "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
 
 }
 
@@ -109,32 +107,20 @@ preparation() {
 
     logowl "Some preparatory work"
 
-    if [ -d "$MIRROR_DIR" ] && [ "$MIRROR_DIR" != "/" ]; then
-        logowl "Remove old mirror folder"
-        rm -rf "$MIRROR_DIR"
-    fi
-    if [ -d "$EMPTY_DIR" ] && [ "$EMPTY_DIR" != "/" ]; then
-        logowl "Remove old bind folder"
-        rm -rf "$EMPTY_DIR"
-    fi
+    [ -d "$MIRROR_DIR" ] && [ "$MIRROR_DIR" != "/" ] && rm -rf "$MIRROR_DIR" && logowl "Remove old mirror folder"
 
-
+    logowl "$MOD_NAME is running on $ROOT_SOL"
     if [ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ]; then
-        logowl "$MOD_NAME is running on $ROOT_SOL"
         logowl "Make Node mode support is present"
         MN_SUPPORT=true
         MR_SUPPORT=false
         [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
-
     elif [ "$DETECT_MAGISK" = true ]; then
         if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
-            logowl "$MOD_NAME is running on Magisk 28102+"
             logowl "Make Node mode support is present"
             MN_SUPPORT=true
         else
-            logowl "$MOD_NAME is running on $ROOT_SOL"
-            logowl "Make Node mode requires Magisk version 28102+!" "WARN"
-            logowl "$MOD_NAME will revert to Magisk Replace mode"
+            logowl "Make Node mode support is NOT present" "WARN"
             MN_SUPPORT=false
             [ "$SLAY_MODE" = "MN" ] && SLAY_MODE="MR"
         fi
@@ -149,31 +135,22 @@ preparation() {
     fi
 
     case "$SLAY_MODE" in
-        MB)
-            SLAY_MODE_DESC="Mount Bind"
-            logowl "Create $EMPTY_DIR"
-            mkdir -p "$EMPTY_DIR"
+        MB) SLAY_MODE_DESC="Mount Bind"
             ;;
-        MN|MR)
-            if [ "$SLAY_MODE" = "MN" ]; then
-                SLAY_MODE_DESC="Make Node"
-            elif [ "$SLAY_MODE" = "MR" ]; then
-                SLAY_MODE_DESC="Magisk Replace"
-            fi
-            logowl "Create $MIRROR_DIR"
-            mkdir -p "$MIRROR_DIR"
+        MN) SLAY_MODE_DESC="Make Node"
+            ;;
+        MR) SLAY_MODE_DESC="Magisk Replace"
             ;;
     esac
-    logowl "Current mode: $SLAY_MODE ($SLAY_MODE_DESC)"
 
-    if [ "$MN_SUPPORT" = true ]; then
-        [ ! -e "$MIRROR_DIR" ] && mkdir -p "$MIRROR_DIR"
-    fi
+    mkdir -p "$MIRROR_DIR"
+    logowl "Create $MIRROR_DIR"
+    logowl "Current mode: $SLAY_MODE ($SLAY_MODE_DESC)"
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
         DESCRIPTION="[❌No effect. Target list does NOT exist! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
-        update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
+        update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
         return 1
     fi
 
@@ -258,18 +235,19 @@ mirror_magisk_replace() {
 link_mount_bind() {
 
     link_path=$1
+    target_path=$2
 
-    if [ -z "$link_path" ]; then
-        logowl "link_path is NOT ordered! (5)" "ERROR"
+    if [ -z "$link_path" ] || [ -z "$target_path" ]; then
+        logowl "Link path or target path is NOT ordered! (5)" "ERROR"
         return 5
-    elif [ ! -d "$link_path" ]; then
-        logowl "$link_path is NOT a dir! (6)" "ERROR"
+    elif [ ! -d "$link_path" ] || [ ! -d "$target_path" ]; then
+        logowl "$link_path or $target_path is NOT a dir! (6)" "ERROR"
         return 6
     fi
 
-    mount -o bind "$EMPTY_DIR" "$app_path"
+    mount -o bind "$link_path" "$target_path"
     result_mount_bind="$?"
-    logowl "Execute: mount -o bind $EMPTY_DIR $app_path"
+    logowl "Execute: mount -o bind $link_path $target_path"
     if [ $result_mount_bind -eq 0 ]; then
         return 0
     else
@@ -355,7 +333,7 @@ bloatware_slayer() {
             if [ -d "$app_path" ]; then
                 logowl "Process path: $app_path"
                 if [ "$SLAY_MODE" = "MB" ]; then
-                    link_mount_bind "$app_path"
+                    link_mount_bind "$MIRROR_DIR" "$app_path"
                 elif [ "$SLAY_MODE" = "MN" ]; then
                     mirror_make_node "$app_path"
                 elif [ "$SLAY_MODE" = "MR" ]; then
@@ -436,16 +414,16 @@ module_status_update() {
                 DESCRIPTION="[❌No effect. Maybe something went wrong? 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             fi
         fi
-        update_config_value "description" "$DESCRIPTION" "$MODULE_PROP"
+        update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
     else
         logowl "module.prop not found, skip updating" "WARN"
     fi
 
 }
 
-. "$MODDIR/aautilities.sh"
+. "$MODDIR/aa-util.sh"
 
-init_logowl "$LOG_DIR"
+logowl_init "$LOG_DIR"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
