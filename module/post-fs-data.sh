@@ -16,7 +16,7 @@ MODULE_PROP="$MODDIR/module.prop"
 MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
 MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
-MOD_INTRO="A Magisk module to remove bloatware in systemless way."
+MOD_INTRO="Remove bloatware in systemless way."
 MOD_SLOGAN="$MOD_INTRO"
 
 MIRROR_DIR="$MODDIR/system"
