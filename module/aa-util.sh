@@ -170,10 +170,12 @@ logowl() {
 
 print_line() {
 
-    length=${1:-40}
+    length=${1:-45}
+    symbol=${2:--}
 
-    line=$(printf "%-${length}s" | tr ' ' '-')
+    line=$(printf "%-${length}s" | tr ' ' "$symbol")
     logowl "$line" "-"
+
 }
 
 get_config_var() {
@@ -234,12 +236,10 @@ get_config_var() {
 
     awk_exit_state=$?
     case $awk_exit_state in
-        1)  logowl "Key is NOT found or find unclosed quote! ($awk_exit_state)" "ERROR"
-            return 5
+        1)  return 5
             ;;
         0)  ;;
-        *)  logowl "Unexpected error! ($awk_exit_state)" "ERROR"
-            return 6
+        *)  return 6
             ;;
     esac
 
@@ -465,12 +465,40 @@ clean_duplicate_items() {
 
 }
 
-check_before_resetprop() {
+fetch_prop() {
+    prop_name=$1
+    prop_current_value=$(getprop "$prop_name")
 
+    if [ -n "$prop_current_value" ]; then
+        logowl "$prop_name=$prop_current_value"
+        return 0
+    elif [ -z "$prop_current_value" ]; then
+        logowl "$prop_name="
+        return 1
+    fi
+
+}
+
+check_before_resetprop() {
     prop_name=$1
     prop_expect_value=$2
     prop_current_value=$(resetprop "$prop_name")
 
     [ -z "$prop_current_value" ] || [ "$prop_current_value" = "$prop_expect_value" ] || resetprop "$prop_name" "$prop_expect_value"
+
+}
+
+find_keyword_before_resetprop() {
+    prop_name="$1"
+    prop_contains_keyword="$2"
+    prop_expect_value="$3"
+    prop_current_value=$(resetprop "$prop_name")
+
+    [ -z "$prop_current_value" ] || [ -z "$prop_contains_keyword" ] || [ -z "$prop_expect_value" ] && return 1
+    
+    if echo "$prop_current_value" | grep -q "$prop_contains_keyword"; then
+        resetprop "$prop_name" "$prop_expect_value"
+        return 0
+    fi
 
 }
