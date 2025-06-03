@@ -262,6 +262,7 @@ bloatware_slayer() {
 
     TOTAL_APPS_COUNT=0
     BLOCKED_APPS_COUNT=0
+    DUPLICATED_APPS_COUNT=0
     hybrid_mode=false
     lines_count=0
 
@@ -341,9 +342,14 @@ bloatware_slayer() {
                 fi
                 app_process_result=$?
                 if [ $app_process_result -eq 0 ]; then
-                    BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-                    echo "$app_path" >> "$TARGET_LIST_BSA"
-                    logowl "$app_name has been slain" "TIPS"
+                    if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
+                        echo "$app_path" >> "$TARGET_LIST_BSA"
+                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                        logowl "$app_name has been slain" "TIPS"
+                    else
+                        logowl "Detect dulpicate item: $app_name"
+                        DUPLICATED_APPS_COUNT=$((DUPLICATED_APPS_COUNT + 1))
+                    fi
                     break
                 else
                     logowl "Slay $app_name failed (code: $app_process_result)" "WARN"
@@ -355,10 +361,15 @@ bloatware_slayer() {
                     mirror_make_node "$app_path"
                     file_process_result=$?
                     if [ $file_process_result -eq 0 ]; then
-                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                         [ "$SLAY_MODE" != "MN" ] && hybrid_mode=true
-                        echo "$app_path" >> "$TARGET_LIST_BSA"
-                        logowl "$app_name has been slain" "TIPS"
+                        if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
+                            echo "$app_path" >> "$TARGET_LIST_BSA"
+                            BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                            logowl "$app_name has been slain" "TIPS"
+                        else
+                            logowl "Detect dulpicate item: $app_name"
+                            DUPLICATED_APPS_COUNT=$((DUPLICATED_APPS_COUNT + 1))
+                        fi
                         break
                     else
                         logowl "Slay $app_name failed (code: $file_process_result)" "WARN"
@@ -389,8 +400,9 @@ bloatware_slayer() {
 
 module_status_update() {
 
-    APP_NOT_FOUND=$((TOTAL_APPS_COUNT - BLOCKED_APPS_COUNT))
+    APP_NOT_FOUND=$((TOTAL_APPS_COUNT - BLOCKED_APPS_COUNT - DUPLICATED_APPS_COUNT))
     logowl "$TOTAL_APPS_COUNT APP(s) in total"
+    logowl "$DUPLICATED_APPS_COUNT item(s) dulpicated"
     logowl "$BLOCKED_APPS_COUNT APP(s) has been slain"
     logowl "$APP_NOT_FOUND APP(s) not found"
 
@@ -402,7 +414,7 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Done${desc_rescue_from_last_worked}. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
+                DESCRIPTION="[✅Done${desc_rescue_from_last_worked}. $BLOCKED_APPS_COUNT APP(s) slain, $DUPLICATED_APPS_COUNT APP(s) duplicated, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
             if [ $APP_NOT_FOUND -eq 0 ]; then
                 DESCRIPTION="[✅All Done${desc_rescue_from_last_worked}. $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
             fi
