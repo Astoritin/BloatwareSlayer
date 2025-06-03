@@ -1,8 +1,6 @@
 ## Bloatware Slayer / 干掉预装软件
 A Magisk module to remove bloatware in systemless way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
-### Changelog / 变更日志
-
 ### 1.4.0
 
 - Bloatware Slayer will recognize and show duplicate items information properly on module description
