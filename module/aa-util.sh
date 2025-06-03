@@ -452,6 +452,18 @@ set_permission_recursive() {
 
 }
 
+check_duplicate_items() {
+
+    itemd=$1
+    filed=$2
+
+    if grep -q "^$itemd$" "$filed"; then
+        return 1
+    else
+        return 0
+    fi
+}
+
 clean_duplicate_items() {
 
     filed=$1
