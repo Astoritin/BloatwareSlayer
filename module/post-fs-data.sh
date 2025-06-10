@@ -1,23 +1,26 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
+. "$MODDIR/aa-util.sh"
+
 CONFIG_DIR="/data/adb/bloatwareslayer"
 
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
-BRICKED_STATE="$CONFIG_DIR/bricked"
-TARGET_LIST="$CONFIG_DIR/target.conf"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_core_$(date +"%Y%m%dT%H%M%S").log"
 
+BRICKED_STATE="$CONFIG_DIR/bricked"
+
+TARGET_LIST="$CONFIG_DIR/target.conf"
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 TARGET_LIST_LW="$LOG_DIR/target_lw.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
-MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
-MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
-MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
+MOD_NAME="$(grep_config_var "name" "$MODULE_PROP")"
+MOD_AUTHOR="$(grep_config_var "author" "$MODULE_PROP")"
+MOD_VER="$(grep_config_var "version" "$MODULE_PROP") ($(grep_config_var "versionCode" "$MODULE_PROP"))"
 MOD_INTRO="Remove bloatware in systemless way."
-MOD_SLOGAN="$MOD_INTRO"
+MOD_SLOGAN="勝った、勝った、また勝ったぁーっと！！🎉✨"
 
 MIRROR_DIR="$MODDIR/system"
 
@@ -26,7 +29,6 @@ MR_SUPPORT=false
 
 BRICK_RESCUE=true
 DISABLE_MODULE_AS_BRICK=true
-AUTO_UPDATE_TARGET_LIST=true
 LAST_WORKED_TARGET_LIST=true
 
 SLAY_MODE=MB
@@ -91,7 +93,6 @@ config_loader() {
     slay_mode=$(get_config_var "slay_mode" "$CONFIG_FILE")
     mb_umount_bind=$(get_config_var "mb_umount_bind" "$CONFIG_FILE")
     system_app_paths=$(get_config_var "system_app_paths" "$CONFIG_FILE")
-    auto_update_target_list=$(get_config_var "auto_update_target_list" "$CONFIG_FILE")
 
     verify_var "brick_rescue" "$brick_rescue" "^(true|false)$"
     verify_var "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
@@ -99,7 +100,6 @@ config_loader() {
     verify_var "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
     verify_var "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
     verify_var "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
-    verify_var "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
 
 }
 
@@ -111,20 +111,20 @@ preparation() {
 
     logowl "$MOD_NAME is running on $ROOT_SOL"
     if [ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ]; then
-        logowl "Make Node mode support is present"
+        logowl "Make Node support is present"
         MN_SUPPORT=true
         MR_SUPPORT=false
         [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
     elif [ "$DETECT_MAGISK" = true ]; then
         if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
-            logowl "Make Node mode support is present"
+            logowl "Make Node support is present"
             MN_SUPPORT=true
         else
-            logowl "Make Node mode support is NOT present" "WARN"
+            logowl "Make Node support is NOT present" "WARN"
             MN_SUPPORT=false
             [ "$SLAY_MODE" = "MN" ] && SLAY_MODE="MR"
         fi
-        logowl "Magisk Replace mode support is present"
+        logowl "Magisk Replace support is present"
         MR_SUPPORT=true
     fi
 
@@ -304,11 +304,15 @@ bloatware_slayer() {
             if [ "$first_char" = "/" ]; then
                 app_path="$package"
                 case "$app_path" in
-                    /system/apex*)
+                    /apex*|/system/apex*)
                         case "$app_path" in
                         *.apex|*.capex)
                             ;;
                         *)
+                            if [ "${app_path#/apex}" != "$app_path" ]; then
+                                logowl "Redirect $app_path → /system$app_path"
+                                app_path="/system$app_path"
+                            fi
                             app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
                             if [ -f "$app_path.apex" ]; then
                                 app_path="$app_path.apex"
@@ -320,7 +324,12 @@ bloatware_slayer() {
                             ;;
                         esac
                         ;;
+                    /app*|/product*|/priv-app*|/system_ext*|/vendor*)
+                        logowl "Redirect $app_path → /system$app_path"
+                        app_path="/system$app_path"
+                        ;;
                     /system*)
+                        [ "$app_path" = "/system" ] && logowl "Process /system is prohibited!" "ERROR" && break
                         ;;
                     *)
                         break
@@ -389,13 +398,6 @@ bloatware_slayer() {
     logowl "Clean duplicate items"
     clean_duplicate_items "$TARGET_LIST_BSA"
 
-    if [ "$AUTO_UPDATE_TARGET_LIST" = true ] && [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-        logowl "Update target list"
-        cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
-    elif [ $BLOCKED_APPS_COUNT -eq 0 ]; then
-        logowl "No App has been slain, skip updating target list"
-    fi
-
 }
 
 module_status_update() {
@@ -432,8 +434,6 @@ module_status_update() {
     fi
 
 }
-
-. "$MODDIR/aa-util.sh"
 
 logowl_init "$LOG_DIR"
 module_intro >> "$LOG_FILE"
