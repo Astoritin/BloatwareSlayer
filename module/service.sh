@@ -1,29 +1,34 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
+. "$MODDIR/aa-util.sh"
+
 CONFIG_DIR="/data/adb/bloatwareslayer"
 
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
-BRICKED_STATE="$CONFIG_DIR/bricked"
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_brickd_$(date +"%Y%m%dT%H%M%S").log"
 
+BRICKED_STATE="$CONFIG_DIR/bricked"
+
+TARGET_LIST="$CONFIG_DIR/target.conf"
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 TARGET_LIST_LW="$LOG_DIR/target_lw.conf"
 
 MODULE_PROP="$MODDIR/module.prop"
-MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
-MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
-MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
+MOD_NAME="$(grep_config_var "name" "$MODULE_PROP")"
+MOD_AUTHOR="$(grep_config_var "author" "$MODULE_PROP")"
+MOD_VER="$(grep_config_var "version" "$MODULE_PROP") ($(grep_config_var "versionCode" "$MODULE_PROP"))"
 MOD_INTRO="Remove bloatware in systemless way."
 
-MOD_DESC_OLD="$(sed -n 's/^description=\(.*\)/\1/p' "$MODULE_PROP")"
+MOD_DESC_OLD="$(grep_config_var "description" "$MODULE_PROP")"
 MOD_ROOT_DIR=$(dirname "$MODDIR")
 MOD_ZYGISKSU_PATH="${MOD_ROOT_DIR}/zygisksu"
 
 BRICK_RESCUE=true
 DISABLE_MODULE_AS_BRICK=true
-BRICK_TIMEOUT=180
+AUTO_UPDATE_TARGET_LIST=true
+BRICK_TIMEOUT=300
 LAST_WORKED_TARGET_LIST=true
 
 SLAY_MODE=MB
@@ -41,6 +46,7 @@ config_loader() {
     last_worked_target_list=$(get_config_var "last_worked_target_list" "$CONFIG_FILE")
     slay_mode=$(get_config_var "slay_mode" "$CONFIG_FILE")
     mb_umount_bind=$(get_config_var "mb_umount_bind" "$CONFIG_FILE")
+    auto_update_target_list=$(get_config_var "auto_update_target_list" "$CONFIG_FILE")
     update_desc_on_action=$(get_config_var "update_desc_on_action" "$CONFIG_FILE")
 
     verify_var "brick_rescue" "$brick_rescue" "^(true|false)$"
@@ -49,6 +55,7 @@ config_loader() {
     verify_var "last_worked_target_list" "$last_worked_target_list" "^(true|false)$"
     verify_var "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
     verify_var "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
+    verify_var "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
     verify_var "update_desc_on_action" "$update_desc_on_action" "^(true|false)$"
 
 }
@@ -124,8 +131,6 @@ denylist_enforcing_status_update() {
 
 }
 
-. "$MODDIR/aa-util.sh"
-
 logowl_init "$LOG_DIR"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
@@ -133,11 +138,17 @@ print_line
 logowl "Start service.sh"
 config_loader
 print_line
+
 [ "$UPDATE_DESC_ON_ACTION" = true ] && denylist_enforcing_status_update
+
+if [ "$AUTO_UPDATE_TARGET_LIST" = true ]; then
+    logowl "Update target list"
+    cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
+fi
 
 {    
 
-    logowl "Current booting timeout: $BRICK_TIMEOUT s"
+    logowl "Current boot timeout: $BRICK_TIMEOUT s"
     while [ "$(getprop sys.boot_completed)" != "1" ]; do
 
         if [ "$BRICK_RESCUE" = false ]; then
@@ -173,9 +184,15 @@ print_line
         sleep 1
     done
 
-    logowl "Boot complete! Countdown: $BRICK_TIMEOUTs"
-    rm -f "$BRICKED_STATE" && logowl "Bricked state reset"
-    [ "$LAST_WORKED_TARGET_LIST" = true ] && cp "$TARGET_LIST_BSA" "$TARGET_LIST_LW" && logowl "Copy last worked target list file"
+    logowl "Boot complete! Countdown: ${BRICK_TIMEOUT}s"
+    rm -f "$BRICKED_STATE"
+    logowl "Bricked state reset"
+    
+    if [ "$LAST_WORKED_TARGET_LIST" = true ]; then
+        cp "$TARGET_LIST_BSA" "$TARGET_LIST_LW"
+        logowl "Copy last worked target list file"
+    fi
+    
     print_line
 
     if [ "$SLAY_MODE" = "MB" ] && [ "$MB_UMOUNT_BIND" = true ]; then
@@ -224,6 +241,10 @@ print_line
             done < "$TARGET_LIST_BSA"
         fi
     fi
+
+    rm -f "$TARGET_LIST_BSA"
+    logowl "Clean up temporary file"
+
     print_line
     logowl "service.sh case closed!"
     
