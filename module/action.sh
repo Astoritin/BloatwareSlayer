@@ -8,9 +8,9 @@ LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_action_$(date +"%Y%m%dT%H%M%S").log"
 
 MODULE_PROP="$MODDIR/module.prop"
-MOD_NAME="$(sed -n 's/^name=\(.*\)/\1/p' "$MODULE_PROP")"
-MOD_AUTHOR="$(sed -n 's/^author=\(.*\)/\1/p' "$MODULE_PROP")"
-MOD_VER="$(sed -n 's/^version=\(.*\)/\1/p' "$MODULE_PROP") ($(sed -n 's/^versionCode=\(.*\)/\1/p' "$MODULE_PROP"))"
+MOD_NAME="$(grep_config_var "name" "$MODULE_PROP")"
+MOD_AUTHOR="$(grep_config_var "author" "$MODULE_PROP")"
+MOD_VER="$(grep_config_var "version" "$MODULE_PROP") ($(grep_config_var "versionCode" "$MODULE_PROP"))"
 
 ROOT_FILE_MANAGERS="
 com.speedsoftware.rootexplorer/com.speedsoftware.rootexplorer.RootExplorer
