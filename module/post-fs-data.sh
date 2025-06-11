@@ -15,10 +15,6 @@ TARGET_LIST="$CONFIG_DIR/target.conf"
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 TARGET_LIST_LW="$LOG_DIR/target_lw.conf"
 
-MODULE_PROP="$MODDIR/module.prop"
-MOD_NAME="$(grep_config_var "name" "$MODULE_PROP")"
-MOD_AUTHOR="$(grep_config_var "author" "$MODULE_PROP")"
-MOD_VER="$(grep_config_var "version" "$MODULE_PROP") ($(grep_config_var "versionCode" "$MODULE_PROP"))"
 MOD_INTRO="Remove bloatware in systemless way."
 MOD_SLOGAN="勝った、勝った、また勝ったぁーっと！！🎉✨"
 
@@ -310,7 +306,7 @@ bloatware_slayer() {
                             ;;
                         *)
                             if [ "${app_path#/apex}" != "$app_path" ]; then
-                                logowl "Redirect $app_path → /system$app_path"
+                                logowl "Redirect $app_path -> /system$app_path" "*"
                                 app_path="/system$app_path"
                             fi
                             app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
@@ -324,8 +320,8 @@ bloatware_slayer() {
                             ;;
                         esac
                         ;;
-                    /app*|/product*|/priv-app*|/system_ext*|/vendor*)
-                        logowl "Redirect $app_path → /system$app_path"
+                    /app*|/product*|/priv-app*|/system_ext*|/vendor*|/data-app*)
+                        logowl "Redirect: $app_path -> /system$app_path" "*"
                         app_path="/system$app_path"
                         ;;
                     /system*)
@@ -412,7 +408,7 @@ module_status_update() {
 
     desc_rescue_from_last_worked=""
 
-    [ "$rescue_from_last_worked_target_list" = true ] && desc_rescue_from_last_worked=" (switch to last worked target list from brick)"
+    [ "$rescue_from_last_worked_target_list" = true ] && desc_rescue_from_last_worked=" (Last worked target list)"
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
