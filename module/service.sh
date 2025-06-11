@@ -7,7 +7,7 @@ CONFIG_DIR="/data/adb/bloatwareslayer"
 
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 LOG_DIR="$CONFIG_DIR/logs"
-LOG_FILE="$LOG_DIR/bs_brickd_$(date +"%Y%m%dT%H%M%S").log"
+LOG_FILE="$LOG_DIR/bs_core_$(date +"%Y%m%dT%H%M%S").log"
 
 BRICKED_STATE="$CONFIG_DIR/bricked"
 
@@ -16,113 +16,417 @@ TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 TARGET_LIST_LW="$LOG_DIR/target_lw.conf"
 
 MOD_INTRO="Remove bloatware in systemless way."
+MOD_SLOGAN="勝った、勝った、また勝ったぁーっと！！🎉✨"
 
-MOD_DESC_OLD="$(grep_config_var "description" "$MODULE_PROP")"
-MOD_ROOT_DIR=$(dirname "$MODDIR")
-MOD_ZYGISKSU_PATH="${MOD_ROOT_DIR}/zygisksu"
+MIRROR_DIR="$MODDIR/system"
+
+MN_SUPPORT=false
+MR_SUPPORT=false
 
 BRICK_RESCUE=true
 DISABLE_MODULE_AS_BRICK=true
-AUTO_UPDATE_TARGET_LIST=true
-BRICK_TIMEOUT=300
 LAST_WORKED_TARGET_LIST=true
 
 SLAY_MODE=MB
 MB_UMOUNT_BIND=true
 
-UPDATE_DESC_ON_ACTION=false
+SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
+
+brick_rescue() {
+
+    if [ "$BRICK_RESCUE" = false ]; then
+        logowl "Detect flag BRICK_RESCUE=false" "WARN"
+        logowl "$MOD_NAME will skip brick rescue process"
+        return 1
+    fi
+
+    logowl "Check brick state"
+    rescue_from_last_worked_target_list=false
+
+    if [ -f "$BRICKED_STATE" ]; then
+        logowl "Detect flag bricked!" "FATAL"
+        if [ "$DISABLE_MODULE_AS_BRICK" = false ] && [ "$LAST_WORKED_TARGET_LIST" = true ]; then
+            logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
+            logowl "Detect flag LAST_WORKED_TARGET_LIST=true"
+            if [ -f "$TARGET_LIST_LW" ]; then
+                cp "$TARGET_LIST_LW" "$TARGET_LIST" && logowl "Attempt to use last worked target list"
+                rm -f "$TARGET_LIST_LW" && logowl "Reset last worked target list state"
+                rm -f "$BRICKED_STATE" && logowl "Reset brick state"
+                rm -f "$MODDIR/disable" && logowl "Enable $MOD_NAME again"
+                logowl "$MOD_NAME will keep going"
+                rescue_from_last_worked_target_list=true
+                return 0
+            else
+                logowl "Last worked target list file does NOT exist!" "WARN"
+            fi
+        fi
+
+        if [ "$DISABLE_MODULE_AS_BRICK" = true ] && [ ! -f "$MODDIR/disable" ]; then
+            logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
+            logowl "But $MOD_NAME has NOT been disabled"
+            logowl "Maybe $MOD_NAME is enabled by user manually"
+            rm -f "$BRICKED_STATE" && logowl "Reset brick state"
+            logowl "$MOD_NAME will keep going"
+            return 0
+        else
+            logowl "Start brick rescue"
+            logowl "Skip executing post-fs-data.sh"
+            exit 1
+        fi
+    else
+        logowl "Flag bricked does NOT exist"
+        logowl "$MOD_NAME will keep going"
+    fi
+}
 
 config_loader() {
 
     logowl "Load configuration"
 
     brick_rescue=$(get_config_var "brick_rescue" "$CONFIG_FILE")
-    brick_timeout=$(get_config_var "brick_timeout" "$CONFIG_FILE")
     disable_module_as_brick=$(get_config_var "disable_module_as_brick" "$CONFIG_FILE")
     last_worked_target_list=$(get_config_var "last_worked_target_list" "$CONFIG_FILE")
     slay_mode=$(get_config_var "slay_mode" "$CONFIG_FILE")
     mb_umount_bind=$(get_config_var "mb_umount_bind" "$CONFIG_FILE")
-    auto_update_target_list=$(get_config_var "auto_update_target_list" "$CONFIG_FILE")
-    update_desc_on_action=$(get_config_var "update_desc_on_action" "$CONFIG_FILE")
+    system_app_paths=$(get_config_var "system_app_paths" "$CONFIG_FILE")
 
     verify_var "brick_rescue" "$brick_rescue" "^(true|false)$"
-    verify_var "brick_timeout" "$brick_timeout" "^[1-9][0-9]*$"
     verify_var "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
     verify_var "last_worked_target_list" "$last_worked_target_list" "^(true|false)$"
     verify_var "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
     verify_var "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
-    verify_var "auto_update_target_list" "$auto_update_target_list" "^(true|false)$"
-    verify_var "update_desc_on_action" "$update_desc_on_action" "^(true|false)$"
+    verify_var "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
 
 }
 
-magisk_enforce_denylist_status() {
+preparation() {
 
-    if is_magisk; then
-        MAGISK_DE_STATUS=$(magisk --sqlite "SELECT value FROM settings WHERE key='denylist';" | sed 's/^.*=\([01]\)$/\1/')
-        if [ -n "$MAGISK_DE_STATUS" ]; then
-            if [ "$MAGISK_DE_STATUS" = "1" ]; then
-                MAGISK_DE_DESC="ON (Magisk)"
-            elif [ "$MAGISK_DE_STATUS" = "0" ]; then
-                MAGISK_DE_DESC="OFF (Magisk)"
-            fi
-        fi
-    else
-        return 1
-    fi
+    logowl "Some preparatory work"
 
-}
+    [ -d "$MIRROR_DIR" ] && [ "$MIRROR_DIR" != "/" ] && rm -rf "$MIRROR_DIR" && logowl "Remove old mirror folder"
 
-zygisksu_enforce_denylist_status() {
-
-    if [ -d "$MOD_ZYGISKSU_PATH" ]; then
-        ZYGISKSU_DE_STATUS=$(znctl status | grep "enforce_denylist" | sed 's/^.*:\([01]\)$/\1/')
-        if [ -n "$ZYGISKSU_DE_STATUS" ]; then
-            if [ "$ZYGISKSU_DE_STATUS" = "1" ]; then
-                ZYGISKSU_DE_DESC="ON (Zygisk Next)"
-            elif [ "$ZYGISKSU_DE_STATUS" = "0" ]; then
-                ZYGISKSU_DE_DESC="OFF (Zygisk Next)"
-            fi
-        fi
-    else
-        return 1
-    fi
-
-}
-
-enforce_denylist_desc() {
-
-    if [ -n "$ZYGISKSU_DE_DESC" ] && [ -n "$MAGISK_DE_DESC" ]; then
-        ROOT_SOL_DE="${MAGISK_DE_DESC}, ${ZYGISKSU_DE_DESC}"
-    elif [ -n "$ZYGISKSU_DE_DESC" ]; then
-        ROOT_SOL_DE="${ZYGISKSU_DE_DESC}"
-    elif [ -n "$MAGISK_DE_DESC" ]; then
-        ROOT_SOL_DE="${MAGISK_DE_DESC}"
-    else
-        ROOT_SOL_DE=""
-    fi
-
-}
-
-denylist_enforcing_status_update() {
-
-    MOD_DESC_DE_OLD="$1"
-
-    magisk_enforce_denylist_status
-    zygisksu_enforce_denylist_status
-    enforce_denylist_desc
-
-    if [ -n "$ROOT_SOL_DE" ]; then
-
-        [ -z "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_OLD"
-        [ -n "$MOD_DESC_DE_OLD" ] && MOD_DESC_TMP="$MOD_DESC_DE_OLD"
-
-        if echo "$MOD_DESC_TMP" | grep -q "🚫Enforce DenyList: "; then
-            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E "s/(🚫Enforce DenyList: )[^]]*/\1${ROOT_SOL_DE}/")
+    logowl "$MOD_NAME is running on $ROOT_SOL"
+    if [ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ]; then
+        logowl "Make Node support is present"
+        MN_SUPPORT=true
+        MR_SUPPORT=false
+        [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
+    elif [ "$DETECT_MAGISK" = true ]; then
+        if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
+            logowl "Make Node support is present"
+            MN_SUPPORT=true
         else
-            MOD_DESC_NEW=$(echo "$MOD_DESC_TMP" | sed -E 's/\]/, 🚫Enforce DenyList: '"${ROOT_SOL_DE}"'\]/')
+            logowl "Make Node support is NOT present" "WARN"
+            MN_SUPPORT=false
+            [ "$SLAY_MODE" = "MN" ] && SLAY_MODE="MR"
         fi
-        update_config_var "description" "$MOD_DESC_NEW" "$MODULE_PROP"
+        logowl "Magisk Replace support is present"
+        MR_SUPPORT=true
+    fi
+
+    if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
+        logowl "Detect multiple root solutions!" "WARN"
+        logowl "$MOD_NAME will revert to mount bind mode for multiple root solutions"
+        SLAY_MODE="MB"
+    fi
+
+    case "$SLAY_MODE" in
+        MB) SLAY_MODE_DESC="Mount Bind"
+            ;;
+        MN) SLAY_MODE_DESC="Make Node"
+            ;;
+        MR) SLAY_MODE_DESC="Magisk Replace"
+            ;;
+    esac
+
+    mkdir -p "$MIRROR_DIR"
+    logowl "Create $MIRROR_DIR"
+    logowl "Current mode: $SLAY_MODE ($SLAY_MODE_DESC)"
+
+    if [ ! -f "$TARGET_LIST" ]; then
+        logowl "Target list does NOT exist!" "FATAL"
+        DESCRIPTION="[❌No effect. Target list does NOT exist! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+        update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
+        return 1
+    fi
+
+    touch "$TARGET_LIST_BSA"
+    echo -e "# Target List $MOD_NAME Arranged\n# Version: $MOD_VER\n" > "$TARGET_LIST_BSA"
+
+}
+
+mirror_make_node() {
+
+    node_path=$1
+
+    if [ -z "$node_path" ]; then
+        logowl "node_path is NOT ordered! (5)" "ERROR"
+        return 5
+    elif [ ! -e "$node_path" ]; then
+        logowl "$node_path does NOT exist! (6)" "ERROR"
+        return 6
+    fi
+
+    node_path_parent_dir=$(dirname "$node_path")
+    mirror_parent_dir="$MODDIR$node_path_parent_dir"
+    mirror_node_path="$MODDIR$node_path"
+
+    if [ ! -d "$mirror_parent_dir" ]; then
+        logowl "Parent dir $mirror_parent_dir does NOT exist"
+        mkdir -p "$mirror_parent_dir"
+        logowl "Create parent dir: $mirror_parent_dir"
+    fi
+
+    if [ ! -e "$mirror_node_path" ]; then
+        logowl "Node $mirror_node_path does NOT exist"
+        mknod "$mirror_node_path" c 0 0
+        result_make_node="$?"
+        logowl "Execute: mknod $mirror_node_path c 0 0"
+        if [ $result_make_node -eq 0 ]; then
+            return 0
+        else
+            return $result_make_node
+        fi
+    else
+        logowl "Node $mirror_node_path exists already"
+        return 0
+    fi
+
+}
+
+mirror_magisk_replace() {
+
+    replace_path=$1
+
+    if [ -z "$replace_path" ]; then
+        logowl "replace_path is NOT ordered! (5)" "ERROR"
+        return 5
+    elif [ ! -d "$replace_path" ]; then
+        logowl "$replace_path is NOT a dir! (6)" "ERROR"
+        return 6
+    fi
+
+    mirror_app_path="$MODDIR$replace_path"
+
+    if [ ! -d "$mirror_app_path" ]; then
+        mkdir -p "$mirror_app_path"
+        logowl "Create mirror path: $mirror_app_path"
+    fi
+
+    if [ ! -e "$mirror_app_path/.replace" ]; then
+        touch "$mirror_app_path/.replace"
+        result_magisk_replace="$?"
+        logowl "Execute: touch $mirror_app_path/.replace"
+        if [ $result_magisk_replace -eq 0 ]; then
+            return 0
+        else
+            return $result_magisk_replace
+        fi
+    else
+        return 0
+    fi
+
+}
+
+link_mount_bind() {
+
+    link_path=$1
+    target_path=$2
+
+    if [ -z "$link_path" ] || [ -z "$target_path" ]; then
+        logowl "Link path or target path is NOT ordered! (5)" "ERROR"
+        return 5
+    elif [ ! -d "$link_path" ] || [ ! -d "$target_path" ]; then
+        logowl "$link_path or $target_path is NOT a dir! (6)" "ERROR"
+        return 6
+    fi
+
+    mount -o bind "$link_path" "$target_path"
+    result_mount_bind="$?"
+    logowl "Execute: mount -o bind $link_path $target_path"
+    if [ $result_mount_bind -eq 0 ]; then
+        return 0
+    else
+        return $result_mount_bind
+    fi
+
+}
+
+bloatware_slayer() {
+
+    logowl "Sniffing out the target"
+
+    TOTAL_APPS_COUNT=0
+    BLOCKED_APPS_COUNT=0
+    DUPLICATED_APPS_COUNT=0
+    hybrid_mode=false
+    lines_count=0
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        lines_count=$((lines_count + 1))
+
+        if ! check_value_safety "line $lines_count" "$line"; then
+            continue
+        fi
+
+        line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        first_char=$(printf '%s' "$line" | cut -c1)
+
+        if [ "$first_char" = "#" ]; then
+            logowl "Line $lines_count is comment line, skip processing"
+            continue
+        fi
+
+        package=$(echo "$line" | cut -d '#' -f1)
+        package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+
+        if [ -z "$package" ]; then
+            logowl "Detect only comment left in this line, skip processing"
+            continue
+        fi
+
+        case "$package" in
+            *\\*)
+                logowl "Replace '\\' with '/' in path: $package"
+                package=$(echo "$package" | sed -e 's/\\/\//g')
+                ;;
+        esac
+
+        TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT+1))
+
+        for path in $SYSTEM_APP_PATHS; do
+
+            first_char=$(printf '%s' "$line" | cut -c1)
+            if [ "$first_char" = "/" ]; then
+                app_path="$package"
+                case "$app_path" in
+                    /apex*|/system/apex*)
+                        case "$app_path" in
+                        *.apex|*.capex)
+                            ;;
+                        *)
+                            if [ "${app_path#/apex}" != "$app_path" ]; then
+                                logowl "Redirect $app_path -> /system$app_path" "*"
+                                app_path="/system$app_path"
+                            fi
+                            app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
+                            if [ -f "$app_path.apex" ]; then
+                                app_path="$app_path.apex"
+                            elif [ -f "$app_path.capex" ]; then
+                                app_path="$app_path.capex"
+                            else
+                                break
+                            fi
+                            ;;
+                        esac
+                        ;;
+                    /app*|/product*|/priv-app*|/system_ext*|/vendor*|/data-app*)
+                        logowl "Redirect: $app_path -> /system$app_path" "*"
+                        app_path="/system$app_path"
+                        ;;
+                    /system*)
+                        [ "$app_path" = "/system" ] && logowl "Process /system is prohibited!" "ERROR" && break
+                        ;;
+                    *)
+                        break
+                        ;;
+                esac
+            else
+                app_path="$path/$package"
+            fi
+
+            app_name="$(basename "$app_path")"
+            if [ -d "$app_path" ]; then
+                logowl "Process path: $app_path"
+                if [ "$SLAY_MODE" = "MB" ]; then
+                    link_mount_bind "$MIRROR_DIR" "$app_path"
+                elif [ "$SLAY_MODE" = "MN" ]; then
+                    mirror_make_node "$app_path"
+                elif [ "$SLAY_MODE" = "MR" ]; then
+                    mirror_magisk_replace "$app_path"
+                fi
+                app_process_result=$?
+                if [ $app_process_result -eq 0 ]; then
+                    if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
+                        echo "$app_path" >> "$TARGET_LIST_BSA"
+                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                        logowl "$app_name has been slain" "TIPS"
+                    else
+                        logowl "Detect dulpicate item: $app_name"
+                        DUPLICATED_APPS_COUNT=$((DUPLICATED_APPS_COUNT + 1))
+                    fi
+                    break
+                else
+                    logowl "Slay $app_name failed (code: $app_process_result)" "WARN"
+                fi
+
+            elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
+                logowl "Process path: $app_path"
+                if [ "$SLAY_MODE" = "MN" ] || [ "$MN_SUPPORT" = true ]; then
+                    mirror_make_node "$app_path"
+                    file_process_result=$?
+                    if [ $file_process_result -eq 0 ]; then
+                        [ "$SLAY_MODE" != "MN" ] && hybrid_mode=true
+                        if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
+                            echo "$app_path" >> "$TARGET_LIST_BSA"
+                            BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                            logowl "$app_name has been slain" "TIPS"
+                        else
+                            logowl "Detect dulpicate item: $app_name"
+                            DUPLICATED_APPS_COUNT=$((DUPLICATED_APPS_COUNT + 1))
+                        fi
+                        break
+                    else
+                        logowl "Slay $app_name failed (code: $file_process_result)" "WARN"
+                    fi
+                fi
+            else
+                if [ "$first_char" = "/" ]; then
+                    logowl "Custom dir $app_path NOT found"
+                    break
+                else
+                    logowl "Dir $app_path NOT found"
+                fi
+            fi
+        done
+    done < "$TARGET_LIST"
+
+    logowl "Clean duplicate items"
+    clean_duplicate_items "$TARGET_LIST_BSA"
+
+}
+
+module_status_update() {
+
+    APP_NOT_FOUND=$((TOTAL_APPS_COUNT - BLOCKED_APPS_COUNT - DUPLICATED_APPS_COUNT))
+    logowl "$TOTAL_APPS_COUNT APP(s) in total"
+    logowl "$DUPLICATED_APPS_COUNT item(s) dulpicated"
+    logowl "$BLOCKED_APPS_COUNT APP(s) has been slain"
+    logowl "$APP_NOT_FOUND APP(s) not found"
+
+    [ "$hybrid_mode" = true ] && SLAY_MODE_DESC="Hybrid ($SLAY_MODE_DESC + Make Node)"
+
+    desc_rescue_from_last_worked=""
+
+    [ "$rescue_from_last_worked_target_list" = true ] && desc_rescue_from_last_worked=" (Last worked target list)"
+
+    if [ -f "$MODULE_PROP" ]; then
+        if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
+                DESCRIPTION="[✅Done${desc_rescue_from_last_worked}. $BLOCKED_APPS_COUNT APP(s) slain, $DUPLICATED_APPS_COUNT APP(s) duplicated, $APP_NOT_FOUND APP(s) missing, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
+            if [ $APP_NOT_FOUND -eq 0 ]; then
+                DESCRIPTION="[✅All Done${desc_rescue_from_last_worked}. $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
+            fi
+        else
+            if [ $TOTAL_APPS_COUNT -gt 0 ]; then
+                DESCRIPTION="[✅Standby${desc_rescue_from_last_worked}. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_SLOGAN"
+            else
+                logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "ERROR"
+                DESCRIPTION="[❌No effect. Maybe something went wrong? 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+            fi
+        fi
+        update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
+    else
+        logowl "module.prop not found, skip updating" "WARN"
     fi
 
 }
@@ -131,150 +435,15 @@ logowl_init "$LOG_DIR"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
-logowl "Start service.sh"
+logowl "Start post-fs-data.sh"
+
 config_loader
 print_line
-
-[ "$UPDATE_DESC_ON_ACTION" = true ] && denylist_enforcing_status_update
-
-if [ "$AUTO_UPDATE_TARGET_LIST" = true ]; then
-    logowl "Update target list"
-    cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
-fi
-
-{    
-
-    logowl "Current boot timeout: $BRICK_TIMEOUT s"
-    while [ "$(getprop sys.boot_completed)" != "1" ]; do
-
-        if [ "$BRICK_RESCUE" = false ]; then
-            logowl "Detect flag BRICK_RESCUE=false" "WARN"
-            logowl "$MOD_NAME will NOT take action as brick occurred!" "WARN"
-            break
-        fi
-
-        if [ $BRICK_TIMEOUT -le "0" ]; then
-            print_line
-            logowl "Detect failed to boot after reaching the limit!" "FATAL"
-            logowl "Your device may be bricked by $MOD_NAME!"
-            logowl "Mark state as bricked"
-            touch "$BRICKED_STATE"
-            if [ "$DISABLE_MODULE_AS_BRICK" = true ]; then
-                logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
-                logowl "Disable $MOD_NAME"
-                touch "$MODDIR/disable"
-            else
-                logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
-            fi
-            DESCRIPTION="[❌No effect. Auto disable from brick! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
-            update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
-            logowl "Start reboot process"
-            sync && logowl "Notify for sync"
-            logowl "Execute: setprop sys.powerctl reboot"
-            setprop sys.powerctl reboot
-            sleep 5
-            logowl "Reboot command does NOT take effect, exiting"
-            exit 1
-        fi
-        BRICK_TIMEOUT=$((BRICK_TIMEOUT-1))
-        sleep 1
-    done
-
-    logowl "Boot complete! Countdown: ${BRICK_TIMEOUT}s"
-    rm -f "$BRICKED_STATE"
-    logowl "Bricked state reset"
-    
-    if [ "$LAST_WORKED_TARGET_LIST" = true ]; then
-        cp "$TARGET_LIST_BSA" "$TARGET_LIST_LW"
-        logowl "Copy last worked target list file"
-    fi
-    
-    print_line
-
-    if [ "$SLAY_MODE" = "MB" ] && [ "$MB_UMOUNT_BIND" = true ]; then
-        logowl "$MOD_NAME is running on Mount Bind mode"
-        logowl "Detect flag MB_UMOUNT_BIND=true"
-        logowl "Execute umount process"
-        if [ ! -f "$TARGET_LIST_BSA" ]; then
-            logowl "Invalid Target List ($MOD_NAME arranged) file!" "ERROR"
-        else
-            lines_count=0
-
-            while IFS= read -r line || [ -n "$line" ]; do
-                lines_count=$((lines_count + 1))
-
-                if ! check_value_safety "line $lines_count" "$line"; then
-                    continue
-                fi
-
-                line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-                first_char=$(printf '%s' "$line" | cut -c1)
-
-                [ -z "$line" ] && continue
-                [ "$first_char" = "#" ] && continue
-
-                package=$(echo "$line" | cut -d '#' -f1)
-                package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-                
-                [ -z "$package" ] && continue
-                
-                case "$package" in
-                    *\\*)
-                        package=$(echo "$package" | sed -e 's/\\/\//g')
-                        ;;
-                esac
-                logowl "Process path: $package"
-                umount -f $package
-                result_umount=$?
-                logowl "Execute: umount -f $package"
-                app_name="$(basename "$package")"
-                if [ $result_umount -eq 0 ]; then
-                    logowl "Spot $app_name has been unmounted" "TIPS"
-                else
-                    logowl "Failed to unmount spot $app_name ($result_umount)" "TIPS"
-                fi
-
-            done < "$TARGET_LIST_BSA"
-        fi
-    fi
-
-    rm -f "$TARGET_LIST_BSA"
-    logowl "Clean up temporary file"
-
-    print_line
-    logowl "service.sh case closed!"
-    
-    MOD_REAL_TIME_DESC=""
-    while true; do
-        if [ "$UPDATE_DESC_ON_ACTION" = false ]; then
-            print_line
-            logowl "Detect flag UPDATE_DESC_ON_ACTION=false"
-            logowl "Exit background task"
-            exit 0
-        fi
-        if [ -f "$MODDIR/update" ]; then
-            MOD_CURRENT_STATE="update"
-        elif [ -f "$MODDIR/remove" ]; then
-            MOD_CURRENT_STATE="remove"
-        elif [ -f "$MODDIR/disable" ]; then
-            MOD_CURRENT_STATE="disable"
-        else
-            MOD_CURRENT_STATE="enable"
-        fi
-
-        if [ "$MOD_CURRENT_STATE" = "update" ]; then
-            logowl "Detect update state"
-            logowl "Exit background task"
-            exit 0
-        elif [ "$MOD_CURRENT_STATE" = "remove" ]; then
-            MOD_REAL_TIME_DESC="[🗑️Reboot to remove. ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
-        elif [ "$MOD_CURRENT_STATE" = "disable" ]; then
-            MOD_REAL_TIME_DESC="[❌OFF or reboot to turn off. ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
-        elif [ "$MOD_CURRENT_STATE" = "enable" ]; then
-            MOD_REAL_TIME_DESC="$MOD_DESC_OLD"
-        fi
-        denylist_enforcing_status_update "$MOD_REAL_TIME_DESC"
-        sleep 5
-    done
-
-} &
+brick_rescue
+preparation
+bloatware_slayer
+module_status_update
+set_permission_recursive "$MODDIR" 0 0 0755 0644
+set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
+print_line
+logowl "post-fs-data.sh case closed!"
