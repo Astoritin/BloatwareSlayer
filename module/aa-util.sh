@@ -70,20 +70,6 @@ install_env_check() {
 
 }
 
-module_intro() {
-
-    install_env_check
-    print_line
-    logowl "$MOD_NAME"
-    logowl "By $MOD_AUTHOR"
-    logowl "Version: $MOD_VER"
-    logowl "Root: $ROOT_SOL_DETAIL"
-    logowl "Timestamp: $(date +"%Y-%m-%d %H:%M:%S")"
-    logowl "Module dir: $MODDIR"
-    print_line
-
-}
-
 logowl_init() {
     LOG_DIR="$1"
 
@@ -120,6 +106,7 @@ logowl() {
         "WARN") LOG_MSG_PREFIX="- Warn: " ;;
         "ERROR") LOG_MSG_PREFIX="! ERROR: " ;;
         "FATAL") LOG_MSG_PREFIX="× FATAL: " ;;
+        "*" ) LOG_MSG_PREFIX="* " ;; 
         " ") LOG_MSG_PREFIX="  " ;;
         "-") LOG_MSG_PREFIX="" ;;
         *) LOG_MSG_PREFIX="- " ;;
@@ -369,6 +356,24 @@ show_system_info() {
 
 }
 
+module_intro() {
+
+    MODULE_PROP="$MODDIR/module.prop"
+    MOD_NAME="$(grep_config_var "name" "$MODULE_PROP")"
+    MOD_AUTHOR="$(grep_config_var "author" "$MODULE_PROP")"
+    MOD_VER="$(grep_config_var "version" "$MODULE_PROP") ($(grep_config_var "versionCode" "$MODULE_PROP"))"
+
+    install_env_check
+    print_line
+    logowl "$MOD_NAME"
+    logowl "By $MOD_AUTHOR"
+    logowl "Version: $MOD_VER"
+    logowl "Root: $ROOT_SOL_DETAIL"
+    logowl "Timestamp: $(date +"%Y-%m-%d %H:%M:%S")"
+    print_line
+
+}
+
 file_compare() {
     file_a="$1"
     file_b="$2"
@@ -413,7 +418,7 @@ extract() {
 
     unzip $opts "$zip" "$file" -d "$dir" >&2
     [ -f "$file_path" ] || abort_verify "$file does NOT exist!"
-    logowl "Extract $file → $file_path" >&1
+    logowl "Extract $file -> $file_path" >&1
 
     unzip $opts "$zip" "$file.sha256" -d "$VERIFY_DIR" >&2
     [ -f "$hash_path" ] || abort_verify "$file.sha256 does NOT exist!"
@@ -490,27 +495,27 @@ fetch_prop() {
 
 }
 
-check_before_resetprop() {
+check_and_resetprop() {
     prop_name=$1
     prop_expect_value=$2
     prop_current_value=$(resetprop "$prop_name")
 
     [ -z "$prop_current_value" ] && return 1
-    [ "$prop_current_value" = "$prop_expect_value" ] && return 0
-    resetprop "$prop_name" "$prop_expect_value" && return 0
+
+    [ "$prop_current_value" = "$prop_expect_value" ] || resetprop "$prop_name" "$prop_expect_value"
 
 }
 
-check_before_removeprop() {
+check_and_removeprop() {
     prop_name=$1
     prop_current_value=$(resetprop "$prop_name")
 
     [ -z "$prop_current_value" ] && return 1
-    resetprop -d $prop_name && return 0
-
+    
+    resetprop -p --delete $prop_name
 }
 
-find_keyword_before_resetprop() {
+match_and_resetprop() {
     prop_name="$1"
     prop_contains_keyword="$2"
     prop_expect_value="$3"
