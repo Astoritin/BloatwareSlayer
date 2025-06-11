@@ -15,10 +15,6 @@ TARGET_LIST="$CONFIG_DIR/target.conf"
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 TARGET_LIST_LW="$LOG_DIR/target_lw.conf"
 
-MODULE_PROP="$MODDIR/module.prop"
-MOD_NAME="$(grep_config_var "name" "$MODULE_PROP")"
-MOD_AUTHOR="$(grep_config_var "author" "$MODULE_PROP")"
-MOD_VER="$(grep_config_var "version" "$MODULE_PROP") ($(grep_config_var "versionCode" "$MODULE_PROP"))"
 MOD_INTRO="Remove bloatware in systemless way."
 
 MOD_DESC_OLD="$(grep_config_var "description" "$MODULE_PROP")"
