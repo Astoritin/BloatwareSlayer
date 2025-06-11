@@ -18,7 +18,9 @@ Bloatware Slayer removes bloatwares in systemless way, using specific mount meth
 ## NOTICE
 1. `target.conf` supports commenting out entire lines with the "#" symbol. Bloatware Slayer will ignore commented lines and empty lines.
 2. Bloatware Slayer supports custom paths, for example: `/system/app/MiVideo`. In this case, Bloatware Slayer will directly process the custom path without scanning other system directories.
-3. Since most modern devices use SAR (System-as-root), the resource directory names you see in AppManager may not start with `/system` (for example, `/product/app/Scanner`). To ensure the mount works, you need to add `/system` manually to the beginning of paths. Otherwise, Bloatware Slayer will ignore them.
+3. ~~Since most modern devices use SAR (System-as-root), the resource directory names you see in AppManager may not start with `/system` (for example, `/product/app/Scanner`). To ensure the mount works, you need to add `/system` manually to the beginning of paths. Otherwise, Bloatware Slayer will ignore them.~~
+> Bloatware Slayer supports adding `/system` to the APP path directly since `1.4.1`, adding `/system` prefix manually is not enforced anymore.
+> If item `/system` exists in `target.conf`, this item will be ignored.
 4. To save the time and reduce the cost of resources, now Bloatware Slayer will update the items of `target.conf` into the system path bloatwares located in automatically in each time booting. You can read the chapter `Config File` to know.
 5. If the resource directory starts with `/data`, it means the app was installed as first booting after the initial of ROM setup. You can uninstall it manually and should NOT add it to `target.conf`, as Bloatware Slayer's processing will not affect such apps.
 
