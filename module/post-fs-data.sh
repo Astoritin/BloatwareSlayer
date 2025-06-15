@@ -18,24 +18,20 @@ TARGET_LIST_LW="$LOG_DIR/target_lw.conf"
 MOD_INTRO="Remove bloatware in systemless way."
 MOD_SLOGAN="勝った、勝った、また勝ったぁーっと！！🎉✨"
 
-MIRROR_DIR="$MODDIR/system"
-
 MN_SUPPORT=false
 MR_SUPPORT=false
+MIRROR_DIR="$MODDIR/system"
 
-BRICK_RESCUE=true
-DISABLE_MODULE_AS_BRICK=true
-LAST_WORKED_TARGET_LIST=true
+brick_rescue=true
+disable_module_as_brick=true
+last_worked_target_list=true
+slay_mode=MB
+system_app_paths="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
 
-SLAY_MODE=MB
-MB_UMOUNT_BIND=true
+brick_rescue_savior() {
 
-SYSTEM_APP_PATHS="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
-
-brick_rescue() {
-
-    if [ "$BRICK_RESCUE" = false ]; then
-        logowl "Detect flag BRICK_RESCUE=false" "WARN"
+    if [ "$brick_rescue" = false ]; then
+        logowl "Detect flag brick_rescue=false" "WARN"
         logowl "$MOD_NAME will skip brick rescue process"
         return 1
     fi
@@ -45,9 +41,9 @@ brick_rescue() {
 
     if [ -f "$BRICKED_STATE" ]; then
         logowl "Detect flag bricked!" "FATAL"
-        if [ "$DISABLE_MODULE_AS_BRICK" = false ] && [ "$LAST_WORKED_TARGET_LIST" = true ]; then
-            logowl "Detect flag DISABLE_MODULE_AS_BRICK=false"
-            logowl "Detect flag LAST_WORKED_TARGET_LIST=true"
+        if [ "$disable_module_as_brick" = false ] && [ "$last_worked_target_list" = true ]; then
+            logowl "Detect flag disable_module_as_brick=false"
+            logowl "Detect flag last_worked_target_list=true"
             if [ -f "$TARGET_LIST_LW" ]; then
                 cp "$TARGET_LIST_LW" "$TARGET_LIST" && logowl "Attempt to use last worked target list"
                 rm -f "$TARGET_LIST_LW" && logowl "Reset last worked target list state"
@@ -61,8 +57,8 @@ brick_rescue() {
             fi
         fi
 
-        if [ "$DISABLE_MODULE_AS_BRICK" = true ] && [ ! -f "$MODDIR/disable" ]; then
-            logowl "Detect flag DISABLE_MODULE_AS_BRICK=true"
+        if [ "$disable_module_as_brick" = true ] && [ ! -f "$MODDIR/disable" ]; then
+            logowl "Detect flag disable_module_as_brick=true"
             logowl "But $MOD_NAME has NOT been disabled"
             logowl "Maybe $MOD_NAME is enabled by user manually"
             rm -f "$BRICKED_STATE" && logowl "Reset brick state"
@@ -81,27 +77,19 @@ brick_rescue() {
 
 config_loader() {
 
-    logowl "Load configuration"
+    logowl "Load config"
 
     brick_rescue=$(get_config_var "brick_rescue" "$CONFIG_FILE")
     disable_module_as_brick=$(get_config_var "disable_module_as_brick" "$CONFIG_FILE")
     last_worked_target_list=$(get_config_var "last_worked_target_list" "$CONFIG_FILE")
     slay_mode=$(get_config_var "slay_mode" "$CONFIG_FILE")
-    mb_umount_bind=$(get_config_var "mb_umount_bind" "$CONFIG_FILE")
     system_app_paths=$(get_config_var "system_app_paths" "$CONFIG_FILE")
-
-    verify_var "brick_rescue" "$brick_rescue" "^(true|false)$"
-    verify_var "disable_module_as_brick" "$disable_module_as_brick" "^(true|false)$"
-    verify_var "last_worked_target_list" "$last_worked_target_list" "^(true|false)$"
-    verify_var "slay_mode" "$slay_mode" "^(MB|MN|MR)$"
-    verify_var "mb_umount_bind" "$mb_umount_bind" "^(true|false)$"
-    verify_var "system_app_paths" "$system_app_paths" "^/system/[^/]+(/[^/]+)*$"
 
 }
 
 preparation() {
 
-    logowl "Some preparatory work"
+    logowl "Some preparation"
 
     [ -d "$MIRROR_DIR" ] && [ "$MIRROR_DIR" != "/" ] && rm -rf "$MIRROR_DIR" && logowl "Remove old mirror folder"
 
@@ -110,7 +98,7 @@ preparation() {
         logowl "Make Node support is present"
         MN_SUPPORT=true
         MR_SUPPORT=false
-        [ "$SLAY_MODE" = "MR" ] && SLAY_MODE=MN
+        [ "$slay_mode" = "MR" ] && slay_mode=MN
     elif [ "$DETECT_MAGISK" = true ]; then
         if [ $MAGISK_V_VER_CODE -ge 28102 ]; then
             logowl "Make Node support is present"
@@ -118,7 +106,7 @@ preparation() {
         else
             logowl "Make Node support is NOT present" "WARN"
             MN_SUPPORT=false
-            [ "$SLAY_MODE" = "MN" ] && SLAY_MODE="MR"
+            [ "$slay_mode" = "MN" ] && slay_mode="MR"
         fi
         logowl "Magisk Replace support is present"
         MR_SUPPORT=true
@@ -127,10 +115,10 @@ preparation() {
     if [ "$ROOT_SOL_COUNT" -gt 1 ]; then
         logowl "Detect multiple root solutions!" "WARN"
         logowl "$MOD_NAME will revert to mount bind mode for multiple root solutions"
-        SLAY_MODE="MB"
+        slay_mode="MB"
     fi
 
-    case "$SLAY_MODE" in
+    case "$slay_mode" in
         MB) SLAY_MODE_DESC="Mount Bind"
             ;;
         MN) SLAY_MODE_DESC="Make Node"
@@ -141,7 +129,7 @@ preparation() {
 
     mkdir -p "$MIRROR_DIR"
     logowl "Create $MIRROR_DIR"
-    logowl "Current mode: $SLAY_MODE ($SLAY_MODE_DESC)"
+    logowl "Current mode: $SLAY_MODE_DESC"
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist!" "FATAL"
@@ -181,7 +169,7 @@ mirror_make_node() {
         logowl "Node $mirror_node_path does NOT exist"
         mknod "$mirror_node_path" c 0 0
         result_make_node="$?"
-        logowl "Execute: mknod $mirror_node_path c 0 0"
+        logowl "mknod $mirror_node_path c 0 0"
         if [ $result_make_node -eq 0 ]; then
             return 0
         else
@@ -216,7 +204,7 @@ mirror_magisk_replace() {
     if [ ! -e "$mirror_app_path/.replace" ]; then
         touch "$mirror_app_path/.replace"
         result_magisk_replace="$?"
-        logowl "Execute: touch $mirror_app_path/.replace"
+        logowl "touch $mirror_app_path/.replace"
         if [ $result_magisk_replace -eq 0 ]; then
             return 0
         else
@@ -243,37 +231,28 @@ link_mount_bind() {
 
     mount -o bind "$link_path" "$target_path"
     result_mount_bind="$?"
-    logowl "Execute: mount -o bind $link_path $target_path"
+    logowl "mount -o bind $link_path $target_path"
     if [ $result_mount_bind -eq 0 ]; then
         return 0
     else
         return $result_mount_bind
     fi
-
 }
 
 bloatware_slayer() {
 
-    logowl "Sniffing out the target"
+    logowl "Slay bloatware"
 
     TOTAL_APPS_COUNT=0
     BLOCKED_APPS_COUNT=0
     DUPLICATED_APPS_COUNT=0
     hybrid_mode=false
-    lines_count=0
 
     while IFS= read -r line || [ -n "$line" ]; do
-        lines_count=$((lines_count + 1))
-
-        if ! check_value_safety "line $lines_count" "$line"; then
-            continue
-        fi
-
         line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
         first_char=$(printf '%s' "$line" | cut -c1)
 
         if [ "$first_char" = "#" ]; then
-            logowl "Line $lines_count is comment line, skip processing"
             continue
         fi
 
@@ -294,7 +273,7 @@ bloatware_slayer() {
 
         TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT+1))
 
-        for path in $SYSTEM_APP_PATHS; do
+        for path in $system_app_paths; do
 
             first_char=$(printf '%s' "$line" | cut -c1)
             if [ "$first_char" = "/" ]; then
@@ -338,11 +317,11 @@ bloatware_slayer() {
             app_name="$(basename "$app_path")"
             if [ -d "$app_path" ]; then
                 logowl "Process path: $app_path"
-                if [ "$SLAY_MODE" = "MB" ]; then
+                if [ "$slay_mode" = "MB" ]; then
                     link_mount_bind "$MIRROR_DIR" "$app_path"
-                elif [ "$SLAY_MODE" = "MN" ]; then
+                elif [ "$slay_mode" = "MN" ]; then
                     mirror_make_node "$app_path"
-                elif [ "$SLAY_MODE" = "MR" ]; then
+                elif [ "$slay_mode" = "MR" ]; then
                     mirror_magisk_replace "$app_path"
                 fi
                 app_process_result=$?
@@ -350,7 +329,7 @@ bloatware_slayer() {
                     if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
                         echo "$app_path" >> "$TARGET_LIST_BSA"
                         BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-                        logowl "$app_name has been slain" "TIPS"
+                        logowl "$app_name has been slain" ">"
                     else
                         logowl "Detect dulpicate item: $app_name"
                         DUPLICATED_APPS_COUNT=$((DUPLICATED_APPS_COUNT + 1))
@@ -362,15 +341,15 @@ bloatware_slayer() {
 
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
                 logowl "Process path: $app_path"
-                if [ "$SLAY_MODE" = "MN" ] || [ "$MN_SUPPORT" = true ]; then
+                if [ "$slay_mode" = "MN" ] || [ "$MN_SUPPORT" = true ]; then
                     mirror_make_node "$app_path"
                     file_process_result=$?
                     if [ $file_process_result -eq 0 ]; then
-                        [ "$SLAY_MODE" != "MN" ] && hybrid_mode=true
+                        [ "$slay_mode" != "MN" ] && hybrid_mode=true
                         if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
                             BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
-                            logowl "$app_name has been slain" "TIPS"
+                            logowl "$app_name has been slain" ">"
                         else
                             logowl "Detect dulpicate item: $app_name"
                             DUPLICATED_APPS_COUNT=$((DUPLICATED_APPS_COUNT + 1))
@@ -432,14 +411,15 @@ module_status_update() {
 }
 
 logowl_init "$LOG_DIR"
+logowl_clean "30"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
 logowl "Start post-fs-data.sh"
-
+print_line
 config_loader
 print_line
-brick_rescue
+brick_rescue_savior
 preparation
 bloatware_slayer
 module_status_update
