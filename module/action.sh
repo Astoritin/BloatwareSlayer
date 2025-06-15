@@ -37,7 +37,7 @@ for fm in $ROOT_FILE_MANAGERS; do
         logowl "Attempt to use $PKG to open config dir"
         am start -n "$fm" "file://$CONFIG_DIR"
         result_action="$?"
-        logowl "Execute: am start -n $fm file://$CONFIG_DIR ($result_action)"
+        logowl "am start -n $fm file://$CONFIG_DIR ($result_action)"
         if [ $result_action -eq 0 ]; then
             print_line
             logowl "action.sh case closed!"
