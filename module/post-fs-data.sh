@@ -383,7 +383,7 @@ module_status_update() {
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
                 DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $DUPLICATED_APPS_COUNT APP(s) duplicated, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain. All the targets have been neutralized! 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain. All targets have been neutralized! 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
