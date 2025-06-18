@@ -6,21 +6,22 @@ MODDIR=${0%/*}
 CONFIG_DIR="/data/adb/bloatwareslayer"
 
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
+TARGET_LIST="$CONFIG_DIR/target.conf"
+FLAG_BRICKED="$CONFIG_DIR/bricked"
+
 LOG_DIR="$CONFIG_DIR/logs"
 LOG_FILE="$LOG_DIR/bs_brickd_$(date +"%Y%m%dT%H%M%S").log"
-
-BRICKED_STATE="$CONFIG_DIR/bricked"
-
-TARGET_LIST="$CONFIG_DIR/target.conf"
 TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
-TARGET_LIST_LW="$CONFIG_DIR/target_lw.conf"
+
+LAST_WORKED_DIR="$CONFIG_DIR/last_worked"
+TARGET_LIST_LW="$LAST_WORKED_DIR/target_lw.conf"
 
 MOD_INTRO="Remove bloatware in systemless way."
 
 brick_rescue=true
 disable_module_as_brick=true
 auto_update_target_list=true
-brick_timeout=90
+brick_timeout=120
 last_worked_target_list=true
 
 slay_mode=MB
@@ -45,46 +46,33 @@ logowl_clean "30"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
-logowl "Start service.sh"
-print_line
 config_loader
 print_line
 
-if [ "$brick_rescue" = true ] && [ -f "$BRICKED_STATE" ]; then
-    logowl "Find flag bricked!" "FATAL"
+if [ "$brick_rescue" = true ] && [ -f "$FLAG_BRICKED" ]; then
+    logowl "Find flag bricked!" "F"
     logowl "Skip processing"
     exit 1
-fi
-
-if [ "$auto_update_target_list" = true ]; then
-    logowl "Update target list"
-    cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
 fi
 
 logowl "Current boot timeout: ${brick_timeout}s"
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
     if [ $brick_timeout -le "0" ]; then
         print_line
-        logowl "Failed to boot after reaching the limit!" "FATAL"
-        logowl "Your device may be bricked by $MOD_NAME!"
-        logowl "Mark state as bricked"
-        touch "$BRICKED_STATE"
+        logowl "Unable to boot after reaching the limit!" "F"
+        logowl "Set flag bricked"
+        touch "$FLAG_BRICKED"
         if [ "$brick_rescue" = false ]; then
-            logowl "Flag brick_rescue=false" "WARN"
-            logowl "$MOD_NAME will NOT take action as brick" "WARN"
+            logowl "Skip birck rescue" "W"
             exit 1
         fi
         if [ "$disable_module_as_brick" = true ]; then
-            logowl "Flag disable_module_as_brick=true"
             logowl "Disable $MOD_NAME"
             touch "$MODDIR/disable"
-        else
-            logowl "Flag disable_module_as_brick=false"
         fi
         DESCRIPTION="[❌No effect. Auto disable from brick! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
         update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
-        logowl "Start reboot process"
-        sync && logowl "Notify for sync"
+        sync && logowl "Notify system for sync"
         logowl "setprop sys.powerctl reboot"
         setprop sys.powerctl reboot
         sleep 5
@@ -96,23 +84,14 @@ while [ "$(getprop sys.boot_completed)" != "1" ]; do
 done
 
 logowl "Boot complete! Countdown: ${brick_timeout}s"
-rm -f "$BRICKED_STATE"
-logowl "Reset bricked state"
-
-if [ "$last_worked_target_list" = true ]; then
-    logowl "Flag last_worked_target_list=true"
-    cp "$TARGET_LIST_BSA" "$TARGET_LIST_LW"
-    logowl "Copy last worked target list file"
-fi
-
+rm -f "$FLAG_BRICKED"
+logowl "Remove flag bricked"
 print_line
 
 if [ "$slay_mode" = "MB" ] && [ "$mb_umount_bind" = true ]; then
-    logowl "$MOD_NAME is running on Mount Bind mode"
-    logowl "Flag mb_umount_bind=true"
-    logowl "Start umount process"
+    logowl "Starting unmount process"
     if [ ! -f "$TARGET_LIST_BSA" ]; then
-        logowl "Invalid Target List ($MOD_NAME arranged) file" "ERROR"
+        logowl "$TARGET_LIST_BSA does NOT exist, skip unmounting" "W"
     else
         while IFS= read -r line || [ -n "$line" ]; do
             line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
@@ -131,20 +110,34 @@ if [ "$slay_mode" = "MB" ] && [ "$mb_umount_bind" = true ]; then
                     package=$(echo "$package" | sed -e 's/\\/\//g')
                     ;;
             esac
-            logowl "Process path: $package"
+            logowl "Process $package"
             umount -f $package
             result_umount=$?
             logowl "umount -f $package ($result_umount)"
             app_name="$(basename "$package")"
             if [ $result_umount -eq 0 ]; then
-                logowl "Point $app_name has been unmounted" ">"
+                logowl "$app_name has been unmounted" ">"
             fi
 
         done < "$TARGET_LIST_BSA"
     fi
 fi
-
-rm -f "$TARGET_LIST_BSA"
+if [ "$last_worked_target_list" = true ]; then
+    logowl "Backup last worked target list"
+    [ ! -d "$LAST_WORKED_DIR" ] && mkdir -p "$LAST_WORKED_DIR"
+    if [ "$auto_update_target_list" = true ]; then
+        cp "$TARGET_LIST_BSA" "$TARGET_LIST_LW"
+    elif [ "$auto_update_target_list" = false ]; then
+        cp "$TARGET_LIST" "$TARGET_LIST_LW"
+    fi
+fi
+if [ "$auto_update_target_list" = true ]; then
+    logowl "Update target list"
+    cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
+fi
 logowl "Clean up temporary file"
+rm -f "$TARGET_LIST_BSA"
+set_permission_recursive "$MODDIR" 0 0 0755 0644
+set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
 print_line
-logowl "service.sh case closed!"
+logowl "Case closed!"
