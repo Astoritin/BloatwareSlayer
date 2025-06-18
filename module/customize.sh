@@ -46,5 +46,5 @@ fi
 logowl "Set permission"
 set_permission_recursive "$MODPATH" 0 0 0755 0644
 logowl "Welcome to use $MOD_NAME!"
-DESCRIPTION="[✨Reboot to take effect. Make sure you have checked the items in $TARGET_LIST carefully before reboot your device. ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+DESCRIPTION="[✨Reboot to take effect. 💥Make sure you have checked the items in $TARGET_LIST before rebooting your device! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
 update_config_var "description" "$DESCRIPTION" "$MODPATH/module.prop"
