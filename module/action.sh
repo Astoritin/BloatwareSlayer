@@ -1,6 +1,8 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
+CONFIG_DIR="/data/adb/bloatwareslayer"
+
 ROOT_FILE_MANAGERS="
 com.speedsoftware.rootexplorer/com.speedsoftware.rootexplorer.RootExplorer
 com.mixplorer/com.mixplorer.activities.BrowseActivity
@@ -40,9 +42,14 @@ for fm in $ROOT_FILE_MANAGERS; do
         am start -n "$fm" "file://$CONFIG_DIR"
         result_action="$?"
         echo "- am start -n $fm file://$CONFIG_DIR ($result_action)"
+        if [ $result_action -eq 0 ]; then
+            echo "---------------------------------------------------"
+            echo "- Case closed!"
+            sleep 1
+            return 0
+        fi
     else
-        echo "? $PKG is NOT installed"
-        sleep 1
+        echo "- $PKG is NOT installed"
     fi
 
 done
