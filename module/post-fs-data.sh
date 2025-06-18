@@ -119,7 +119,14 @@ preparation() {
         return 1
     fi
 
-    touch "$TARGET_LIST_BSA"
+    case "$slay_mode" in
+        MB) SLAY_MODE_DESC="Mount Bind"
+            ;;
+        MN) SLAY_MODE_DESC="Make Node"
+            ;;
+        MR) SLAY_MODE_DESC="Magisk Replace"
+            ;;
+    esac
 
 }
 
@@ -223,21 +230,12 @@ bloatware_slayer() {
 
     logowl "Slaying bloatwares"
 
-    case "$slay_mode" in
-        MB) SLAY_MODE_DESC="Mount Bind"
-            ;;
-        MN) SLAY_MODE_DESC="Make Node"
-            ;;
-        MR) SLAY_MODE_DESC="Magisk Replace"
-            ;;
-    esac
-
-    logowl "Mode: $SLAY_MODE_DESC"
-
     TOTAL_APPS_COUNT=0
     BLOCKED_APPS_COUNT=0
     DUPLICATED_APPS_COUNT=0
     hybrid_mode=false
+
+    touch "$TARGET_LIST_BSA"
 
     while IFS= read -r line || [ -n "$line" ]; do
         line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
