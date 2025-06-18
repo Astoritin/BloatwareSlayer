@@ -89,7 +89,7 @@ logowl "Remove flag bricked"
 print_line
 
 if [ "$slay_mode" = "MB" ] && [ "$mb_umount_bind" = true ]; then
-    logowl "Starting unmount process"
+    logowl "Unmount bind points"
     if [ ! -f "$TARGET_LIST_BSA" ]; then
         logowl "$TARGET_LIST_BSA does NOT exist, skip unmounting" "W"
     else
