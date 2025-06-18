@@ -22,6 +22,11 @@ echo "- By Astoritin Ambrosius"
 echo "---------------------------------------------------"
 echo "- Opening config dir"
 echo "---------------------------------------------------"
+echo "- If nothing happened after case closed"
+echo "- That means I can't find any root file explorer"
+echo "- In your device to open config dir"
+echo "- Anyway, you can open it on your way"
+echo "---------------------------------------------------"
 sleep 1
 
 IFS=$'\n'
@@ -35,12 +40,6 @@ for fm in $ROOT_FILE_MANAGERS; do
         am start -n "$fm" "file://$CONFIG_DIR"
         result_action="$?"
         echo "- am start -n $fm file://$CONFIG_DIR ($result_action)"
-        if [ $result_action -eq 0 ]; then
-            echo "---------------------------------------------------"
-            echo "- Case closed!"
-            sleep 2
-            exit 0
-        fi
     else
         echo "? $PKG is NOT installed"
         sleep 1
@@ -48,8 +47,5 @@ for fm in $ROOT_FILE_MANAGERS; do
 
 done
 
-echo "---------------------------------------------------"
-echo "! Not any available Root File Explorer found!"
-echo "! Please open config dir manually if needed!"
 echo "---------------------------------------------------"
 echo "- Case closed!"
