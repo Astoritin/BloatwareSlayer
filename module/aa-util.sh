@@ -102,9 +102,9 @@ logowl() {
     [ -z "$LOG_MSG" ] && return 1
 
     case "$LOG_MSG_LEVEL" in
-        "WARN") LOG_MSG_PREFIX="- Warn: " ;;
-        "ERROR") LOG_MSG_PREFIX="! ERROR: " ;;
-        "FATAL") LOG_MSG_PREFIX="× FATAL: " ;;
+        "W") LOG_MSG_PREFIX="? Warn: " ;;
+        "E") LOG_MSG_PREFIX="! ERROR: " ;;
+        "F") LOG_MSG_PREFIX="× FATAL: " ;;
         ">") LOG_MSG_PREFIX="> " ;;
         "*" ) LOG_MSG_PREFIX="* " ;; 
         " ") LOG_MSG_PREFIX="  " ;;
@@ -163,10 +163,10 @@ get_config_var() {
     config_file=$2
 
     if [ -z "$key" ] || [ -z "$config_file" ]; then
-        logowl "Key or config file path is NOT ordered" "WARN"
+        logowl "Key or config file path is NOT ordered" "W"
         return 1
     elif [ ! -f "$config_file" ]; then
-        logowl "$config_file is NOT a file" "WARN"
+        logowl "$config_file is NOT a file" "W"
         return 2
     fi
     
@@ -221,11 +221,11 @@ get_config_var() {
 
     awk_exit_state=$?
     case $awk_exit_state in
-        1)  logowl "Error in fetching value for $key (1)" "WARN"
+        1)  logowl "Failed to fetch value for $key (1)" "W"
             return 5
             ;;
         0)  ;;
-        *)  logowl "Unexpected error ($awk_exit_state)" "WARN"
+        *)  logowl "Unexpected error ($awk_exit_state)" "W"
             return 6
             ;;
     esac
@@ -237,7 +237,7 @@ get_config_var() {
         echo "$value"
         return 0
     else
-        logowl "Key $key does NOT exist in file $config_file" "WARN"
+        logowl "Key $key does NOT exist in file $config_file" "W"
         return 1
     fi
 }
@@ -275,9 +275,12 @@ debug_print_values() {
 
 show_system_info() {
 
-    logowl "Device: $(getprop ro.product.brand) $(getprop ro.product.model) ($(getprop ro.product.device))"
-    logowl "OS: Android $(getprop ro.build.version.release) (API $(getprop ro.build.version.sdk)), $(getprop ro.product.cpu.abi | cut -d '-' -f1)"
+    logowl "Device: $(getprop ro.product.brand) $(getprop ro.product.model)"
+    logowl "Code Name: $(getprop ro.product.device)"
     logowl "Kernel: $(uname -r)"
+    logowl "OS: Android $(getprop ro.build.version.release) (API $(getprop ro.build.version.sdk))"
+    logowl "ABI: $(getprop ro.product.cpu.abi)"
+
 }
 
 module_intro() {
@@ -315,7 +318,7 @@ file_compare() {
 abort_verify() {
 
     [ -n "$VERIFY_DIR" ] && [ -d "$VERIFY_DIR" ] && [ "$VERIFY_DIR" != "/" ] && rm -rf "$VERIFY_DIR"
-    logowl "$1" "ERROR"
+    logowl "$1" "E"
     abort "This zip may be corrupted or has been maliciously modified!"
 
 }
