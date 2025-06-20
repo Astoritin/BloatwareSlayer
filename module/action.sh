@@ -2,6 +2,7 @@
 MODDIR=${0%/*}
 
 CONFIG_DIR="/data/adb/bloatwareslayer"
+SEPARATE_LINE="----------------------------------------"
 
 ROOT_FILE_MANAGERS="
 com.speedsoftware.rootexplorer/com.speedsoftware.rootexplorer.RootExplorer
@@ -18,17 +19,17 @@ nextapp.fx/nextapp.fx.ui.ExplorerActivity
 me.zhanghai.android.files/me.zhanghai.android.files.filelist.FileListActivity
 "
 
-echo "---------------------------------------------------"
+echo "$SEPARATE_LINE"
 echo "- Bloatware Slayer"
 echo "- By Astoritin Ambrosius"
-echo "---------------------------------------------------"
+echo "$SEPARATE_LINE"
 echo "- Opening config dir"
-echo "---------------------------------------------------"
+echo "$SEPARATE_LINE"
 echo "- If nothing happened after case closed"
 echo "- That means I can't find any root file explorer"
-echo "- In your device to open config dir"
+echo "- in your device to open config dir"
 echo "- Anyway, you can open it on your way"
-echo "---------------------------------------------------"
+echo "$SEPARATE_LINE"
 sleep 1
 
 IFS=$'\n'
@@ -43,7 +44,7 @@ for fm in $ROOT_FILE_MANAGERS; do
         result_action="$?"
         echo "- am start -n $fm file://$CONFIG_DIR ($result_action)"
         if [ $result_action -eq 0 ]; then
-            echo "---------------------------------------------------"
+            echo "$SEPARATE_LINE"
             echo "- Case closed!"
             sleep 1
             return 0
@@ -54,5 +55,5 @@ for fm in $ROOT_FILE_MANAGERS; do
 
 done
 
-echo "---------------------------------------------------"
+echo "$SEPARATE_LINE"
 echo "- Case closed!"
