@@ -42,7 +42,7 @@ fi
 if [ ! -f "$CONFIG_FILE" ]; then
     extract "$ZIPFILE" 'settings.conf' "$CONFIG_DIR"
 fi
-[ "$VERIFY_DIR" != "/" ] && rm -rf "$VERIFY_DIR"
+rm -rf "$VERIFY_DIR"
 logowl "Set permission"
 set_permission_recursive "$MODPATH" 0 0 0755 0644
 logowl "Welcome to use $MOD_NAME!"
