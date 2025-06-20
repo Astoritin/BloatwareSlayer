@@ -51,7 +51,8 @@ unbrick() {
         fi
 
         if [ "$disable_module_as_brick" = true ] && [ ! -f "$MODDIR/disable" ]; then
-            logowl "Flag bricked exists but $MOD_NAME has NOT been disabled"
+            logowl "Flag bricked exists"
+            logowl "but $MOD_NAME has NOT been disabled"
             logowl "Maybe $MOD_NAME is enabled manually"
             rm -f "$FLAG_BRICKED" && logowl "Remove flag bricked"
             return 0
@@ -228,7 +229,9 @@ link_mount_bind() {
 
 bloatware_slayer() {
 
+    print_line
     logowl "Slaying bloatwares"
+    print_line
 
     TOTAL_APPS_COUNT=0
     BLOCKED_APPS_COUNT=0
@@ -240,22 +243,14 @@ bloatware_slayer() {
     while IFS= read -r line || [ -n "$line" ]; do
         line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
         first_char=$(printf '%s' "$line" | cut -c1)
-
-        if [ "$first_char" = "#" ]; then
-            continue
-        fi
+        [ "$first_char" = "#" ] && continue
 
         package=$(echo "$line" | cut -d '#' -f1)
         package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-
-        if [ -z "$package" ]; then
-            logowl "Only comment left in this line, skip processing"
-            continue
-        fi
-
+        [ -z "$package" ] && continue
+        
         case "$package" in
             *\\*)
-                logowl "Replace '\\' with '/' in path $package"
                 package=$(echo "$package" | sed -e 's/\\/\//g')
                 ;;
         esac
@@ -320,7 +315,7 @@ bloatware_slayer() {
                         BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                         logowl "$app_name has been slain" ">"
                     else
-                        logowl "Find dulpicate item $app_name"
+                        logowl "Find duplicate item $app_name"
                         DUPLICATED_APPS_COUNT=$((DUPLICATED_APPS_COUNT + 1))
                     fi
                     break
@@ -340,7 +335,7 @@ bloatware_slayer() {
                             BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
                             logowl "$app_name has been slain" ">"
                         else
-                            logowl "Find dulpicate item $app_name"
+                            logowl "Find duplicate item $app_name"
                             DUPLICATED_APPS_COUNT=$((DUPLICATED_APPS_COUNT + 1))
                         fi
                         break
@@ -350,10 +345,10 @@ bloatware_slayer() {
                 fi
             else
                 if [ "$first_char" = "/" ]; then
-                    logowl "Custom dir $app_path NOT found"
+                    logowl "Custom dir $app_path does NOT exist"
                     break
                 else
-                    logowl "Dir $app_path NOT found"
+                    logowl "Dir $app_path does NOT exist"
                 fi
             fi
         done
@@ -366,11 +361,12 @@ bloatware_slayer() {
 
 module_status_update() {
 
-    APP_NOT_FOUND=$((TOTAL_APPS_COUNT - BLOCKED_APPS_COUNT - DUPLICATED_APPS_COUNT))
-    logowl "$TOTAL_APPS_COUNT APP(s) in total"
-    logowl "$BLOCKED_APPS_COUNT APP(s) has been slain"
-    logowl "$APP_NOT_FOUND APP(s) not found"
-    logowl "$DUPLICATED_APPS_COUNT dulpicated"
+    MISSING_APPS_COUNT=$((TOTAL_APPS_COUNT - BLOCKED_APPS_COUNT - DUPLICATED_APPS_COUNT))
+    print_line
+    logowl "Total: $TOTAL_APPS_COUNT APP(s)"
+    logowl "Slain: $BLOCKED_APPS_COUNT APP(s)"
+    logowl "Missing: $MISSING_APPS_COUNT APP(s)"
+    logowl "Duplicate: $DUPLICATED_APPS_COUNT APP(s)"
 
     [ "$hybrid_mode" = true ] && SLAY_MODE_DESC="Hybrid ($SLAY_MODE_DESC + Make Node)"
 
@@ -379,16 +375,16 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $APP_NOT_FOUND APP(s) missing, $DUPLICATED_APPS_COUNT APP(s) duplicated, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
-            if [ $APP_NOT_FOUND -eq 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain. All targets have been neutralized! 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $MISSING_APPS_COUNT APP(s) missing, $DUPLICATED_APPS_COUNT APP(s) duplicated, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+            if [ $MISSING_APPS_COUNT -eq 0 ]; then
+                DESCRIPTION="[✅Done. All targets neutralized! $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
                 DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             else
                 logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "E"
-                DESCRIPTION="[❌No effect. Maybe something went wrong? 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+                DESCRIPTION="[❌No effect. Something went wrong! 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             fi
         fi
         update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
@@ -397,7 +393,6 @@ module_status_update() {
 }
 
 logowl_init "$LOG_DIR"
-logowl_clean "30"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
