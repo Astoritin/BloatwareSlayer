@@ -86,13 +86,16 @@ done
 logowl "Boot complete! Countdown: ${brick_timeout}s"
 rm -f "$FLAG_BRICKED"
 logowl "Remove flag bricked"
-print_line
 
 if [ "$slay_mode" = "MB" ] && [ "$mb_umount_bind" = true ]; then
+    print_line
     logowl "Unmount bind points"
+    print_line
     if [ ! -f "$TARGET_LIST_BSA" ]; then
         logowl "$TARGET_LIST_BSA does NOT exist, skip unmounting" "W"
     else
+        TOTAL_APPS_COUNT=0
+        UMOUNT_APPS_COUNT=0
         while IFS= read -r line || [ -n "$line" ]; do
             line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
             first_char=$(printf '%s' "$line" | cut -c1)
@@ -110,16 +113,23 @@ if [ "$slay_mode" = "MB" ] && [ "$mb_umount_bind" = true ]; then
                     package=$(echo "$package" | sed -e 's/\\/\//g')
                     ;;
             esac
+
+            TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT + 1))
             logowl "Process $package"
             umount -f $package
             result_umount=$?
             logowl "umount -f $package ($result_umount)"
             app_name="$(basename "$package")"
             if [ $result_umount -eq 0 ]; then
+                UMOUNT_APPS_COUNT=$((UMOUNT_APPS_COUNT + 1))
                 logowl "$app_name has been unmounted" ">"
             fi
 
         done < "$TARGET_LIST_BSA"
+        print_line
+        logowl "Total: $TOTAL_APPS_COUNT APP(s)"
+        logowl "Unmount: $UMOUNT_APPS_COUNT APP(s)"
+        print_line
     fi
 fi
 if [ "$last_worked_target_list" = true ]; then
