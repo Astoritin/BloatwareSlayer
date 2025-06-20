@@ -275,11 +275,9 @@ debug_print_values() {
 
 show_system_info() {
 
-    logowl "Device: $(getprop ro.product.brand) $(getprop ro.product.model)"
-    logowl "Code Name: $(getprop ro.product.device)"
+    logowl "Device: $(getprop ro.product.brand) $(getprop ro.product.model) ($(getprop ro.product.device))"
+    logowl "OS: Android $(getprop ro.build.version.release) (API $(getprop ro.build.version.sdk)), $(getprop ro.product.cpu.abi | cut -d '-' -f1)"
     logowl "Kernel: $(uname -r)"
-    logowl "OS: Android $(getprop ro.build.version.release) (API $(getprop ro.build.version.sdk))"
-    logowl "ABI: $(getprop ro.product.cpu.abi)"
 
 }
 
@@ -403,95 +401,5 @@ clean_duplicate_items() {
     awk '!seen[$0]++' "$filed" > "${filed}.tmp"
     mv "${filed}.tmp" "$filed"
     return 0
-
-}
-
-see_prop() {
-    prop_name=$1
-    prop_current_value=$(getprop "$prop_name")
-
-    if [ -n "$prop_current_value" ]; then
-        logowl "$prop_name=$prop_current_value"
-        return 0
-    elif [ -z "$prop_current_value" ]; then
-        logowl "$prop_name="
-        return 1
-    fi
-
-}
-
-check_and_resetprop() {
-
-    prop_name=$1
-    prop_expect_value=$2
-    prop_current_value=$(resetprop "$prop_name")
-
-    [ -z "$prop_current_value" ] && return 1
-
-    [ "$prop_current_value" = "$prop_expect_value" ] && return 0
-    
-    if [ "$prop_current_value" != "$prop_expect_value" ]; then
-        resetprop "$prop_name" "$prop_expect_value"
-        result_check_and_resetprop=$?
-        logowl "resetprop $prop_name $prop_expect_value ($result_check_and_resetprop)"
-    fi
-
-}
-
-match_and_resetprop() {
-
-    prop_name="$1"
-    prop_contains_keyword="$2"
-    prop_expect_value="$3"
-    prop_current_value=$(resetprop "$prop_name")
-
-    [ -z "$prop_current_value" ] && return 1
-    [ -z "$prop_contains_keyword" ] && return 1
-    [ -z "$prop_expect_value" ] && return 1
-    
-    if echo "$prop_current_value" | grep -q "$prop_contains_keyword"; then
-        resetprop "$prop_name" "$prop_expect_value"
-        result_check_and_resetprop=$?
-        logowl "resetprop $prop_name $prop_expect_value ($result_check_and_resetprop)"
-    fi
-
-}
-
-fetch_package_path_from_pm() {
-    package_name=$1
-    output_pm=$(pm path "$package_name")
-
-    [ -z "$output_pm" ] && return 1
-
-    package_path=$(echo "$output_pm" | cut -d':' -f2- | sed 's/^://' )
-
-    echo "$package_path"    
-}
-
-uninstall_package() {
-
-    package_name="$1"
-
-    pm uninstall "$package_name"
-    result_uninstall_package=$?
-
-    return "$result_uninstall_package"
-
-}
-
-install_package() {
-
-    package_path="$1"
-
-    cp "$package_path" "$TMP_DIR"
-
-    package_basename=$(basename "$package_path")
-    package_tmp="$TMP_DIR/$package_basename"
-
-    pm install -i "com.android.vending" "$package_tmp"
-    result_install_package=$?
-
-    rm -f "$package_tmp"
-    return "$result_install_package"    
 
 }
