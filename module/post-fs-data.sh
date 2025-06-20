@@ -377,13 +377,12 @@ module_status_update() {
         if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
                 DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $MISSING_APPS_COUNT APP(s) missing, $DUPLICATED_APPS_COUNT APP(s) duplicated, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             if [ $MISSING_APPS_COUNT -eq 0 ]; then
-                DESCRIPTION="[✅Done. All targets neutralized! $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+                DESCRIPTION="[✅Cleared. $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             fi
         else
             if [ $TOTAL_APPS_COUNT -gt 0 ]; then
                 DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             else
-                logowl "Current blocked apps count: $TOTAL_APPS_COUNT <= 0" "E"
                 DESCRIPTION="[❌No effect. Something went wrong! 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
             fi
         fi
