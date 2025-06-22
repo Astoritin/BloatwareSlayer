@@ -29,6 +29,7 @@ logowl_init "$LOG_DIR"
 show_system_info
 install_env_check
 logowl "Install from $ROOT_SOL app"
+logowl "Root: $ROOT_SOL_DETAIL"
 extract "$ZIPFILE" 'customize.sh' "$VERIFY_DIR"
 extract "$ZIPFILE" 'aa-util.sh' "$MODPATH"
 extract "$ZIPFILE" 'module.prop' "$MODPATH"
@@ -36,15 +37,11 @@ extract "$ZIPFILE" 'post-fs-data.sh' "$MODPATH"
 extract "$ZIPFILE" 'service.sh' "$MODPATH"
 extract "$ZIPFILE" 'action.sh' "$MODPATH"
 extract "$ZIPFILE" 'uninstall.sh' "$MODPATH"
-if [ ! -f "$TARGET_LIST" ]; then
-    extract "$ZIPFILE" 'target.conf' "$CONFIG_DIR"
-fi
-if [ ! -f "$CONFIG_FILE" ]; then
-    extract "$ZIPFILE" 'settings.conf' "$CONFIG_DIR"
-fi
+[ ! -f "$TARGET_LIST" ] && extract "$ZIPFILE" 'target.conf' "$CONFIG_DIR"
+[ ! -f "$CONFIG_FILE" ] && extract "$ZIPFILE" 'settings.conf' "$CONFIG_DIR"
 rm -rf "$VERIFY_DIR"
 logowl "Set permission"
 set_permission_recursive "$MODPATH" 0 0 0755 0644
 logowl "Welcome to use $MOD_NAME!"
-DESCRIPTION="[✨Reboot to take effect. 💥Make sure you have checked the items in $TARGET_LIST before rebooting your device! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
-update_config_var "description" "$DESCRIPTION" "$MODPATH/module.prop"
+DESC_SLAYER="[💥Please check $TARGET_LIST carefully before reboot your device!] $MOD_INTRO"
+update_config_var "description" "$DESC_SLAYER" "$MODPATH/module.prop"
