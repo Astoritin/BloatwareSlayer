@@ -70,8 +70,8 @@ while [ "$(getprop sys.boot_completed)" != "1" ]; do
             logowl "Disable $MOD_NAME"
             touch "$MODDIR/disable"
         fi
-        DESCRIPTION="[❌No effect. Auto disable from brick! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
-        update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
+        DESC_SLAYER="[❌Trigger brick rescue! 🐦Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+        update_config_var "description" "$DESC_SLAYER" "$MODULE_PROP"
         sync && logowl "Notify system for sync"
         logowl "setprop sys.powerctl reboot"
         setprop sys.powerctl reboot
