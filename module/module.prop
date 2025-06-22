@@ -1,7 +1,7 @@
 id=bloatwareslayer
 name=Bloatware Slayer
-version=v1.4.2
-versionCode=1008
+version=v1.4.3
+versionCode=1010
 author=Astoritin Ambrosius
 description=Remove bloatware in systemless way.
 updateJson=https://raw.githubusercontent.com/Astoritin/BloatwareSlayer/main/webpage/update.json
