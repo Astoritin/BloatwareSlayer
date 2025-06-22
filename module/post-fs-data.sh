@@ -81,11 +81,8 @@ preparation() {
 
     logowl "Some preparation"
 
-    if [ -d "$MIRROR_DIR" ]; then
-        if [ "$MIRROR_DIR" != "/" ] && [ "$MIRROR_DIR" != "/system" ]; then
-            rm -rf "$MIRROR_DIR"
-            logowl "Remove old mirror dir"
-        fi
+    if [ "$MIRROR_DIR" != "/" ] && [ "$MIRROR_DIR" != "/system" ]; then
+        rm -rf "$MIRROR_DIR" && logowl "Remove old mirror dir"
     fi
 
     if [ "$DETECT_KSU" = true ] || [ "$DETECT_APATCH" = true ]; then
@@ -115,20 +112,10 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist" "F"
-        DESCRIPTION="[❌No effect. Target list does NOT exist! ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
-        update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
+        DESC_SLAYER="[❌Target list file does NOT exist! 🐦Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+        update_config_var "description" "$DESC_SLAYER" "$MODULE_PROP"
         return 1
     fi
-
-    case "$slay_mode" in
-        MB) SLAY_MODE_DESC="Mount Bind"
-            ;;
-        MN) SLAY_MODE_DESC="Make Node"
-            ;;
-        MR) SLAY_MODE_DESC="Magisk Replace"
-            ;;
-    esac
-
 }
 
 mirror_make_node() {
@@ -165,7 +152,7 @@ mirror_make_node() {
         fi
     else
         logowl "Node $mirror_node_path exists already"
-        return 0
+        return 1
     fi
 
 }
@@ -199,7 +186,7 @@ mirror_magisk_replace() {
             return $result_magisk_replace
         fi
     else
-        return 0
+        return 1
     fi
 
 }
@@ -233,10 +220,13 @@ bloatware_slayer() {
     logowl "Slaying bloatwares"
     print_line
 
-    TOTAL_APPS_COUNT=0
-    BLOCKED_APPS_COUNT=0
-    DUPLICATED_APPS_COUNT=0
-    hybrid_mode=false
+    total_apps_count=0
+    blocked_apps_count=0
+    duplicated_apps_count=0
+
+    mb_count=0
+    mr_count=0
+    mn_count=0
 
     touch "$TARGET_LIST_BSA"
 
@@ -255,7 +245,7 @@ bloatware_slayer() {
                 ;;
         esac
 
-        TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT+1))
+        total_apps_count=$((total_apps_count+1))
 
         for path in $system_app_paths; do
 
@@ -302,21 +292,21 @@ bloatware_slayer() {
             if [ -d "$app_path" ]; then
                 logowl "Process path $app_path"
                 if [ "$slay_mode" = "MB" ]; then
-                    link_mount_bind "$MIRROR_DIR" "$app_path"
+                    link_mount_bind "$MIRROR_DIR" "$app_path" && mb_count=$((mb_count + 1))
                 elif [ "$slay_mode" = "MN" ]; then
-                    mirror_make_node "$app_path"
+                    mirror_make_node "$app_path" && mn_count=$((mn_count + 1))
                 elif [ "$slay_mode" = "MR" ]; then
-                    mirror_magisk_replace "$app_path"
+                    mirror_magisk_replace "$app_path" && mr_count=$((mr_count + 1))
                 fi
                 app_process_result=$?
                 if [ $app_process_result -eq 0 ]; then
                     if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
                         echo "$app_path" >> "$TARGET_LIST_BSA"
-                        BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                        blocked_apps_count=$((blocked_apps_count + 1))
                         logowl "$app_name has been slain" ">"
                     else
                         logowl "Find duplicate item $app_name"
-                        DUPLICATED_APPS_COUNT=$((DUPLICATED_APPS_COUNT + 1))
+                        duplicated_apps_count=$((duplicated_apps_count + 1))
                     fi
                     break
                 else
@@ -326,17 +316,16 @@ bloatware_slayer() {
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
                 logowl "Process path $app_path"
                 if [ "$slay_mode" = "MN" ] || [ "$MN_SUPPORT" = true ]; then
-                    mirror_make_node "$app_path"
+                    mirror_make_node "$app_path" && mn_count=$((mn_count + 1))
                     file_process_result=$?
                     if [ $file_process_result -eq 0 ]; then
-                        [ "$slay_mode" != "MN" ] && hybrid_mode=true
                         if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
-                            BLOCKED_APPS_COUNT=$((BLOCKED_APPS_COUNT + 1))
+                            blocked_apps_count=$((blocked_apps_count + 1))
                             logowl "$app_name has been slain" ">"
                         else
                             logowl "Find duplicate item $app_name"
-                            DUPLICATED_APPS_COUNT=$((DUPLICATED_APPS_COUNT + 1))
+                            duplicated_apps_count=$((duplicated_apps_count + 1))
                         fi
                         break
                     else
@@ -361,31 +350,41 @@ bloatware_slayer() {
 
 module_status_update() {
 
-    MISSING_APPS_COUNT=$((TOTAL_APPS_COUNT - BLOCKED_APPS_COUNT - DUPLICATED_APPS_COUNT))
+    missing_apps_count=$((total_apps_count - blocked_apps_count - duplicated_apps_count))
     print_line
-    logowl "Total: $TOTAL_APPS_COUNT APP(s)"
-    logowl "Slain: $BLOCKED_APPS_COUNT APP(s)"
-    logowl "Missing: $MISSING_APPS_COUNT APP(s)"
-    logowl "Duplicate: $DUPLICATED_APPS_COUNT APP(s)"
+    logowl "Total: $total_apps_count APP(s)"
+    logowl "Slain: $blocked_apps_count APP(s)"
+    logowl "with Mount Bind: $mb_count APP(s)"
+    logowl "with Magisk Replace: $mr_count APP(s)"
+    logowl "with Make Node: $mn_count APP(s)"
+    logowl "Missing: $missing_apps_count APP(s)"
+    logowl "Duplicate: $duplicated_apps_count APP(s)"
 
-    [ "$hybrid_mode" = true ] && SLAY_MODE_DESC="Hybrid ($SLAY_MODE_DESC + Make Node)"
+    [ $mb_count -gt 0 ] && slay_mode_desc="Mount Bind"
+    [ $mr_count -gt 0 ] && slay_mode_desc="Magisk Replace"
+    [ $mn_count -gt 0 ] && slay_mode_desc="Make Node"
+
+    if [ $mb_count -gt 0 ] && [ $mn_count -gt 0 ] || [ $mr_count -ne 0 ] && [ $mn_count -ne 0 ]; then
+        slay_mode_desc="Hybrid"
+    fi
 
     desc_last_worked=""
     [ "$rescue_from_last_worked_target_list" = true ] && desc_last_worked=" (last worked)"
 
     if [ -f "$MODULE_PROP" ]; then
-        if [ $BLOCKED_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Done. $BLOCKED_APPS_COUNT APP(s) slain, $MISSING_APPS_COUNT APP(s) missing, $DUPLICATED_APPS_COUNT APP(s) duplicated, $TOTAL_APPS_COUNT APP(s) targeted in total, 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
-            if [ $MISSING_APPS_COUNT -eq 0 ]; then
-                DESCRIPTION="[✅Cleared. $BLOCKED_APPS_COUNT APP(s) slain. 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+        if [ $blocked_apps_count -gt 0 ]; then
+            DESC_SLAYER="✅Done. $blocked_apps_count APP(s) slain, $missing_apps_count APP(s) missing, $duplicated_apps_count APP(s) duplicated, $total_apps_count APP(s) targeted in total."
+            if [ $missing_apps_count -eq 0 ]; then
+                DESC_SLAYER="✅Cleared. $blocked_apps_count APP(s) slain."
             fi
         else
-            if [ $TOTAL_APPS_COUNT -gt 0 ]; then
-                DESCRIPTION="[✅Standby. No APP slain yet. $TOTAL_APPS_COUNT APP(s) targeted in total. 🐦Mode: $SLAY_MODE_DESC${desc_last_worked}, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+            if [ $total_apps_count -gt 0 ]; then
+                DESC_SLAYER="✅Standby. $total_apps_count APP(s) in total not found in your device!"
             else
-                DESCRIPTION="[❌No effect. Something went wrong! 🐦Mode: $SLAY_MODE_DESC, ⚙️Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+                DESC_SLAYER="❌No valid items found in target list!"
             fi
         fi
+        DESCRIPTION="[${DESC_SLAYER} ⚙️Mode: ${slay_mode_desc}${desc_last_worked}, 🐦Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
         update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
     fi
 
