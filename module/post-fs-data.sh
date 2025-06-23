@@ -16,7 +16,7 @@ TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 LAST_WORKED_DIR="$CONFIG_DIR/last_worked"
 TARGET_LIST_LW="$LAST_WORKED_DIR/target_lw.conf"
 
-MOD_INTRO="Remove bloatware in systemless way."
+MOD_INTRO="Remove bloatwares in systemless way."
 
 MN_SUPPORT=false
 MR_SUPPORT=false
@@ -123,7 +123,7 @@ mirror_make_node() {
     node_path=$1
 
     if [ -z "$node_path" ]; then
-        logowl "Node path is NOT ordered (5)" "E"
+        logowl "Node path is NOT defined (5)" "E"
         return 5
     elif [ ! -e "$node_path" ]; then
         logowl "$node_path does NOT exist (6)" "E"
@@ -135,13 +135,11 @@ mirror_make_node() {
     mirror_node_path="$MODDIR$node_path"
 
     if [ ! -d "$mirror_parent_dir" ]; then
-        logowl "Parent dir $mirror_parent_dir does NOT exist"
         mkdir -p "$mirror_parent_dir"
         logowl "Create parent dir $mirror_parent_dir"
     fi
 
     if [ ! -e "$mirror_node_path" ]; then
-        logowl "Node $mirror_node_path does NOT exist"
         mknod "$mirror_node_path" c 0 0
         result_make_node="$?"
         logowl "mknod $mirror_node_path c 0 0 ($result_make_node)"
@@ -162,7 +160,7 @@ mirror_magisk_replace() {
     replace_path=$1
 
     if [ -z "$replace_path" ]; then
-        logowl "Replace path is NOT ordered (5)" "E"
+        logowl "Replace path is NOT defined (5)" "E"
         return 5
     elif [ ! -d "$replace_path" ]; then
         logowl "$replace_path is NOT a dir (6)" "E"
@@ -197,7 +195,7 @@ link_mount_bind() {
     target_path=$2
 
     if [ -z "$link_path" ] || [ -z "$target_path" ]; then
-        logowl "Link path or target path is NOT ordered (5)" "E"
+        logowl "Link path or target path is NOT defined (5)" "E"
         return 5
     elif [ ! -d "$link_path" ] || [ ! -d "$target_path" ]; then
         logowl "$link_path or $target_path is NOT a dir (6)" "E"
