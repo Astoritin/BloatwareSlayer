@@ -317,31 +317,24 @@ file_compare() {
 extract() {
     file=$1
     dir=$2
-    junk_path="false"
+    junk=${3:-false}
     opts="-o"
- 
-    if [ -n "$dir" ]; then
-        junk_path="true"
-    else
-        dir="$MODPATH"
-        opts="-oj"
-    fi
 
-    file_path=""
-    hash_path=""
-    if [ $junk_path = true ]; then
+    [ -z "$dir" ] && dir="$MODPATH"
+    file_path="$dir/$file"
+    hash_path="$TMPDIR/$file.sha256"
+
+    if [ "$junk" = true ]; then
+        opts="-oj"
         file_path="$dir/$(basename "$file")"
         hash_path="$TMPDIR/$(basename "$file").sha256"
-    else
-        file_path="$dir/$file"
-        hash_path="$TMPDIR/$file.sha256"
     fi
 
     unzip $opts "$ZIPFILE" "$file" -d "$dir" >&2
-    [ -f "$file_path" ] || abort "$file does NOT exist"
+    [ -f "$file_path" ] || abort "! $file does NOT exist"
 
-    unzip $opts "$ZIPFILE" "$file.sha256" -d "$TMPDIR" >&2
-    [ -f "$hash_path" ] || abort "$file.sha256 does NOT exist"
+    unzip $opts "$ZIPFILE" "${file}.sha256" -d "$TMPDIR" >&2
+    [ -f "$hash_path" ] || abort "! ${file}.sha256 does NOT exist"
 
     expected_hash="$(cat "$hash_path")"
     calculated_hash="$(sha256sum "$file_path" | cut -d ' ' -f1)"
@@ -349,7 +342,7 @@ extract() {
     if [ "$expected_hash" == "$calculated_hash" ]; then
         logowl "Verified $file" >&1
     else
-        abort "Failed to verify $file"
+        abort "! Failed to verify $file"
     fi
 }
 
