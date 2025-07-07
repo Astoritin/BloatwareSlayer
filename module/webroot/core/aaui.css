@@ -1,0 +1,220 @@
+/* Global Settings */
+
+:root {
+    --mdui-color-primary: 52, 130, 255;
+    --mdui-color-primary-light: 52, 130, 255;
+    --mdui-color-primary-dark: 111, 178, 229;
+    --mdui-color-background: #FFFFFF;
+    --mdui-color-background-light: #FFFFFF;
+    --mdui-color-background-dark: #000000;
+    --mdui-opacity-primary: 1.0;
+    --mdui-opacity-primary-dark: 1.0;
+}
+
+body {
+    font-family: 'Google Sans', 'Roboto', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #000;
+    background-color: var(--mdui-color-background-light);
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        color: #A0A0A0;
+        background-color: var(--mdui-color-background-dark); /* 深色模式下使用深色背景 */
+    }
+}
+
+/* 覆盖 MDUI 默认的背景颜色 */
+.mdui-container {
+    background-color: var(--mdui-color-background-light);
+}
+
+@media (prefers-color-scheme: dark) {
+    .mdui-container {
+        background-color: var(--mdui-color-background-dark);
+    }
+}
+
+.foo {
+  background-color: rgb(var(--mdui-color-primary-light));
+}
+
+@media (prefers-color-scheme: dark) {
+    .foo {
+        background-color: rgb(var(--mdui-color-primary-dark));
+    }
+}
+
+.bar {
+  background-color: rgba(var(--mdui-color-primary-light), 1.0);
+}
+
+@media (prefers-color-scheme: dark) {
+    .bar {
+        background-color: rgba(var(--mdui-color-primary-dark), 1.0);
+    }
+}
+
+mdui-button-icon svg {
+    color: #000000; /* 默认图标颜色为黑色 */
+}
+
+@media (prefers-color-scheme: dark) {
+    mdui-button-icon svg {
+        color: #FFFFFF; /* 在深色模式下将图标颜色设置为白色 */
+    }
+}
+
+/* Title bar */
+
+.bs-title-block {
+    display: flex;
+    box-sizing: border-box;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+    padding: 12px;
+}
+
+.bs-title-block-text {    
+    font-size: 24px;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Title bar's buttons */
+
+.bs_top_buttons_container {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
+/* Status card */ 
+
+.bs-status-card {
+    display: flex;
+    flex-direction: row;
+    background-color: rgb(var(--mdui-color-primary));
+    color: #FFFFFF;
+    gap: 12px;
+    padding: 18px;
+    margin: 0 auto;
+    margin-top: -3px;
+    width: 98%;
+}
+
+@media (prefers-color-scheme: dark) {
+    .bs-status-card {
+        background-color: rgb(var(--mdui-color-primary-dark));
+    }
+}
+
+.bs-status-card svg path {
+    fill: #FFFFFF;
+}
+
+/* Device Info card */ 
+
+.bs-sysinfo-card {
+    display: flex;
+    flex-direction: row;
+    background-color: #F5F5F5;
+    color: #000000;
+    gap: 12px;
+    padding: 18px;
+    margin: 0 auto;
+    margin-top: -5px;
+    width: 98%;
+}
+
+@media (prefers-color-scheme: dark) {
+    .bs-sysinfo-card {
+        background-color: rgb(var(--mdui-color-primary-dark));
+    }
+}
+
+.bs-status-card svg path {
+    fill: #FFFFFF;
+}
+
+/* Normal title style */
+
+.bs_title_block {
+    display: flex; /* 使用 Flexbox 布局 */
+    box-sizing: border-box; /* 包含 padding 和 border 在内计算宽度 */
+    justify-content: left; /* 子元素在容器内水平分布，两端对齐 */
+    align-items: center; /* 子元素在容器内垂直居中 */
+    width: 100%;
+    margin: 0 auto; /* 水平居中对齐 */
+    padding: 15px; /* 内边距为 15px */
+}
+
+/* Normal title text style */
+
+.bs_title_text {
+    font-size: 24px;
+    font-family: 'Google Sans', 'Roboto', sans-serif;
+    font-weight: 600; /* 设置为粗体 */
+    color: #777; /* 设置为深灰色 */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* 添加轻微阴影 */
+}
+
+/* Normal switch style */
+
+.bs_switch_container {
+    font-size: 18px;
+    display: flex;
+    flex-direction: column; /* 垂直排列每个设置项 */
+    gap: 10px; /* 设置项之间的间距 */
+    width: 97%;
+    margin: 0 auto;
+}
+
+.bs_switch_item {
+    display: flex;
+    align-items: center; /* 垂直居中对齐 */
+    justify-content: flex-start; /* 水平起始对齐 */
+    gap: 20px;
+}
+
+.bs_switch_item span {
+    text-align: left; /* 文本左侧对齐 */
+    flex-grow: 1; /* 让文本占据剩余空间 */
+    padding: 6px;
+}
+
+.bs_switch_item mdui-switch {
+    margin-left: auto; /* 将开关推到右侧 */
+}
+
+.bs_switch_item mdui-text-field {
+    width: 100px; /* 固定宽度 */
+    max-width: 150px; /* 最大宽度 */
+    height: 35px;
+    max-height: 45px;
+}
+
+/* Normal button style */
+
+.bs_buttons {
+    display: flex;
+    color:#FFFFFF;
+    justify-content: space-between; /* 让左右两组按钮分别靠左和靠右 */
+    align-items: center; /* 垂直居中对齐 */
+    width: 100%;
+}
+  
+.button-group-left {
+  display: flex;
+  gap: 10px; /* 左侧按钮之间的间距 */
+}
+  
+.button-group-right {
+  display: flex;
+  gap: 10px; /* 右侧按钮之间的间距 */
+}
+

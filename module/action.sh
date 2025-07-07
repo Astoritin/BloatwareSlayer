@@ -4,7 +4,7 @@ MODDIR=${0%/*}
 CONFIG_DIR="/data/adb/bloatwareslayer"
 
 MOD_INTRO="Remove bloatwares in systemless way."
-SEPARATE_LINE="----------------------------------------"
+SEPARATE_LINE="---------------------------------------------"
 
 ROOT_FILE_MANAGERS="
 com.speedsoftware.rootexplorer/com.speedsoftware.rootexplorer.RootExplorer

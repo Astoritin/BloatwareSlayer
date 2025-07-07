@@ -1,29 +1,30 @@
 <!doctype html>
-<html lang="zh-CN">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bloatware Slayer WebUI</title>
-  <link rel="stylesheet" href="mdui/mdui.css">
-  <link rel="stylesheet" href="aaui/aaui.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bloatware Slayer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/mdui@2/mdui.css">
+    <link rel="stylesheet" href="core/aaui.css" type="text/css">
+    <script src="https://unpkg.com/mdui@2/mdui.global.js"></script>
+    <script type="module" crossorigin src="core/aa-util.js"></script>
 </head>
 <body>
-
-  <div class="bs_top_block">
-    <div class="bs_top_text">Bloatware Slayer 
-      <span id="bs_version">1.2.6</span>
+  <div class="bs-title-block">
+    <div class="bs-title-block-text">Bloatware Slayer 
+      <span id="bs-version" class="bs-title-block-text"></span>
     </div>
-      <mdui-button-icon id="bs_top_btn_refresh" icon="refresh" title="refresh">
+      <mdui-button-icon id="bs-top-refresh-btn" icon="refresh" title="refresh">
         <svg viewBox="0 0 26 26" width="26" height="26" style="fill: currentColor;">
           <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
         </svg>
       </mdui-button-icon>
   </div>
 
-    <mdui-card class="bs_status_card" variant="elevated">
-    
+    <mdui-card class="bs-status-card" variant="elevated">
+
         <svg viewBox="0 0 24 24" width="24" height="24">
           <path d="m18 7-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41 6 19l1.41-1.41L1.83 12 .41 13.41z"/>
         </svg>
@@ -31,7 +32,7 @@
 
     </mdui-card>
     <br>
-    <mdui-card class="bs_device_info_card" variant="elevated">
+    <mdui-card class="bs-sysinfo-card" variant="elevated">
     Android<br>
     15 (API 35)
     <br><br>
@@ -64,7 +65,5 @@
     
   </div>
 
-  <script src="mdui/mdui.global.js"></script>
-  <script src="aaui/aaui.index.js" type="module"></script>
 </body>
 </html>

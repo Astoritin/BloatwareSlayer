@@ -74,7 +74,7 @@ logowl_init() {
     LOG_DIR="$1"
 
     [ -z "$LOG_DIR" ] && return 1
-    [ ! -d "$LOG_DIR" ] && mkdir -p "$LOG_DIR" && logowl "Created $LOG_DIR"
+    [ ! -d "$LOG_DIR" ] && mkdir -p "$LOG_DIR" && logowl "Create $LOG_DIR"
 
 }
 
@@ -99,6 +99,7 @@ logowl() {
     LOG_MSG_LEVEL="$2"
     LOG_MSG_PREFIX=""
     SEPARATE_LINE="---------------------------------------------"
+    TIMESTAMP_FORMAT="%02d:%02d:%02d:%03d | "
 
     [ -z "$LOG_MSG" ] && return 1
 
@@ -110,18 +111,28 @@ logowl() {
         "*" ) LOG_MSG_PREFIX="* " ;; 
         " ") LOG_MSG_PREFIX="  " ;;
         "-") LOG_MSG_PREFIX="" ;;
-        *) LOG_MSG_PREFIX="- " ;;
+        *) if [ -n "$LOG_FILE" ]; then
+            LOG_MSG_PREFIX=""
+            else
+            LOG_MSG_PREFIX="- "
+            fi
+            ;;
     esac
 
     if [ -n "$LOG_FILE" ]; then
+        CURRENT_HOUR=$(date +%H)
+        CURRENT_MIN=$(date +%M)
+        CURRENT_SEC=$(date +%S)
+        CURRENT_MS=$(date +%3N)
+        TIME_STAMP=$(printf "$TIMESTAMP_FORMAT" "$CURRENT_HOUR" "$CURRENT_MIN" "$CURRENT_SEC" "$CURRENT_MS")
         if [ "$LOG_MSG_LEVEL" = "ERROR" ] || [ "$LOG_MSG_LEVEL" = "FATAL" ]; then
             echo "$SEPARATE_LINE" >> "$LOG_FILE"
-            echo "${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
+            echo "${TIME_STAMP}${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
             echo "$SEPARATE_LINE" >> "$LOG_FILE"
         elif [ "$LOG_MSG_LEVEL" = "-" ]; then
-            echo "$LOG_MSG" >> "$LOG_FILE"
+            echo "${LOG_MSG}" >> "$LOG_FILE"
         else
-            echo "${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
+            echo "${TIME_STAMP}${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
         fi
     else
         if command -v ui_print >/dev/null 2>&1; then
@@ -257,20 +268,6 @@ update_config_var() {
     sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
     result_update_value=$?
     return "$result_update_value"
-
-}
-
-debug_print_values() {
-
-    print_line
-    logowl "All Environment variables"
-    print_line
-    env | sed 's/^/- /'
-    print_line
-    logowl "All Shell variables"
-    print_line
-    ( set -o posix; set ) | sed 's/^/- /'
-    print_line
 
 }
 

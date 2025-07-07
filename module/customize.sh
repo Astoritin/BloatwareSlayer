@@ -13,7 +13,7 @@ MOD_INTRO="Remove bloatwares in systemless way."
 
 unzip -o "$ZIPFILE" "aa-util.sh" -d "$TMPDIR" >&2
 if [ ! -f "$TMPDIR/aa-util.sh" ]; then
-    echo "! Failed to extract aa-util.sh!"
+    ui_print "! Failed to extract aa-util.sh!"
     abort "! This zip may be corrupted!"
 fi
 
@@ -38,5 +38,5 @@ extract "uninstall.sh"
 logowl "Set permission"
 set_permission_recursive "$MODPATH" 0 0 0755 0644
 logowl "Welcome to use $MOD_NAME!"
-DESC_SLAYER="[💥Please check $TARGET_LIST carefully before reboot your device!] $MOD_INTRO"
+DESC_SLAYER="[💥Check $TARGET_LIST carefully before reboot!] $MOD_INTRO"
 update_config_var "description" "$DESC_SLAYER" "$MODPATH/module.prop"

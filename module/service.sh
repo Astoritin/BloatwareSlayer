@@ -70,7 +70,7 @@ while [ "$(getprop sys.boot_completed)" != "1" ]; do
             logowl "Disable $MOD_NAME"
             touch "$MODDIR/disable"
         fi
-        DESC_SLAYER="[❌Trigger brick rescue! 🐦Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+        DESC_SLAYER="[❌Trigger brick rescue! 🔮Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
         update_config_var "description" "$DESC_SLAYER" "$MODULE_PROP"
         sync && logowl "Notify system for sync"
         logowl "setprop sys.powerctl reboot"
@@ -145,7 +145,7 @@ if [ "$auto_update_target_list" = true ]; then
     logowl "Update target list"
     cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
 fi
-logowl "Clean up temporary file"
+logowl "Cleanup temporary file"
 rm -f "$TARGET_LIST_BSA"
 set_permission_recursive "$MODDIR" 0 0 0755 0644
 set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644

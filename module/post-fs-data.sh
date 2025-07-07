@@ -112,7 +112,7 @@ preparation() {
 
     if [ ! -f "$TARGET_LIST" ]; then
         logowl "Target list does NOT exist" "F"
-        DESC_SLAYER="[❌Target list file does NOT exist! 🐦Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+        DESC_SLAYER="[❌Target list file does NOT exist! 🔮Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
         update_config_var "description" "$DESC_SLAYER" "$MODULE_PROP"
         return 1
     fi
@@ -253,34 +253,27 @@ bloatware_slayer() {
                 case "$app_path" in
                     /apex*|/system/apex*)
                         case "$app_path" in
-                        *.apex|*.capex)
-                            ;;
-                        *)
-                            if [ "${app_path#/apex}" != "$app_path" ]; then
-                                logowl "Redirect to /system$app_path" "*"
-                                app_path="/system$app_path"
-                            fi
-                            app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
-                            if [ -f "$app_path.apex" ]; then
-                                app_path="$app_path.apex"
-                            elif [ -f "$app_path.capex" ]; then
-                                app_path="$app_path.capex"
-                            else
-                                break
-                            fi
-                            ;;
+                            *.apex|*.capex) ;;
+                            *)  if [ "${app_path#/apex}" != "$app_path" ]; then
+                                    logowl "Redirect to /system$app_path" "*"
+                                    app_path="/system$app_path"
+                                fi
+                                app_path=$(echo "$app_path" | sed -n 's|^/system/apex/\([^/]*\).*|/system/apex/\1|p')
+                                if [ -f "$app_path.apex" ]; then
+                                    app_path="$app_path.apex"
+                                elif [ -f "$app_path.capex" ]; then
+                                    app_path="$app_path.capex"
+                                else
+                                    break
+                                fi
+                                ;;
                         esac
                         ;;
                     /app*|/product*|/priv-app*|/system_ext*|/vendor*|/data-app*)
                         logowl "Redirect to /system$app_path" "*"
-                        app_path="/system$app_path"
-                        ;;
-                    /system*)
-                        [ "$app_path" = "/system" ] && break
-                        ;;
-                    *)
-                        break
-                        ;;
+                        app_path="/system$app_path";;
+                    /system*)   [ "$app_path" = "/system" ] && break;;
+                    *)  break;;
                 esac
             else
                 app_path="$path/$package"
@@ -289,15 +282,18 @@ bloatware_slayer() {
             app_name="$(basename "$app_path")"
             if [ -d "$app_path" ]; then
                 logowl "Process path $app_path"
-                if [ "$slay_mode" = "MB" ]; then
-                    link_mount_bind "$MIRROR_DIR" "$app_path" && mb_count=$((mb_count + 1))
-                elif [ "$slay_mode" = "MN" ]; then
-                    mirror_make_node "$app_path" && mn_count=$((mn_count + 1))
-                elif [ "$slay_mode" = "MR" ]; then
-                    mirror_magisk_replace "$app_path" && mr_count=$((mr_count + 1))
-                fi
+                case "$slay_mode" in
+                    "MB")   link_mount_bind "$MIRROR_DIR" "$app_path";;
+                    "MR")   mirror_make_node "$app_path";;
+                    "MN")   mirror_magisk_replace "$app_path";;
+                esac
                 app_process_result=$?
                 if [ $app_process_result -eq 0 ]; then
+                    case "$slay_mode" in
+                    "MB")   mb_count=$((mb_count + 1));;
+                    "MR")   mn_count=$((mn_count + 1));;
+                    "MN")   mr_count=$((mr_count + 1));;
+                    esac
                     if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
                         echo "$app_path" >> "$TARGET_LIST_BSA"
                         blocked_apps_count=$((blocked_apps_count + 1))
@@ -314,9 +310,10 @@ bloatware_slayer() {
             elif [ -f "$app_path" ] && [ -d "$(dirname $app_path)" ]; then
                 logowl "Process path $app_path"
                 if [ "$slay_mode" = "MN" ] || [ "$MN_SUPPORT" = true ]; then
-                    mirror_make_node "$app_path" && mn_count=$((mn_count + 1))
+                    mirror_make_node "$app_path"
                     file_process_result=$?
                     if [ $file_process_result -eq 0 ]; then
+                        mn_count=$((mn_count + 1))
                         if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
                             blocked_apps_count=$((blocked_apps_count + 1))
@@ -382,7 +379,7 @@ module_status_update() {
                 DESC_SLAYER="❌No valid items found in target list!"
             fi
         fi
-        DESCRIPTION="[${DESC_SLAYER} ⚙️Mode: ${slay_mode_desc}${desc_last_worked}, 🐦Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
+        DESCRIPTION="[${DESC_SLAYER} ⚙️Mode: ${slay_mode_desc}${desc_last_worked}, 🔮Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
         update_config_var "description" "$DESCRIPTION" "$MODULE_PROP"
     fi
 
