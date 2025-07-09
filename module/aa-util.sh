@@ -300,8 +300,8 @@ file_compare() {
     file_a="$1"
     file_b="$2"
     
-    [ -z "$file_a" ] || [ -z "$file_b" ] && return 2
-    [ ! -f "$file_a" ] || [ ! -f "$file_b" ] && return 3
+    [ -z "$file_a" ] || [ ! -f "$file_a" ] && return 2
+    [ -z "$file_b" ] || [ ! -f "$file_b" ] && return 3
     
     hash_file_a=$(sha256sum "$file_a" | awk '{print $1}')
     hash_file_b=$(sha256sum "$file_b" | awk '{print $1}')
