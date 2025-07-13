@@ -287,15 +287,15 @@ bloatware_slayer() {
                 logowl "Process path $app_path"
                 case "$slay_mode" in
                     "MB")   link_mount_bind "$MIRROR_DIR" "$app_path";;
-                    "MR")   mirror_make_node "$app_path";;
-                    "MN")   mirror_magisk_replace "$app_path";;
+                    "MR")   mirror_magisk_replace "$app_path";;
+                    "MN")   mirror_make_node "$app_path";;
                 esac
                 app_process_result=$?
                 if [ $app_process_result -eq 0 ]; then
                     case "$slay_mode" in
                     "MB")   mb_count=$((mb_count + 1));;
-                    "MR")   mn_count=$((mn_count + 1));;
-                    "MN")   mr_count=$((mr_count + 1));;
+                    "MR")   mr_count=$((mr_count + 1));;
+                    "MN")   mn_count=$((mn_count + 1));;
                     esac
                     if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
                         echo "$app_path" >> "$TARGET_LIST_BSA"
