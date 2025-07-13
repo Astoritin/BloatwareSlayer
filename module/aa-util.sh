@@ -262,7 +262,7 @@ update_config_var() {
     fi
 
     if grep -q "^${key_name}=" "$file_path"; then
-        sed -i "s/^${key_name}=.*/${key_name}=${key_value}" "$file_path"
+        sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
     else
         printf '%s=%s\n' "$key_name" "$key_value" >> "$file_path"
     fi
