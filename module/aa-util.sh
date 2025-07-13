@@ -120,11 +120,7 @@ logowl() {
     esac
 
     if [ -n "$LOG_FILE" ]; then
-        CURRENT_HOUR=$(date +%H)
-        CURRENT_MIN=$(date +%M)
-        CURRENT_SEC=$(date +%S)
-        CURRENT_MS=$(date +%3N)
-        TIME_STAMP=$(printf "$TIMESTAMP_FORMAT" "$CURRENT_HOUR" "$CURRENT_MIN" "$CURRENT_SEC" "$CURRENT_MS")
+        TIME_STAMP="$(date +"%Y-%m-%d %H:%M:%S.%3N") ┆ "
         if [ "$LOG_MSG_LEVEL" = "ERROR" ] || [ "$LOG_MSG_LEVEL" = "FATAL" ]; then
             echo "$SEPARATE_LINE" >> "$LOG_FILE"
             echo "${TIME_STAMP}${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
@@ -265,10 +261,14 @@ update_config_var() {
         return 2
     fi
 
-    sed -i "/^${key_name}=/c\\${key_name}=${key_value}" "$file_path"
+    if grep -q "^${key_name}=" "$file_path"; then
+        sed -i "s/^${key_name}=.*/${key_name}=${key_value}" "$file_path"
+    else
+        printf '%s=%s\n' "$key_name" "$key_value" >> "$file_path"
+    fi
+
     result_update_value=$?
     return "$result_update_value"
-
 }
 
 show_system_info() {

@@ -116,6 +116,9 @@ preparation() {
         update_config_var "description" "$DESC_SLAYER" "$MODULE_PROP"
         return 1
     fi
+
+    logowl_init "$WEBUI_SAV_DIR"
+    > "$WEBUI_SAV"
 }
 
 mirror_make_node() {
@@ -219,7 +222,7 @@ bloatware_slayer() {
     print_line
 
     total_apps_count=0
-    blocked_apps_count=0
+    slain_apps_count=0
     duplicated_apps_count=0
 
     mb_count=0
@@ -296,7 +299,7 @@ bloatware_slayer() {
                     esac
                     if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
                         echo "$app_path" >> "$TARGET_LIST_BSA"
-                        blocked_apps_count=$((blocked_apps_count + 1))
+                        slain_apps_count=$((slain_apps_count + 1))
                         logowl "$app_name has been slain" ">"
                     else
                         logowl "Find duplicate item $app_name"
@@ -316,7 +319,7 @@ bloatware_slayer() {
                         mn_count=$((mn_count + 1))
                         if check_duplicate_items "$app_path" "$TARGET_LIST_BSA"; then
                             echo "$app_path" >> "$TARGET_LIST_BSA"
-                            blocked_apps_count=$((blocked_apps_count + 1))
+                            slain_apps_count=$((slain_apps_count + 1))
                             logowl "$app_name has been slain" ">"
                         else
                             logowl "Find duplicate item $app_name"
@@ -345,10 +348,10 @@ bloatware_slayer() {
 
 module_status_update() {
 
-    missing_apps_count=$((total_apps_count - blocked_apps_count - duplicated_apps_count))
+    missing_apps_count=$((total_apps_count - slain_apps_count - duplicated_apps_count))
     print_line
     logowl "Total: $total_apps_count APP(s)"
-    logowl "Slain: $blocked_apps_count APP(s)"
+    logowl "Slain: $slain_apps_count APP(s)"
     logowl "with Mount Bind: $mb_count APP(s)"
     logowl "with Magisk Replace: $mr_count APP(s)"
     logowl "with Make Node: $mn_count APP(s)"
@@ -359,18 +362,20 @@ module_status_update() {
     [ $mr_count -gt 0 ] && slay_mode_desc="Magisk Replace"
     [ $mn_count -gt 0 ] && slay_mode_desc="Make Node"
 
-    if [ $mb_count -gt 0 ] && [ $mn_count -gt 0 ] || [ $mr_count -ne 0 ] && [ $mn_count -ne 0 ]; then
-        slay_mode_desc="Hybrid"
+    if [ $mb_count -gt 0 ] && [ $mn_count -gt 0 ]; then
+        slay_mode_desc="Mount Bind (${mb_count}), Make Node (${mn_count})"
+    elif [ $mr_count -ne 0 ] && [ $mn_count -ne 0 ]; then
+        slay_mode_desc="Magisk Replace (${mr_count}), Make Node (${mn_count})"
     fi
 
     desc_last_worked=""
     [ "$rescue_from_last_worked_target_list" = true ] && desc_last_worked=" (last worked)"
 
     if [ -f "$MODULE_PROP" ]; then
-        if [ $blocked_apps_count -gt 0 ]; then
-            DESC_SLAYER="✅Done. $blocked_apps_count APP(s) slain, $missing_apps_count APP(s) missing, $duplicated_apps_count APP(s) duplicated, $total_apps_count APP(s) targeted in total."
+        if [ $slain_apps_count -gt 0 ]; then
+            DESC_SLAYER="✅Done. $slain_apps_count APP(s) slain, $missing_apps_count APP(s) missing, $duplicated_apps_count APP(s) duplicated, $total_apps_count APP(s) targeted in total."
             if [ $missing_apps_count -eq 0 ]; then
-                DESC_SLAYER="✅Cleared. $blocked_apps_count APP(s) slain."
+                DESC_SLAYER="✅Cleared. $slain_apps_count APP(s) slain."
             fi
         else
             if [ $total_apps_count -gt 0 ]; then
