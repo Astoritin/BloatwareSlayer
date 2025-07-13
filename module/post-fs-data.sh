@@ -363,9 +363,9 @@ module_status_update() {
     [ $mn_count -gt 0 ] && slay_mode_desc="Make Node"
 
     if [ $mb_count -gt 0 ] && [ $mn_count -gt 0 ]; then
-        slay_mode_desc="Mount Bind (${mb_count}), Make Node (${mn_count})"
+        slay_mode_desc="Mount Bind (${mb_count}) + Make Node (${mn_count})"
     elif [ $mr_count -ne 0 ] && [ $mn_count -ne 0 ]; then
-        slay_mode_desc="Magisk Replace (${mr_count}), Make Node (${mn_count})"
+        slay_mode_desc="Magisk Replace (${mr_count}) + Make Node (${mn_count})"
     fi
 
     desc_last_worked=""

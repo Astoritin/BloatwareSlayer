@@ -120,7 +120,7 @@ logowl() {
     esac
 
     if [ -n "$LOG_FILE" ]; then
-        TIME_STAMP="$(date +"%Y-%m-%d %H:%M:%S.%3N") ┆ "
+        TIME_STAMP="$(date +"%Y-%m-%d %H:%M:%S.%3N") | "
         if [ "$LOG_MSG_LEVEL" = "ERROR" ] || [ "$LOG_MSG_LEVEL" = "FATAL" ]; then
             echo "$SEPARATE_LINE" >> "$LOG_FILE"
             echo "${TIME_STAMP}${LOG_MSG_PREFIX}${LOG_MSG}" >> "$LOG_FILE"
@@ -269,6 +269,20 @@ update_config_var() {
 
     result_update_value=$?
     return "$result_update_value"
+}
+
+remove_config_var() {
+    key_name="$1"
+    file_path="$2"
+
+    if [ -z "$key_name" ] || [ -z "$file_path" ]; then
+        return 1
+    elif [ ! -f "$file_path" ]; then
+        return 2
+    fi
+
+    sed -i "/^${key_name}=/d" "$file_path"
+    return "$?"
 }
 
 show_system_info() {
