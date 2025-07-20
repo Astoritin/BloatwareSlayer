@@ -81,6 +81,5 @@ The default wait time is 300 seconds (5 minutes), meaning Bloatware Slayer will 
 
 ## Credits
 - [Magisk](https://github.com/topjohnwu/Magisk) - the foundation which makes everything possible
-- [MDUI](https://github.com/zdhxiong/mdui) - pretty WebUI implementation
 - [Zygisk Next](https://github.com/Dr-TSNG/ZygiskNext) - the implementation of function extract and root solution check
 - [LSPosed](https://github.com/LSPosed/LSPosed) - the implementation of function extract and root solution check
