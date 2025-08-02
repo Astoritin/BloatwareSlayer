@@ -3,7 +3,7 @@ MODDIR=${0%/*}
 
 CONFIG_DIR="/data/adb/bloatwareslayer"
 
-MOD_INTRO="Remove bloatwares in systemless way."
+MOD_INTRO="Remove bloatwares in systemless way"
 SEPARATE_LINE="---------------------------------------------"
 
 ROOT_FILE_MANAGERS="

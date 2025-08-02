@@ -1,7 +1,7 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
-. "$MODDIR/aa-util.sh"
+. "$MODDIR/wanderer.sh"
 
 CONFIG_DIR="/data/adb/bloatwareslayer"
 
@@ -18,31 +18,22 @@ TARGET_LIST_LW="$LAST_WORKED_DIR/target_lw.conf"
 
 MOD_INTRO="Remove bloatwares in systemless way."
 
-brick_rescue=true
-disable_module_as_brick=true
-auto_update_target_list=true
-brick_timeout=120
-last_worked_target_list=true
-
-slay_mode=MB
-mb_umount_bind=true
-
 config_loader() {
 
-    logowl "Load config"
+    eco "Load config"
 
-    brick_rescue=$(get_config_var "brick_rescue" "$CONFIG_FILE")
-    brick_timeout=$(get_config_var "brick_timeout" "$CONFIG_FILE")
-    disable_module_as_brick=$(get_config_var "disable_module_as_brick" "$CONFIG_FILE")
-    last_worked_target_list=$(get_config_var "last_worked_target_list" "$CONFIG_FILE")
-    slay_mode=$(get_config_var "slay_mode" "$CONFIG_FILE")
-    mb_umount_bind=$(get_config_var "mb_umount_bind" "$CONFIG_FILE")
-    auto_update_target_list=$(get_config_var "auto_update_target_list" "$CONFIG_FILE")
+    brick_rescue=$(get_config_var "brick_rescue" "$CONFIG_FILE") || brick_rescue=true
+    brick_timeout=$(get_config_var "brick_timeout" "$CONFIG_FILE") || brick_timeout=120
+    disable_module_as_brick=$(get_config_var "disable_module_as_brick" "$CONFIG_FILE") || disable_module_as_brick=true
+    last_worked_target_list=$(get_config_var "last_worked_target_list" "$CONFIG_FILE") || last_worked_target_list=true
+    slay_mode=$(get_config_var "slay_mode" "$CONFIG_FILE") || slay_mode=MB
+    mb_umount_bind=$(get_config_var "mb_umount_bind" "$CONFIG_FILE") || mb_umount_bind=true
+    auto_update_target_list=$(get_config_var "auto_update_target_list" "$CONFIG_FILE") || auto_update_target_list=true
 
 }
 
-logowl_init "$LOG_DIR"
-logowl_clean "30"
+eco_init "$LOG_DIR"
+eco_clean "30"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
@@ -50,49 +41,49 @@ config_loader
 print_line
 
 if [ "$brick_rescue" = true ] && [ -f "$FLAG_BRICKED" ]; then
-    logowl "Find flag bricked!" "F"
-    logowl "Skip processing"
+    eco "Find flag bricked!" "F"
+    eco "Skip processing"
     exit 1
 fi
 
-logowl "Current boot timeout: ${brick_timeout}s"
+eco "Current boot timeout: ${brick_timeout}s"
 while [ "$(getprop sys.boot_completed)" != "1" ]; do
     if [ $brick_timeout -le "0" ]; then
         print_line
-        logowl "Unable to boot after reaching the limit!" "F"
-        logowl "Set flag bricked"
+        eco "Unable to boot after reaching the limit!" "F"
+        eco "Set flag bricked"
         touch "$FLAG_BRICKED"
         if [ "$brick_rescue" = false ]; then
-            logowl "Skip birck rescue" "W"
+            eco "Skip birck rescue" "W"
             exit 1
         fi
         if [ "$disable_module_as_brick" = true ]; then
-            logowl "Disable $MOD_NAME"
+            eco "Disable $MOD_NAME"
             touch "$MODDIR/disable"
         fi
-        DESC_SLAYER="[❌Trigger brick rescue! 🔮Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
-        update_config_var "description" "$DESC_SLAYER" "$MODULE_PROP"
-        sync && logowl "Notify system for sync"
-        logowl "setprop sys.powerctl reboot"
+        DESCRIPTION="[❌Trigger brick rescue! 🔮Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
+        update_config_var "description" "$MODULE_PROP" "$DESCRIPTION"
+        sync && eco "Notify system for sync"
+        eco "setprop sys.powerctl reboot"
         setprop sys.powerctl reboot
         sleep 5
-        logowl "Reboot command does NOT take effect, exiting"
+        eco "Reboot command does NOT take effect, exiting"
         exit 1
     fi
     brick_timeout=$((brick_timeout-1))
     sleep 1
 done
 
-logowl "Boot complete! Countdown: ${brick_timeout}s"
+eco "Boot complete! Countdown: ${brick_timeout}s"
 rm -f "$FLAG_BRICKED"
-logowl "Remove flag bricked"
+eco "Remove flag bricked"
 
 if [ "$slay_mode" = "MB" ] && [ "$mb_umount_bind" = true ]; then
     print_line
-    logowl "Unmount bind points"
+    eco "Unmount bind points"
     print_line
     if [ ! -f "$TARGET_LIST_BSA" ]; then
-        logowl "$TARGET_LIST_BSA does NOT exist, skip unmounting" "W"
+        eco "$TARGET_LIST_BSA does NOT exist, skip unmounting" "W"
     else
         TOTAL_APPS_COUNT=0
         UMOUNT_APPS_COUNT=0
@@ -115,25 +106,25 @@ if [ "$slay_mode" = "MB" ] && [ "$mb_umount_bind" = true ]; then
             esac
 
             TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT + 1))
-            logowl "Process $package"
+            eco "Process $package"
             umount -f $package
             result_umount=$?
-            logowl "umount -f $package ($result_umount)"
+            eco "umount -f $package ($result_umount)"
             app_name="$(basename "$package")"
             if [ $result_umount -eq 0 ]; then
                 UMOUNT_APPS_COUNT=$((UMOUNT_APPS_COUNT + 1))
-                logowl "$app_name has been unmounted" ">"
+                eco "$app_name has been unmounted" ">"
             fi
 
         done < "$TARGET_LIST_BSA"
         print_line
-        logowl "Total: $TOTAL_APPS_COUNT APP(s)"
-        logowl "Unmount: $UMOUNT_APPS_COUNT APP(s)"
+        eco "Total: $TOTAL_APPS_COUNT APP(s)"
+        eco "Unmount: $UMOUNT_APPS_COUNT APP(s)"
         print_line
     fi
 fi
 if [ "$last_worked_target_list" = true ]; then
-    logowl "Backup last worked target list"
+    eco "Backup last worked target list"
     [ ! -d "$LAST_WORKED_DIR" ] && mkdir -p "$LAST_WORKED_DIR"
     if [ "$auto_update_target_list" = true ]; then
         cp "$TARGET_LIST_BSA" "$TARGET_LIST_LW"
@@ -142,12 +133,10 @@ if [ "$last_worked_target_list" = true ]; then
     fi
 fi
 if [ "$auto_update_target_list" = true ]; then
-    logowl "Update target list"
+    eco "Update target list"
     cp -p "$TARGET_LIST_BSA" "$TARGET_LIST"
 fi
-logowl "Cleanup temporary file"
+eco "Cleanup temporary file"
 rm -f "$TARGET_LIST_BSA"
-set_permission_recursive "$MODDIR" 0 0 0755 0644
-set_permission_recursive "$CONFIG_DIR" 0 0 0755 0644
 print_line
-logowl "Case closed!"
+eco "Case closed!"
