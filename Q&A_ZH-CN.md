@@ -1,7 +1,7 @@
 [English](Q&A.md) | 简体中文
 
 # **干掉预装软件 / Bloatware Slayer**
-一个无需修改 system 分区即可移除预装软件的 Magisk 模块 / A Magisk module to remove bloatware in systemless way
+一个无需修改 system 分区即可移除预装软件的 Magisk 模块 / A Magisk module to remove bloatware systemlessly
 
 # 问与答 / Question and Answer
 

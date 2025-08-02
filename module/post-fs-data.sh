@@ -16,7 +16,7 @@ TARGET_LIST_BSA="$LOG_DIR/target_bsa.conf"
 LAST_WORKED_DIR="$CONFIG_DIR/last_worked"
 TARGET_LIST_LW="$LAST_WORKED_DIR/target_lw.conf"
 
-MOD_INTRO="Remove bloatwares in systemless way."
+MOD_INTRO="Remove bloatwares systemlessly."
 
 MN_SUPPORT=false
 MR_SUPPORT=false

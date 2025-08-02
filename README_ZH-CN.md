@@ -1,7 +1,7 @@
 [English](README.md) | 简体中文
 
 # **干掉预装软件 / Bloatware Slayer**
-一个无需修改 system 分区即可移除预装软件的 Magisk 模块 / A Magisk module to remove bloatware in systemless way
+一个无需修改 system 分区即可移除预装软件的 Magisk 模块 / A Magisk module to remove bloatware systemlessly
 
 ## 支持的 Root 方案
 [Magisk](https://github.com/topjohnwu/Magisk) (推荐!) 丨 [KernelSU](https://github.com/tiann/KernelSU) (推荐!) 丨 [APatch](https://github.com/bmax121/APatch) (仅理论上支持，未经实际测试)

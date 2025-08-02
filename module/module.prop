@@ -3,5 +3,5 @@ name=Bloatware Slayer
 version=v1.4.4
 versionCode=1016
 author=Astoritin Ambrosius
-description=Remove bloatwares in systemless way.
+description=Remove bloatwares systemlessly.
 updateJson=https://raw.githubusercontent.com/Astoritin/BloatwareSlayer/main/webpage/update.json

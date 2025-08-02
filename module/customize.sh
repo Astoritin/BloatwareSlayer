@@ -10,7 +10,7 @@ LOG_DIR="$CONFIG_DIR/logs"
 MOD_PROP="${TMPDIR}/module.prop"
 MOD_NAME="$(grep_prop name "$MOD_PROP")"
 MOD_VER="$(grep_prop version "$MOD_PROP") ($(grep_prop versionCode "$MOD_PROP"))"
-MOD_INTRO="Remove bloatwares in systemless way."
+MOD_INTRO="Remove bloatwares systemlessly."
 
 unzip -o "$ZIPFILE" "wanderer.sh" -d "$TMPDIR" >&2
 if [ ! -f "$TMPDIR/wanderer.sh" ]; then

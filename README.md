@@ -1,13 +1,13 @@
 English | [简体中文](README_ZH-CN.md)
 
 # **Bloatware Slayer / 干掉预装软件**
-A Magisk module to remove bloatware in systemless way / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
+A Magisk module to remove bloatware systemlessly / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
 ## Supported Root Solution
 [Magisk](https://github.com/topjohnwu/Magisk) (Recommended!) 丨 [KernelSU](https://github.com/tiann/KernelSU) (Recommended!) 丨 [APatch](https://github.com/bmax121/APatch) (Not test yet)
 
 ## Steps
-Bloatware Slayer removes bloatwares in systemless way, using specific mount methods from Magisk, KernelSU and APatch. Below are the steps:
+Bloatware Slayer removes bloatwares systemlessly, using specific mount methods from Magisk, KernelSU and APatch. Below are the steps:
 1. Install Magisk / KernelSU / APatch
 2. Download and install Bloatware Slayer
 3. Use [App Manager](https://github.com/MuntashirAkon/AppManager) to search for the system app names you want to block, open the app details page and copy source directory. Root Explorer, MiXplorer to manually locate and copy the directory names of pre-installed apps under `/system` is okay too.
