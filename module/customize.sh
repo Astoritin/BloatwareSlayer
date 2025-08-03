@@ -36,7 +36,7 @@ extract "action.sh"
 extract "uninstall.sh"
 [ ! -f "$CONFIG_FILE" ] && extract "settings.conf" "$CONFIG_DIR"
 [ ! -f "$TARGET_LIST" ] && extract "target.conf" "$CONFIG_DIR"
-DESCRIPTION="[🙂Check $TARGET_LIST carefully before reboot!] $MOD_INTRO"
+DESCRIPTION="[⚡Check $TARGET_LIST carefully before reboot! 🔮Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
 update_config_var "description" "$MODPATH/module.prop" "$DESCRIPTION"
 eco "Set permission"
 set_perm_recursive "$MODPATH" 0 0 0755 0644

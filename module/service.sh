@@ -38,7 +38,6 @@ module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
 print_line
 config_loader
-print_line
 
 if [ "$brick_rescue" = true ] && [ -f "$FLAG_BRICKED" ]; then
     eco "Find flag bricked!" "F"

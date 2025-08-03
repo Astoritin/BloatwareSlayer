@@ -342,14 +342,14 @@ bloatware_slayer() {
 
 module_status_update() {
 
-    missing_apps_count=$((total_apps_count - slain_apps_count - duplicated_apps_count))
+    apps_not_found_count=$((total_apps_count - slain_apps_count - duplicated_apps_count))
     print_line
     eco "Total: $total_apps_count APP(s)"
     eco "Slain: $slain_apps_count APP(s)"
     eco "with Mount Bind: $mb_count APP(s)"
     eco "with Magisk Replace: $mr_count APP(s)"
     eco "with Make Node: $mn_count APP(s)"
-    eco "Missing: $missing_apps_count APP(s)"
+    eco "Not found: $apps_not_found_count APP(s)"
     eco "Duplicate: $duplicated_apps_count APP(s)"
 
     [ $mb_count -gt 0 ] && slay_mode_desc="Mount Bind"
@@ -367,13 +367,17 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $slain_apps_count -gt 0 ]; then
-            DESCRIPTION="✨Done. $slain_apps_count APP(s) slain, $missing_apps_count APP(s) missing, $total_apps_count APP(s) targeted in total."
-            if [ $missing_apps_count -eq 0 ]; then
-                DESCRIPTION="✨Cleared. $slain_apps_count APP(s) slain."
+            DESCRIPTION="🐦Done. $slain_apps_count APP(s) slain, $apps_not_found_count APP(s) not found, $total_apps_count APP(s) in total."
+            if [ $apps_not_found_count -eq 0 ]; then
+                DESCRIPTION="🐦Cleared. $slain_apps_count APP(s) slain."
             fi
         else
             if [ $total_apps_count -gt 0 ]; then
-                DESCRIPTION="✨Standby. $total_apps_count APP(s) in total not found in your device!"
+                if [ $duplicated_apps_count -gt 0 ]; then
+                    DESCRIPTION="🐦Done. $duplicated_apps_count APP(s) slain. $total_apps_count APP(s) not found."
+                else
+                    DESCRIPTION="⌛Standby. $total_apps_count APP(s) not found."
+                fi
             else
                 DESCRIPTION="❌No valid items found in target list!"
             fi
