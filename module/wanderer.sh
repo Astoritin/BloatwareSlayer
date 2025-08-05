@@ -108,7 +108,7 @@ eco() {
         "E") LOG_MSG_PREFIX="! ERROR: " ;;
         "F") LOG_MSG_PREFIX="× FATAL: " ;;
         ">") LOG_MSG_PREFIX="> " ;;
-        "*" ) LOG_MSG_PREFIX="* " ;; 
+        "*" ) LOG_MSG_PREFIX="* " ;;
         " ") LOG_MSG_PREFIX="  " ;;
         "-") LOG_MSG_PREFIX="" ;;
         *) if [ -n "$LOG_FILE" ]; then
@@ -285,6 +285,24 @@ remove_config_var() {
 
     sed -i "/^${key_name}=/d" "$file_path"
     return "$?"
+}
+
+query_var() {
+
+    for var_name in "$@"; do
+        eval printf '%s=%s\\n' "$var_name" \"\$$var_name\"
+    done
+
+}
+
+print_var() {
+
+    [ $# -eq 0 ] && return 1
+
+    query_var "$@" | while IFS= read -r line || [ -n "$line" ]; do
+        eco "$line"
+    done
+
 }
 
 show_system_info() {

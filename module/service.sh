@@ -29,6 +29,9 @@ config_loader() {
     slay_mode=$(get_config_var "slay_mode" "$CONFIG_FILE") || slay_mode=MB
     mb_umount_bind=$(get_config_var "mb_umount_bind" "$CONFIG_FILE") || mb_umount_bind=true
     auto_update_target_list=$(get_config_var "auto_update_target_list" "$CONFIG_FILE") || auto_update_target_list=true
+    print_line
+    print_var "brick_rescue" "brick_timeout" "disable_module_as_brick" "last_worked_target_list" "slay_mode" "mb_umount_bind" "auto_update_target_list"
+    print_line
 
 }
 

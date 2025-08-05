@@ -23,9 +23,8 @@ MR_SUPPORT=false
 MIRROR_DIR="$MODDIR/system"
 
 unbrick() {
-
     if [ "$brick_rescue" = false ]; then
-        eco "$MOD_NAME will skip brick rescue process"
+        eco "$MOD_NAME will skip brick rescue"
         return 1
     fi
 
@@ -62,13 +61,14 @@ unbrick() {
 config_loader() {
 
     eco "Load config"
-
     brick_rescue=$(get_config_var "brick_rescue" "$CONFIG_FILE") || brick_rescue=true
     disable_module_as_brick=$(get_config_var "disable_module_as_brick" "$CONFIG_FILE") || disable_module_as_brick=true
     last_worked_target_list=$(get_config_var "last_worked_target_list" "$CONFIG_FILE") || last_worked_target_list=true
     slay_mode=$(get_config_var "slay_mode" "$CONFIG_FILE") || slay_mode=MB
     system_app_paths=$(get_config_var "system_app_paths" "$CONFIG_FILE") || system_app_paths="/system/app /system/product/app /system/product/data-app /system/product/priv-app /system/priv-app /system/system_ext/app /system/system_ext/priv-app /system/vendor/app /system/vendor/priv-app"
-
+    print_line
+    print_var "brick_rescue" "disable_module_as_brick" "last_worked_target_list" "slay_mode" "system_app_paths"
+    print_line
 }
 
 preparation() {
@@ -110,9 +110,6 @@ preparation() {
         update_config_var "description" "$MODULE_PROP" "$DESCRIPTION"
         return 1
     fi
-
-    eco_init "$WEBUI_SAV_DIR"
-    > "$WEBUI_SAV"
 }
 
 mirror_make_node() {
@@ -367,14 +364,15 @@ module_status_update() {
 
     if [ -f "$MODULE_PROP" ]; then
         if [ $slain_apps_count -gt 0 ]; then
-            DESCRIPTION="🐦Done. $slain_apps_count APP(s) slain, $apps_not_found_count APP(s) not found, $total_apps_count APP(s) in total."
             if [ $apps_not_found_count -eq 0 ]; then
-                DESCRIPTION="🐦Cleared. $slain_apps_count APP(s) slain."
+                DESCRIPTION="✅All done! $slain_apps_count APP(s) slain."
+            else
+                DESCRIPTION="✅Done. $slain_apps_count APP(s) slain, $apps_not_found_count APP(s) not found, $total_apps_count APP(s) in total."
             fi
         else
             if [ $total_apps_count -gt 0 ]; then
                 if [ $duplicated_apps_count -gt 0 ]; then
-                    DESCRIPTION="🐦Done. $duplicated_apps_count APP(s) slain. $total_apps_count APP(s) not found."
+                    DESCRIPTION="✅Done. $duplicated_apps_count APP(s) slain."
                 else
                     DESCRIPTION="⌛Standby. $total_apps_count APP(s) not found."
                 fi
@@ -382,7 +380,7 @@ module_status_update() {
                 DESCRIPTION="❌No valid items found in target list!"
             fi
         fi
-        DESCRIPTION="[${DESCRIPTION} ⚙️Mode: ${slay_mode_desc}${desc_last_worked}, 🔮Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
+        DESCRIPTION="[${DESCRIPTION} ✨Mode: ${slay_mode_desc}${desc_last_worked}, 🔮Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
         update_config_var "description" "$MODULE_PROP" "$DESCRIPTION"
     fi
 
