@@ -365,7 +365,7 @@ module_status_update() {
     if [ -f "$MODULE_PROP" ]; then
         if [ $slain_apps_count -gt 0 ]; then
             if [ $apps_not_found_count -eq 0 ]; then
-                DESCRIPTION="✅All done! $slain_apps_count APP(s) slain."
+                DESCRIPTION="✅All done. $slain_apps_count APP(s) slain."
             else
                 DESCRIPTION="✅Done. $slain_apps_count APP(s) slain, $apps_not_found_count APP(s) not found, $total_apps_count APP(s) in total."
             fi
