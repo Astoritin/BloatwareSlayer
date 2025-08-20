@@ -46,15 +46,15 @@ Bloatware Slayer 通过 Magisk、KernelSU 和 APatch 的特定挂载方法，以
 > 例如`system_app_paths=/system/app /system/priv-app`
 8. **`auto_update_target_list`**：每次启动时是否更新 target.conf 中的项目为预装应用所在路径，默认情况下为`true`(启用)以加快下次系统的启动速度。
 > 如果你不希望自己在 `target.conf` 中编辑的内容(例如注释或者保留未找到的项目)被模块自动更新覆盖掉，则可以设定为`false`。
-9. **`update_desc_on_action`**：实时更新 Magisk 和 Zygisk Next 的遵守排除列表的功能启用状态，以及在模块被禁用/卸载时更新模块状态描述，默认情况下为`true`(启用)。
+9. ~~**`update_desc_on_action`**：实时更新 Magisk 和 Zygisk Next 的遵守排除列表的功能启用状态，以及在模块被禁用/卸载时更新模块状态描述，默认情况下为`true`(启用)。~~
 
 ## 常见问题
 请参阅 [Q&A](Q&A_ZH-CN.md) 。
 
 ## 日志
-日志被保存在 `/data/adb/bloatwareslayer/logs`，你可以查看它并在反馈遇到的问题时提交该日志。
+日志被保存在 `/data/adb/bloatwareslayer/logs`。
 
-**反馈问题时，请直接打包整个logs文件夹后上传。**
+**反馈问题时，请直接打包整个`bloatwareslayer`文件夹后上传。**
 
 ## 救砖
 Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会自动禁用模块的挂载功能并自动重启。重启后，你会在模块状态上看见相应信息，请自行调整 `target.conf` ，删除不该被禁用的项目后重新启动
@@ -63,16 +63,16 @@ Bloatware Slayer 内置救砖机制，当检测到手机启动时间过长，会
 
 ## 经过测试的ROM
 1. 小米澎湃系统2.0.105.0，安卓15，设备：红米 Note 9 Pro 5G 8+256GB (设备代号gauguin，移植系统)
-- Root：Magisk Alpha 28102,28103,28104,29001
+- Root：Magisk Alpha 28102,28103,28104,29001,30200
 2. 小米MIUI12.5.4，安卓10，设备：红米 Note 7 Pro 6+128GB (设备代号violet，原厂系统)
-- Root：Magisk Alpha 28102,28103,29001
+- Root：Magisk Alpha 28102,28103,29001,30200
 3. DroidUI-X，安卓14，设备：红米 Note 7 Pro 6+128GB (设备代号violet，类原生系统)
 - Root: KernelSU with Magic Mount 1.0.3
 - Root: KernelSU with OverlayFS 0.9.5
 4. Flyme 8.0.5.0A, 安卓7.1.2, 设备: 魅蓝 Note 6 4+64GB (设备代号m1721, 原厂系统)
-- Root: Magisk Lite 25205
+- Root: Magisk Lite 25205, Magisk Alpha 30200
 5. Derpfest 15.1 Stable，安卓15，设备：红米 Note 7 Pro 6+128GB (设备代号violet，类原生系统)
-- Root: Magisk Alpha 28103,28104,29001
+- Root: Magisk Alpha 28103,28104,29001,30200
 
 ## 帮助与支持
 - 如果遇到问题，请点击 [此处](https://github.com/Astoritin/BloatwareSlayer/issues) 提交反馈

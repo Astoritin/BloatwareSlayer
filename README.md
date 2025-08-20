@@ -46,7 +46,7 @@ In `settings.conf`, the default value of Bloatware Slayer is `MB` (Mount Bind), 
 > For example: `system_app_paths=/system/app /system/priv-app`.
 8. **`auto_update_target_list`**: Control the behavior whether to update the items in `target.conf` to the paths of bloatwares apps during each boot. By default, it is set to `true` (enabled) to speed up system boot.
 > If you prefer to keep your custom comments or retain items in `target.conf` that were not found by the module, you can set this to `false`.
-9. **`update_desc_on_action`**: Updates the module status description with denylist enforcing status of Magisk and Zygisk Next, and the status when the module is disabled or uninstalled. It is set to `true`(enable) by default.
+9. ~~**`update_desc_on_action`**: Updates the module status description with denylist enforcing status of Magisk and Zygisk Next, and the status when the module is disabled or uninstalled. It is set to `true`(enable) by default.~~
 
 ## Frequently Asked Questions
 Please read [Q&A](Q&A.md).
@@ -54,7 +54,7 @@ Please read [Q&A](Q&A.md).
 ## Logs
 Logs are saved in `/data/adb/bloatwareslayer/logs`, you can review them and submit them when reporting issues. 
 
-**When reporting issues, please simply zip the entire logs folder and upload it.**
+**When reporting issues, please simply zip the entire `bloatwareslayer` folder and upload it.**
 
 ## Unbrick
 Bloatware Slayer has a built-in brick recovery method. If the device takes too long to boot, it will automatically disable the module's mounting functionality and reboot.
@@ -64,16 +64,16 @@ The default wait time is 300 seconds (5 minutes), meaning Bloatware Slayer will 
 
 ## Tested ROMs
 1. Xiaomi HyperOS 2.0.105.0, Android 15, Device: Redmi Note 9 Pro 5G 8+256GB (gauguin, ported ROM)
-- Root: Magisk Alpha 28102,28103,28104,29001
+- Root: Magisk Alpha 28102,28103,28104,29001,30200
 2. Xiaomi MIUI 12.5.4, Android 10, Device: Redmi Note 7 Pro 6+128GB (violet, stock ROM)
-- Root: Magisk Alpha 28102,28103,29001
+- Root: Magisk Alpha 28102,28103,29001,30200
 3. DroidUI-X，Android 14，Device：Redmi Note 7 Pro 6+128GB (violet，AOSP based ROM)
 - Root: KernelSU with Magic Mount 1.0.3
 - Root: KernelSU with OverlayFS 0.9.5
 4. Flyme 8.0.5.0A, Android 7.1.2, Device: Meizu M6 Note 4+64GB (m1721, stock ROM)
 - Root: Magisk Lite 25205
 5. Derpfest 15.1 Stable, Android 15, Device: Redmi Note 7 Pro 6+128GB (violet, AOSP based ROM)
-- Root: Magisk Alpha 28103,28104,29001
+- Root: Magisk Alpha 28103,28104,29001,30200
 
 ## Help and Support
 - If you encounter any problems, please [click here](https://github.com/Astoritin/BloatwareSlayer/issues) to submit feedback.
