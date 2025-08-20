@@ -108,7 +108,7 @@ preparation() {
         eco "Target list does NOT exist" "F"
         DESCRIPTION="[❌Target list file does NOT exist! 🔮Root: $ROOT_SOL_DETAIL] $MOD_INTRO"
         update_config_var "description" "$MODULE_PROP" "$DESCRIPTION"
-        return 1
+        exit 1
     fi
 }
 
@@ -360,6 +360,7 @@ module_status_update() {
     fi
 
     desc_last_worked=""
+    no_effect=false
     [ "$rescue_from_last_worked_target_list" = true ] && desc_last_worked=" (last worked)"
 
     if [ -f "$MODULE_PROP" ]; then
@@ -375,12 +376,15 @@ module_status_update() {
                     DESCRIPTION="✅Done. $duplicated_apps_count APP(s) slain."
                 else
                     DESCRIPTION="⌛Standby. $total_apps_count APP(s) not found."
+                    no_effect=true
                 fi
             else
                 DESCRIPTION="❌No valid items found in target list!"
+                no_effect=true
             fi
         fi
-        DESCRIPTION="[${DESCRIPTION} ✨Mode: ${slay_mode_desc}${desc_last_worked}, 🔮Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
+        [ "$no_effect" = false ] && DESCRIPTION="[${DESCRIPTION} ✨Mode: ${slay_mode_desc}${desc_last_worked}, 🔮Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
+        [ "$no_effect" = true ] && DESCRIPTION="[${DESCRIPTION} 🔮Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
         update_config_var "description" "$MODULE_PROP" "$DESCRIPTION"
     fi
 
@@ -392,8 +396,7 @@ show_system_info >> "$LOG_FILE"
 print_line
 config_loader
 unbrick
-preparation
-bloatware_slayer
+preparation && bloatware_slayer
 module_status_update
 print_line
 eco "Case closed!"
