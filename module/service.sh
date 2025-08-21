@@ -107,14 +107,15 @@ if [ "$slay_mode" = "MB" ] && [ "$mb_umount_bind" = true ]; then
                     ;;
             esac
 
+            TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT + 1))
+
             case "$package" in
                 *.apex|*.capex)
-                    eco "Skip processing apex/capex package $package" "*"
-                    break
+                    eco "Skip processing $package" "*"
+                    continue
                     ;;
             esac
 
-            TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT + 1))
             eco "Process $package"
             umount -f $package
             result_umount=$?
