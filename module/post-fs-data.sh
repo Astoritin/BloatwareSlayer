@@ -339,6 +339,8 @@ bloatware_slayer() {
 
 module_status_update() {
 
+    mb_call=false
+
     apps_not_found_count=$((total_apps_count - slain_apps_count - duplicated_apps_count))
     print_line
     eco "Total: $total_apps_count APP(s)"
@@ -349,7 +351,7 @@ module_status_update() {
     eco "Not found: $apps_not_found_count APP(s)"
     eco "Duplicate: $duplicated_apps_count APP(s)"
 
-    [ $mb_count -gt 0 ] && slay_mode_desc="Mount Bind"
+    [ $mb_count -gt 0 ] && slay_mode_desc="Mount Bind" && mb_call=true
     [ $mr_count -gt 0 ] && slay_mode_desc="Magisk Replace"
     [ $mn_count -gt 0 ] && slay_mode_desc="Make Node"
 
@@ -386,6 +388,7 @@ module_status_update() {
         [ "$no_effect" = false ] && DESCRIPTION="[${DESCRIPTION} ✨Mode: ${slay_mode_desc}${desc_last_worked}, 🔮Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
         [ "$no_effect" = true ] && DESCRIPTION="[${DESCRIPTION} 🔮Root: ${ROOT_SOL_DETAIL}] $MOD_INTRO"
         update_config_var "description" "$MODULE_PROP" "$DESCRIPTION"
+        update_config_var "mb_call" "$CONFIG_FILE" "$mb_call"
     fi
 
 }

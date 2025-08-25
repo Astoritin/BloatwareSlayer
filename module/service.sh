@@ -29,8 +29,9 @@ config_loader() {
     slay_mode=$(get_config_var "slay_mode" "$CONFIG_FILE") || slay_mode=MB
     mb_umount_bind=$(get_config_var "mb_umount_bind" "$CONFIG_FILE") || mb_umount_bind=true
     auto_update_target_list=$(get_config_var "auto_update_target_list" "$CONFIG_FILE") || auto_update_target_list=true
+    mb_call=$(get_config_var "mb_call" "$CONFIG_FILE") || mb_call=false
     print_line
-    print_var "brick_rescue" "brick_timeout" "disable_module_as_brick" "last_worked_target_list" "slay_mode" "mb_umount_bind" "auto_update_target_list"
+    print_var "brick_rescue" "brick_timeout" "disable_module_as_brick" "last_worked_target_list" "slay_mode" "mb_umount_bind" "auto_update_target_list" "mb_call"
     print_line
 
 }
@@ -82,55 +83,60 @@ eco "Remove flag bricked"
 
 if [ "$slay_mode" = "MB" ] && [ "$mb_umount_bind" = true ]; then
     print_line
-    eco "Unmount bind points"
-    print_line
-    if [ ! -f "$TARGET_LIST_BSA" ]; then
-        eco "$TARGET_LIST_BSA does NOT exist, skip unmounting" "W"
-    else
-        TOTAL_APPS_COUNT=0
-        UMOUNT_APPS_COUNT=0
-        while IFS= read -r line || [ -n "$line" ]; do
-            line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-            first_char=$(printf '%s' "$line" | cut -c1)
-
-            [ -z "$line" ] && continue
-            [ "$first_char" = "#" ] && continue
-
-            package=$(echo "$line" | cut -d '#' -f1)
-            package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-            
-            [ -z "$package" ] && continue
-            
-            case "$package" in
-                *\\*)
-                    package=$(echo "$package" | sed -e 's/\\/\//g')
-                    ;;
-            esac
-
-            TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT + 1))
-
-            case "$package" in
-                *.apex|*.capex)
-                    eco "Skip processing $package" "*"
-                    continue
-                    ;;
-            esac
-
-            eco "Process $package"
-            umount -f $package
-            result_umount=$?
-            eco "umount -f $package ($result_umount)"
-            app_name="$(basename "$package")"
-            if [ $result_umount -eq 0 ]; then
-                UMOUNT_APPS_COUNT=$((UMOUNT_APPS_COUNT + 1))
-                eco "$app_name has been unmounted" ">"
-            fi
-
-        done < "$TARGET_LIST_BSA"
+    if [ "$mb_call" = false ]; then
+        eco "No target using Mount Bind mode"
+        eco "Skip unmounting"
+    elif [ "$mb_call" = true ]; then
+        eco "Unmount bind points"
         print_line
-        eco "Total: $TOTAL_APPS_COUNT APP(s)"
-        eco "Unmount: $UMOUNT_APPS_COUNT APP(s)"
-        print_line
+        if [ ! -f "$TARGET_LIST_BSA" ]; then
+            eco "$TARGET_LIST_BSA does NOT exist, skip unmounting" "W"
+        else
+            TOTAL_APPS_COUNT=0
+            UMOUNT_APPS_COUNT=0
+            while IFS= read -r line || [ -n "$line" ]; do
+                line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+                first_char=$(printf '%s' "$line" | cut -c1)
+
+                [ -z "$line" ] && continue
+                [ "$first_char" = "#" ] && continue
+
+                package=$(echo "$line" | cut -d '#' -f1)
+                package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+                
+                [ -z "$package" ] && continue
+                
+                case "$package" in
+                    *\\*)
+                        package=$(echo "$package" | sed -e 's/\\/\//g')
+                        ;;
+                esac
+
+                TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT + 1))
+
+                case "$package" in
+                    *.apex|*.capex)
+                        eco "Skip processing $package" "*"
+                        continue
+                        ;;
+                esac
+
+                eco "Process $package"
+                umount -f $package
+                result_umount=$?
+                eco "umount -f $package ($result_umount)"
+                app_name="$(basename "$package")"
+                if [ $result_umount -eq 0 ]; then
+                    UMOUNT_APPS_COUNT=$((UMOUNT_APPS_COUNT + 1))
+                    eco "$app_name has been unmounted" ">"
+                fi
+
+            done < "$TARGET_LIST_BSA"
+            print_line
+            eco "Total: $TOTAL_APPS_COUNT APP(s)"
+            eco "Unmount: $UMOUNT_APPS_COUNT APP(s)"
+            print_line
+        fi
     fi
 fi
 if [ "$last_worked_target_list" = true ]; then
@@ -148,5 +154,6 @@ if [ "$auto_update_target_list" = true ]; then
 fi
 eco "Cleanup temporary file"
 rm -f "$TARGET_LIST_BSA"
+# remove_config_var "mb_call" "$CONFIG_FILE"
 print_line
 eco "Case closed!"
