@@ -81,64 +81,60 @@ eco "Boot complete! Countdown: ${brick_timeout}s"
 rm -f "$FLAG_BRICKED"
 eco "Remove flag bricked"
 
-if [ "$slay_mode" = "MB" ] && [ "$mb_umount_bind" = true ]; then
+if [ "$mb_call" = true ] && [ "$mb_umount_bind" = true ]; then
     print_line
-    if [ "$mb_call" = false ]; then
-        eco "No target using Mount Bind mode"
-        eco "Skip unmounting"
-    elif [ "$mb_call" = true ]; then
-        eco "Unmount bind points"
+    eco "Unmount bind points"
+    if [ ! -f "$TARGET_LIST_BSA" ]; then
+        eco "$TARGET_LIST_BSA does NOT exist, skip unmounting" "W"
+    else
+        TOTAL_APPS_COUNT=0
+        UMOUNT_APPS_COUNT=0
+        while IFS= read -r line || [ -n "$line" ]; do
+            line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            [ -z "$line" ] && continue
+
+            first_char=$(printf '%s' "$line" | cut -c1)
+            [ "$first_char" = "#" ] && continue
+
+            package=$(echo "$line" | cut -d '#' -f1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+            [ -z "$package" ] && continue
+            
+            case "$package" in
+                *\\*)
+                    package=$(echo "$package" | sed -e 's/\\/\//g')
+                    ;;
+            esac
+
+            TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT + 1))
+
+            case "$package" in
+                *.apex|*.capex)
+                    eco "Skip processing $package" "*"
+                    continue
+                    ;;
+            esac
+
+            eco "Process $package"
+            umount -f $package
+            result_umount=$?
+            eco "umount -f $package ($result_umount)"
+            app_name="$(basename "$package")"
+            if [ $result_umount -eq 0 ]; then
+                UMOUNT_APPS_COUNT=$((UMOUNT_APPS_COUNT + 1))
+                eco "$app_name has been unmounted" ">"
+            fi
+        done < "$TARGET_LIST_BSA"
         print_line
-        if [ ! -f "$TARGET_LIST_BSA" ]; then
-            eco "$TARGET_LIST_BSA does NOT exist, skip unmounting" "W"
-        else
-            TOTAL_APPS_COUNT=0
-            UMOUNT_APPS_COUNT=0
-            while IFS= read -r line || [ -n "$line" ]; do
-                line=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-                first_char=$(printf '%s' "$line" | cut -c1)
-
-                [ -z "$line" ] && continue
-                [ "$first_char" = "#" ] && continue
-
-                package=$(echo "$line" | cut -d '#' -f1)
-                package=$(echo "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-                
-                [ -z "$package" ] && continue
-                
-                case "$package" in
-                    *\\*)
-                        package=$(echo "$package" | sed -e 's/\\/\//g')
-                        ;;
-                esac
-
-                TOTAL_APPS_COUNT=$((TOTAL_APPS_COUNT + 1))
-
-                case "$package" in
-                    *.apex|*.capex)
-                        eco "Skip processing $package" "*"
-                        continue
-                        ;;
-                esac
-
-                eco "Process $package"
-                umount -f $package
-                result_umount=$?
-                eco "umount -f $package ($result_umount)"
-                app_name="$(basename "$package")"
-                if [ $result_umount -eq 0 ]; then
-                    UMOUNT_APPS_COUNT=$((UMOUNT_APPS_COUNT + 1))
-                    eco "$app_name has been unmounted" ">"
-                fi
-
-            done < "$TARGET_LIST_BSA"
-            print_line
-            eco "Total: $TOTAL_APPS_COUNT APP(s)"
-            eco "Unmount: $UMOUNT_APPS_COUNT APP(s)"
-            print_line
-        fi
+        eco "Total: $TOTAL_APPS_COUNT APP(s)"
+        eco "Unmount: $UMOUNT_APPS_COUNT APP(s)"
+        print_line
     fi
+else
+    [ "$mb_call" = false ] && eco "No items uses Mount Bind method"
+    [ "$mb_umount_bind" = false ] && eco "Umount point by mount bind is disabled"
+    eco "Skip umounting"
 fi
+
 if [ "$last_worked_target_list" = true ]; then
     eco "Backup last worked target list"
     [ ! -d "$LAST_WORKED_DIR" ] && mkdir -p "$LAST_WORKED_DIR"
@@ -154,6 +150,6 @@ if [ "$auto_update_target_list" = true ]; then
 fi
 eco "Cleanup temporary file"
 rm -f "$TARGET_LIST_BSA"
-# remove_config_var "mb_call" "$CONFIG_FILE"
+remove_config_var "mb_call" "$CONFIG_FILE"
 print_line
 eco "Case closed!"
