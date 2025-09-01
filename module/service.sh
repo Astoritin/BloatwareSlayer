@@ -151,7 +151,5 @@ fi
 eco "Cleanup temporary file"
 rm -f "$TARGET_LIST_BSA"
 remove_config_var "mb_call" "$CONFIG_FILE"
-debug_remove_config_var=$?
-eco "drc = $?"
 print_line
 eco "Case closed!"

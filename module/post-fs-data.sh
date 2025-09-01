@@ -90,7 +90,11 @@ preparation() {
             MN_SUPPORT=true
         else
             MN_SUPPORT=false
-            [ "$slay_mode" = "MN" ] && slay_mode="MR"
+            if [ "$slay_mode" = "MN" ]; then
+                eco "Make Node support is NOT present"
+                eco "Turn back to Magisk Replace mode"
+                slay_mode="MR"
+            fi
         fi
         eco "Magisk Replace support is present"
         MR_SUPPORT=true

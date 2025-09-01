@@ -278,10 +278,8 @@ remove_config_var() {
     file_path="$2"
 
     if [ -z "$key_name" ] || [ -z "$file_path" ]; then
-        eco "1: $key_name | $file_path"
         return 1
     elif [ ! -f "$file_path" ]; then
-        eco "2: $file_path"
         return 2
     fi
 
