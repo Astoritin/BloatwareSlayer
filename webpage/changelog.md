@@ -1,16 +1,14 @@
 ## Bloatware Slayer / 干掉预装软件
 A Magisk module to remove bloatware systemlessly / 一个无需修改 system 分区即可移除预装软件的 Magisk 模块
 
-### 1.4.5
+### 1.4.6
 
-- Fix an issue which caused default value does not take effect
-- Fix a display error as rebooting forcefully
-- Fix status display issue as module taking no effect
+- Optimize umount logic: skip processing umount for apex/capex apps
+- Optimize umount logic: now umount processing depends on the real using mode instead of the slay mode value of settings.conf
 - Optimize minor code
-- Remove unstable items in default `target.conf`
+- Add back /META-INF to fix the compatibility of KernelSU/APatch
 ---
-- 修复一个问题，该问题曾导致默认值不生效
-- 修复强制重启后的显示错误
-- 修复模块不生效时的信息展示问题
+- 优化umount逻辑：不再处理apex/capex条目
+- 优化umount逻辑：现在umount将根据实际使用的模式自行判断，而不是settings.conf中slay_mode的值
 - 优化少量代码
-- 移除默认的 `target.conf` 中不稳定的项目
+- 重新添加 /META-INF 以修复 KernelSU/APatch 的兼容性
