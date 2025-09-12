@@ -1,7 +1,7 @@
 #!/system/bin/sh
 MODDIR=${0%/*}
 
-CONFIG_DIR="/data/adb/bloatwareslayer"
+CONFIG_DIR="/data/adb/bloatware_slayer"
 
 MOD_INTRO="Remove bloatwares systemlessly"
 SEPARATE_LINE="---------------------------------------------"

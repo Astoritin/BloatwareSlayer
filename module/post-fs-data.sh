@@ -3,7 +3,7 @@ MODDIR=${0%/*}
 
 . "$MODDIR/wanderer.sh"
 
-CONFIG_DIR="/data/adb/bloatwareslayer"
+CONFIG_DIR="/data/adb/bloatware_slayer"
 
 CONFIG_FILE="$CONFIG_DIR/settings.conf"
 TARGET_LIST="$CONFIG_DIR/target.conf"

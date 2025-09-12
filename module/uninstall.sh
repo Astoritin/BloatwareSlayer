@@ -1,1 +1,1 @@
-rm -rf /data/adb/bloatwareslayer
+rm -rf /data/adb/bloatware_slayer
