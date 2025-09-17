@@ -87,9 +87,7 @@ eco_clean() {
 
     files_count=$(ls -1 "$log_dir" | wc -l)
     if [ "$files_count" -gt "$files_max" ]; then
-        ls -1t "$log_dir" | tail -n +$((files_max + 1)) | while read -r file; do
-            rm -f "$log_dir/$file"
-        done
+        find "$log_dir" -maxdepth 1 -type f -exec rm -f {} +
     fi
     return 0
 }
