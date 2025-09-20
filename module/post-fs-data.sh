@@ -397,6 +397,7 @@ module_status_update() {
 
 }
 
+[ -d "$LOG_DIR" ] && eco_clean "$LOG_DIR"
 eco_init "$LOG_DIR"
 module_intro >> "$LOG_FILE"
 show_system_info >> "$LOG_FILE"
