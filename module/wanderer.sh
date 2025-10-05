@@ -83,7 +83,7 @@ eco_clean() {
     files_max="$2"
     
     [ -z "$log_dir" ] || [ ! -d "$log_dir" ] && return 1
-    [ -z "$files_max" ] && files_max=30
+    [ -z "$files_max" ] && files_max=20
 
     files_count=$(ls -1 "$log_dir" | wc -l)
     if [ "$files_count" -gt "$files_max" ]; then
@@ -253,7 +253,7 @@ update_config_var() {
     expected_value="$3"
     append_mode="${4:-false}"
 
-    if [ -z "$key_name" ] || [ -z "$expected_value" ] || [ -z "$file_path" ]; then
+    if [ -z "$key_name" ] || [ -z "$file_path" ]; then
         return 1
     elif [ ! -f "$file_path" ]; then
         return 2
